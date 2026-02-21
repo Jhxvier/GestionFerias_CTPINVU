@@ -152,7 +152,6 @@
         color: var(--muted);
     }
 
-    /* Vista estudiante */
     .tarjeta-estudiante {
         border: 1px solid var(--line);
         border-radius: 22px;
@@ -207,10 +206,9 @@
             </a>
         </div>
 
-        <!-- ===== Vista Admin/Coordinador/Tutor ===== -->
         <div class="card tarjeta-ui mt-3">
 
-            <!-- Filtros (solo UI) -->
+            <!-- Filtros -->
             <div class="p-3 zona-filtros">
                 <div class="row g-2 align-items-end">
 
@@ -264,30 +262,23 @@
                         <tbody>
                             @foreach (var item in Model)
                             {
-                                // Variables UI (ajusta las rutas según tus entidades reales)
                                 var idInscripcion = item.InscripcionId;
                                 var nombreEvento = item.Evento?.NombreEvento ?? $"Evento #{item.EventoId}";
                                 var tituloProyecto = item.TituloProyecto ?? "—";
-
-                                // Líder (por ahora: ID; luego puedes mostrar Persona)
                                 var idLider = item.LiderUsuarioId;
                                 var textoLider = item.LiderUsuario != null
                                 ? $"Líder ID: {item.LiderUsuario.UsuarioId}"
                                 : $"Líder ID: {idLider}";
-
-                                // Subcategoría (por ahora: ID; luego puedes mostrar nombre)
                                 var textoSubcategoria = item.Subcategoria != null
                                 ? $"Subcat #{item.Subcategoria.SubcategoriaId}"
                                 : $"Subcat #{item.SubcategoriaId}";
 
-                                // Tutor (puede venir null)
                                 var textoTutor = item.TutorUsuarioId == null
                                 ? "— (sin asignar)"
                                 : (item.TutorUsuario != null
                                 ? $"Tutor ID: {item.TutorUsuario.UsuarioId}"
                                 : $"Tutor ID: {item.TutorUsuarioId}");
 
-                                // Estado badge
                                 var estado = item.EstadoInscripcion?.ToString() ?? "Pendiente";
                                 var claseEstado = estado == "Aprobado"
                                 ? "estado-aprobado"
@@ -331,12 +322,12 @@
                 </div>
 
                 <div class="nota-ui">
-                    * “Gestionar” (Admin/Coordinador/Tutor) puede permitir: asignar tutor y cambiar estado + observaciones.
+                    * “Gestionar” (Admin/Coordinador/Tutor) puede permitir: asignar tutor y cambiar estado.
                 </div>
             </div>
         </div>
 
-        <!-- ===== Vista Estudiante (UI demostrativa) ===== -->
+        <!-- ===== Vista del estudiante  ===== -->
         <div class="card tarjeta-ui mt-3">
             <div class="p-3">
 
@@ -345,7 +336,6 @@
                         <div class="fw-semibold">Mi inscripción</div>
 
                         @{
-                            // UI: usamos la primera inscripción como ejemplo
                             var primera = Model.FirstOrDefault();
                             var estadoEst = primera?.EstadoInscripcion?.ToString() ?? "Pendiente";
                             var claseEst = estadoEst == "Aprobado"
@@ -366,7 +356,7 @@
                             var eventoEst = ins?.Evento?.NombreEvento ?? "—";
                             var subEst = ins?.Subcategoria != null ? $"Subcat #{ins.Subcategoria.SubcategoriaId}" : "—";
                             var tutorEst = ins?.TutorUsuarioId == null ? "— (sin asignar)" : $"Tutor ID: {ins.TutorUsuarioId}";
-                            var integrantesEst = "Líder + integrante 1 + integrante 2"; // UI (luego: inscripcion_integrantes)
+                            var integrantesEst = "Líder + integrante 1 + integrante 2";
                             var detalleEst = ins?.DescripcionProyecto ?? "Descripción breve del proyecto…";
                         }
 

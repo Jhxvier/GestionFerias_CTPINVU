@@ -1,56 +1,225 @@
-﻿@model GestionFerias_CTPINVU.Models.ResultadosEvento
-
-@{
-    ViewData["Title"] = "Create";
+﻿@{
+    ViewData["Title"] = "Colocar calificaciones / resultados";
 }
 
-<h1>Create</h1>
+<style>
+    :root {
+        --rojo: #BF1D1A;
+        --verde: #6A9A2C;
+        --amarillo: #F2B705;
+        --naranja: #CB6021;
+        --line: #e5e5e5;
+        --muted: #666;
+        --card: #ffffff;
+        --bg: #fafafa;
+    }
 
-<h4>ResultadosEvento</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="EventoId" class="control-label"></label>
-                <select asp-for="EventoId" class ="form-control" asp-items="ViewBag.EventoId"></select>
+    .resultados-contenedor {
+        padding: 22px 0 10px;
+    }
+
+    .resultados-encabezado h2 {
+        margin: 0;
+        font-weight: 700;
+    }
+
+    .resultados-encabezado p {
+        margin: .35rem 0 0;
+        color: var(--muted);
+    }
+
+    .resultados-tarjeta {
+        margin-top: 14px;
+        background: var(--card);
+        border-radius: 22px;
+        box-shadow: 0 10px 30px rgba(0,0,0,.08);
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,.03);
+    }
+
+    .resultados-tarjeta-top {
+        background: linear-gradient(90deg,var(--verde), #4c7e1e);
+        color: #fff;
+        padding: 14px 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .tag {
+        font-size: .85rem;
+        opacity: .95;
+        padding: .35rem .7rem;
+        border: 1px solid rgba(255,255,255,.35);
+        border-radius: 999px;
+        background: rgba(255,255,255,.12);
+    }
+
+    .resultados-form {
+        padding: 16px;
+        background: var(--bg);
+    }
+
+    .bloque {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 14px;
+    }
+
+        .bloque + .bloque {
+            margin-top: 12px;
+        }
+
+    .bloque-titulo {
+        margin: 0 0 12px 0;
+        font-size: .95rem;
+        font-weight: 800;
+        color: var(--naranja);
+    }
+
+    .bloque-ganadores {
+        border: 2px dashed var(--amarillo);
+        background: #fffbe6;
+    }
+
+    .control-label {
+        font-size: .9rem;
+        color: var(--muted);
+        margin-bottom: 6px;
+    }
+
+    .nota-ayuda {
+        font-size: .85rem;
+        color: var(--muted);
+        margin-top: 10px;
+    }
+
+    .acciones {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 14px;
+    }
+
+    .btn-redondeado {
+        border-radius: 14px !important;
+        padding: .6rem 1rem !important;
+        font-weight: 700;
+    }
+
+    .btn-publicar {
+        background: var(--verde) !important;
+        border: 1px solid rgba(0,0,0,.10) !important;
+        color: #fff !important;
+    }
+
+    .btn-cancelar {
+        background: #fff !important;
+        border: 1px solid rgba(0,0,0,.15) !important;
+    }
+
+    .btn-publicar:hover {
+        filter: brightness(.97);
+    }
+</style>
+
+<div class="container-fluid resultados-contenedor">
+
+    <div class="resultados-encabezado">
+        <h2>Colocar calificaciones / resultados</h2>
+        <p>Selecciona el evento, define los ganadores y publica los resultados.</p>
+    </div>
+
+    <div class="resultados-tarjeta">
+
+        <div class="resultados-tarjeta-top">
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-trophy-fill"></i>
+                <span class="fw-semibold">Resultados del evento</span>
             </div>
-            <div class="form-group">
-                <label asp-for="JuezResponsableUsuarioId" class="control-label"></label>
-                <select asp-for="JuezResponsableUsuarioId" class ="form-control" asp-items="ViewBag.JuezResponsableUsuarioId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="ResolucionFinal" class="control-label"></label>
-                <input asp-for="ResolucionFinal" class="form-control" />
-                <span asp-validation-for="ResolucionFinal" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="FechaPublicacion" class="control-label"></label>
-                <input asp-for="FechaPublicacion" class="form-control" />
-                <span asp-validation-for="FechaPublicacion" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UsuarioCreacion" class="control-label"></label>
-                <input asp-for="UsuarioCreacion" class="form-control" />
-                <span asp-validation-for="UsuarioCreacion" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UsuarioModificacion" class="control-label"></label>
-                <input asp-for="UsuarioModificacion" class="form-control" />
-                <span asp-validation-for="UsuarioModificacion" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+            <span class="tag">Juez / Coordinador / Administrador</span>
+        </div>
+
+        <div class="resultados-form">
+            <form>
+
+                <div class="bloque">
+                    <h3 class="bloque-titulo">Evento</h3>
+
+                    <div class="row g-3">
+                        <div class="col-12 col-lg-6">
+                            <label class="form-label control-label">Evento a calificar</label>
+                            <select class="form-select">
+                                <option>Seleccione</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12 col-lg-6">
+                            <label class="form-label control-label">Juez responsable</label>
+                            <input class="form-control" type="text" value="(Autocompletado)" disabled />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bloque bloque-ganadores">
+                    <h3 class="bloque-titulo">Ganadores (Top 3)</h3>
+
+                    <div class="row g-3">
+
+                        <div class="col-12 col-lg-6">
+                            <label class="form-label control-label">1er lugar</label>
+                            <select class="form-select"></select>
+                        </div>
+                        <div class="col-12 col-lg-6">
+                            <label class="form-label control-label">Nota 1er lugar</label>
+                            <input class="form-control" type="number" min="0" max="100">
+                        </div>
+
+                        <div class="col-12 col-lg-6">
+                            <label class="form-label control-label">2do lugar</label>
+                            <select class="form-select"></select>
+                        </div>
+                        <div class="col-12 col-lg-6">
+                            <label class="form-label control-label">Nota 2do lugar</label>
+                            <input class="form-control" type="number" min="0" max="100">
+                        </div>
+
+                        <div class="col-12 col-lg-6">
+                            <label class="form-label control-label">3er lugar</label>
+                            <select class="form-select"></select>
+                        </div>
+                        <div class="col-12 col-lg-6">
+                            <label class="form-label control-label">Nota 3er lugar</label>
+                            <input class="form-control" type="number" min="0" max="100">
+                        </div>
+
+                    </div>
+
+                    <div class="nota-ayuda">
+                        Validar que no se repita la misma inscripción en las posiciones.
+                    </div>
+                </div>
+
+                <div class="bloque">
+                    <h3 class="bloque-titulo">Resolución final</h3>
+                    <textarea class="form-control" rows="5"></textarea>
+                </div>
+
+                <div class="acciones">
+                    <button type="button" class="btn btn-cancelar btn-redondeado">
+                        <i class="bi bi-x-circle"></i> Cancelar
+                    </button>
+
+                    <button type="button" class="btn btn-publicar btn-redondeado">
+                        <i class="bi bi-megaphone-fill"></i> Publicar resultados
+                    </button>
+                </div>
+
+            </form>
+        </div>
     </div>
 </div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}

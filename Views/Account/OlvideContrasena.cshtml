@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "Inicio de sesión";
+    ViewData["Title"] = "Olvidé mi contraseña";
     Layout = null;
 }
 
@@ -67,7 +67,7 @@
             padding: 44px 18px;
         }
 
-        .card-login {
+        .card-recuperar {
             width: 430px;
             max-width: 94vw;
             border-radius: 24px;
@@ -92,27 +92,22 @@
             border-radius: 16px;
         }
 
-        .btn-login {
+        .btn-send {
             background: var(--rojo);
             color: #fff;
             border: 1px solid rgba(0,0,0,.25);
         }
 
-            .btn-login:hover {
+            .btn-send:hover {
                 filter: brightness(.95);
                 color: #fff;
             }
 
-        .btn-alt {
-            background: var(--naranja);
-            color: #fff;
-            border: 1px solid rgba(0,0,0,.25);
+        .btn-back {
+            background: #fff;
+            color: #111;
+            border: 1px solid rgba(0,0,0,.18);
         }
-
-            .btn-alt:hover {
-                filter: brightness(.95);
-                color: #fff;
-            }
 
         a.link-rojo {
             color: var(--rojo);
@@ -132,7 +127,6 @@
 <body>
     <div class="frame">
 
-        <!-- Topbar -->
         <div class="topbar p-3 p-md-4">
             <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3">
                 <div class="d-flex align-items-center gap-3">
@@ -146,70 +140,57 @@
                         <div class="small opacity-75">CTP INVU Las Cañas</div>
                     </div>
                 </div>
-                <div class="pill"><i class="bi bi-shield-lock me-1"></i> Acceso al sistema</div>
+                <div class="pill"><i class="bi bi-envelope-lock me-1"></i> Recuperación</div>
             </div>
         </div>
 
-        <!-- Content -->
         <div class="content d-flex justify-content-center">
-            <div class="card card-login">
+            <div class="card card-recuperar">
+
                 <div class="card-top px-3 py-3">
-                    <div class="d-flex align-items-center gap-2">
-                        <i class="bi bi-person-lock fs-5"></i>
-                        <span class="fw-semibold">Inicio de sesión</span>
+                    <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-shield-lock fs-5"></i>
+                            <span class="fw-semibold">Olvidé mi contraseña</span>
+                        </div>
+                        <span class="small opacity-75">Contraseña temporal</span>
                     </div>
                 </div>
 
                 <div class="p-3 p-md-4">
-                    @if (TempData["ErrorLogin"] != null)
-                    {
-                        <div class="alert alert-danger mb-3">
-                            <i class="bi bi-exclamation-triangle me-1"></i>
-                            @TempData["ErrorLogin"]
-                        </div>
-                    }
 
                     <div class="info p-3 mb-3">
-                        Ingrese con su <strong>correo/usuario</strong> y <strong>contraseña</strong>.
-                        <div class="small mt-2">
-                            Para pruebas: <strong>admin@invu.cr</strong> / <strong>1234</strong>
+                        Digite su <strong>correo</strong>. Se enviará una <strong>contraseña temporal</strong>
+                        para que pueda ingresar y cambiarla.
+                        <div class="small mt-2 muted">
+                            Revise también <strong>Spam/No deseado</strong> si no le llega.
                         </div>
                     </div>
 
-
-
-                    <!-- Form (POST) -->
-                    <form asp-controller="Account" asp-action="Login" method="post" class="needs-validation" novalidate>
+                    <form method="post" action="#" class="needs-validation" novalidate>
                         <div class="mb-3">
-                            <label class="form-label small muted">Usuario o correo</label>
+                            <label class="form-label small muted">Correo institucional</label>
                             <div class="input-group">
-                                <span class="input-group-text bg-white"><i class="bi bi-person"></i></span>
-                                <input name="correo" type="text" class="form-control" placeholder="usuario@colegio.edu" required />
-                                <div class="invalid-feedback">Digite su usuario o correo.</div>
-                            </div>
-                        </div>
-
-                        <div class="mb-2">
-                            <label class="form-label small muted">Contraseña</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-white"><i class="bi bi-key"></i></span>
-                                <input name="clave" type="password" class="form-control" placeholder="••••••••" required />
-                                <div class="invalid-feedback">Digite su contraseña.</div>
+                                <span class="input-group-text bg-white"><i class="bi bi-envelope"></i></span>
+                                <input name="correo" type="email" class="form-control" placeholder="usuario@colegio.edu" required />
+                                <div class="invalid-feedback">Digite un correo válido.</div>
                             </div>
                         </div>
 
                         <div class="d-flex gap-2 flex-wrap mt-3">
-                            <button type="submit" class="btn btn-login flex-fill">
-                                <i class="bi bi-box-arrow-in-right me-1"></i> Ingresar
+                            <button type="submit" class="btn btn-send flex-fill">
+                                <i class="bi bi-send me-1"></i> Enviar contraseña temporal
                             </button>
-                            <button type="reset" class="btn btn-alt flex-fill">
-                                <i class="bi bi-eraser me-1"></i> Limpiar
-                            </button>
+
+                            <a class="btn btn-back flex-fill"
+                               asp-controller="Account" asp-action="Login">
+                                <i class="bi bi-arrow-left me-1"></i> Volver
+                            </a>
                         </div>
 
                         <div class="text-center mt-3">
-                            <a class="link-rojo small" asp-controller="Account" asp-action="OlvideContrasena">
-                                <i class="bi bi-question-circle me-1"></i> ¿Olvidó su contraseña?
+                            <a class="link-rojo small" asp-controller="Account" asp-action="Login">
+                                <i class="bi bi-box-arrow-in-right me-1"></i> Volver a iniciar sesión
                             </a>
                         </div>
 

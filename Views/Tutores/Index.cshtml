@@ -62,7 +62,6 @@
         color: #fff;
     }
 
-    /* Tabla estilo tarjetas */
     .tabla-ui {
         border-collapse: separate;
         border-spacing: 0 10px;
@@ -150,7 +149,7 @@
         <!-- Card -->
         <div class="card tarjeta-ui mt-3">
 
-            <!-- Filtros (solo UI) -->
+            <!-- Filtros -->
             <div class="p-3 zona-filtros">
                 <div class="row g-2 align-items-end">
 
@@ -196,11 +195,6 @@
                         <tbody>
                             @foreach (var item in Model)
                             {
-                                // ============================
-                                // Variables UI (en español)
-                                // Ajusta según tus entidades:
-                                // tutor -> usuario -> persona
-                                // ============================
                                 var documento = item.Usuario?.Persona?.Documento ?? "—";
                                 var nombres = item.Usuario?.Persona?.Nombres ?? "—";
                                 var apellidos = item.Usuario?.Persona?.Apellidos ?? "—";
@@ -230,7 +224,6 @@
 
                                     <td class="text-end">
                                         <div class="d-inline-flex gap-2 flex-wrap justify-content-end">
-                                            <!-- PK real: tutores.usuario_id -->
                                             <a asp-action="Edit"
                                                asp-route-id="@item.UsuarioId"
                                                class="btn-accion btn-editar">

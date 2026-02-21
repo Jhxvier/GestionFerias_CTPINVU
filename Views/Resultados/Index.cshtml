@@ -57,7 +57,6 @@
         height: 44px;
     }
 
-    /* Tabla estilo tarjetas */
     .tabla-ui {
         border-collapse: separate;
         border-spacing: 0 10px;
@@ -97,7 +96,6 @@
                 border-bottom-right-radius: 16px;
             }
 
-    /* Badges */
     .badge-estado {
         display: inline-block;
         padding: 6px 10px;
@@ -121,7 +119,6 @@
         color: var(--verde);
     }
 
-    /* Acciones */
     .btn-accion {
         padding: 8px 12px;
         border-radius: 14px;
@@ -166,7 +163,7 @@
         <!-- Card -->
         <div class="tarjeta-ui mt-3">
 
-            <!-- Filtros (solo UI) -->
+            <!-- Filtros-->
             <div class="zona-filtros">
                 <div class="row g-2 align-items-end">
 
@@ -213,18 +210,12 @@
                         <tbody>
                             @foreach (var item in Model)
                             {
-                                // ============================
-                                // Variables UI (en español)
-                                // Ajusta a tus propiedades reales
-                                // ============================
+
+
                                 var evento = item.Evento?.NombreEvento ?? "—";
 
-                                // Estado: Pendiente / Publicado (según tu BD: resultados_eventos.estado_resultados)
                                 var estado = item.EstadoResultados?.ToString() ?? "Pendiente";
                                 var claseEstado = (estado == "Publicado") ? "estado-publicado" : "estado-pendiente";
-
-                                // Ganadores: en tu BD están en resultados_ganadores (posicion 1,2,3)
-                                // Aquí lo dejamos UI (texto). Luego lo llenas con navegación/consulta.
                                 var primerLugar = "—";
                                 var segundoLugar = "—";
                                 var tercerLugar = "—";
@@ -247,11 +238,6 @@
                                                class="btn-accion btn-ver">
                                                 Ver
                                             </a>
-
-                                            <!-- SOLO JUEZ / ADMIN / COORDINADOR (render por rol) -->
-                                            @* Ejemplo futuro:
-                                               @if (User.IsInRole("Juez") || User.IsInRole("Administrador") || User.IsInRole("Coordinador")) { ... }
-                                            *@
                                             <a asp-action="Edit"
                                                asp-route-id="@item.ResultadoEventoId"
                                                class="btn-accion btn-gestionar">

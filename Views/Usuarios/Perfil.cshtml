@@ -47,7 +47,6 @@
         font-size: .85rem;
     }
 
-    /* ========= VISIBILIDAD POR ROL Y MODO ========= */
     .only-admin, .only-coord, .admin-or-coord {
         display: none;
     }
@@ -165,7 +164,6 @@
             <p class="mb-0 text-muted">Formulario único para crear/editar usuarios según permisos.</p>
         </div>
 
-        <!-- Controles solo para probar la UI (sin backend). Si no los quieres, bórralos. -->
         <div class="d-flex flex-wrap gap-2">
             <button type="button" class="btn btn-outline-secondary btn-sm" id="btnAdmin">Simular Admin</button>
             <button type="button" class="btn btn-outline-secondary btn-sm" id="btnCoord">Simular Coordinador</button>
@@ -269,7 +267,7 @@
                         <input class="form-control rounded-pill" type="email" placeholder="usuario@colegio.edu" />
                     </div>
 
-                    <!-- Correo visible pero BLOQUEADO para Coordinador (editar) -->
+                    <!-- Correo visible pero BLOQUEADO para Coordinador -->
                     <div class="col-12 col-lg-6 field-email-coord">
                         <label class="form-label small text-muted">Correo / Usuario (bloqueado para Coordinador)</label>
                         <input class="form-control rounded-pill" type="email" placeholder="usuario@colegio.edu" disabled />
@@ -277,7 +275,7 @@
                 </div>
             </div>
 
-            <!-- ====== ESPECÍFICOS POR ROL (UI) ====== -->
+            <!-- ====== ESPECÍFICOS POR ROL ====== -->
             <div class="section-box mb-3 extra-estudiante">
                 <h3 class="section-title">Datos específicos — Estudiante</h3>
                 <div class="row g-3">
@@ -314,12 +312,12 @@
 
             <div class="section-box mb-3 extra-juez">
                 <h3 class="section-title">Datos específicos — Juez</h3>
-                <p class="note mb-0">* (Opcional) Si agregas campos de juez en el futuro, van aquí.</p>
+                <p class="note mb-0">* (Opcional) Si se agrega campos de juez en el futuro, van aquí.</p>
             </div>
 
             <div class="section-box mb-3 extra-coord">
                 <h3 class="section-title">Datos específicos — Coordinador</h3>
-                <p class="note mb-0">* (Opcional) Si agregas campos de coordinador en el futuro, van aquí.</p>
+                <p class="note mb-0">* (Opcional) Si se agrega campos de coordinador en el futuro, van aquí.</p>
             </div>
 
             <!-- ====== SEGURIDAD (Admin al editar) ====== -->
@@ -389,12 +387,6 @@
 
 @section Scripts {
     <script>
-        // UI solo (sin backend): define cómo quieres verla al abrir
-        // Cambia estas clases para simular:
-        // role-admin / role-coord
-        // mode-create / mode-edit
-        // selected-estudiante / selected-tutor / selected-juez / selected-coord
-        // show-all-specific (solo prototipo)
         (function(){
             document.body.classList.add("role-admin", "mode-edit", "show-all-specific");
 

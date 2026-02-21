@@ -1,9 +1,6 @@
-﻿using GestionFerias_CTPINVU.Models;
-using GestionFerias_CTPINVU.Data;
-using Microsoft.AspNetCore.Http;
+﻿using GestionFerias_CTPINVU.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
 
 public class AccountController : Controller
 {
@@ -29,11 +26,17 @@ public class AccountController : Controller
         {
             HttpContext.Session.SetString("Usuario", usuario.Correo);
             HttpContext.Session.SetString("UsuarioId", usuario.UsuarioId.ToString());
-
             return RedirectToAction("Inicio", "Inicio");
         }
 
-        ViewBag.Error = "Correo o contraseña incorrectos.";
+        TempData["ErrorLogin"] = "Correo o contraseña incorrectos.";
+        TempData["CorreoLogin"] = correo;
+        return View();
+    }
+
+    [HttpGet]
+    public IActionResult OlvideContrasena()
+    {
         return View();
     }
 

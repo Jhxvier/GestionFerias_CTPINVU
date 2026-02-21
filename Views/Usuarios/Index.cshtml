@@ -4,14 +4,6 @@
     ViewData["Title"] = "Usuarios";
 }
 
-<!-- =========================================================
-PANTALLA: LISTA DE USUARIOS (SOLO UI)
-- Menú NO va aquí (ya está en _Layout)
-- Tabla con usuarios
-- Botón Crear nuevo
-- Acciones: Editar / Eliminar / Ver (opcional)
-========================================================= -->
-
 <style>
     :root {
         --rojo: #BF1D1A;
@@ -69,7 +61,6 @@ PANTALLA: LISTA DE USUARIOS (SOLO UI)
         color: #fff;
     }
 
-    /* Tabla estilo tarjetas */
     .tabla-ui {
         border-collapse: separate;
         border-spacing: 0 10px;
@@ -107,7 +98,6 @@ PANTALLA: LISTA DE USUARIOS (SOLO UI)
                 border-bottom-right-radius: 16px;
             }
 
-    /* Estado */
     .badge-estado {
         border-radius: 999px;
         padding: 6px 10px;
@@ -119,7 +109,6 @@ PANTALLA: LISTA DE USUARIOS (SOLO UI)
         white-space: nowrap;
     }
 
-    /* Acciones */
     .btn-accion {
         border-radius: 14px;
         border: 1px solid #000;
@@ -164,7 +153,7 @@ PANTALLA: LISTA DE USUARIOS (SOLO UI)
         <!-- Card -->
         <div class="card tarjeta-ui mt-3">
 
-            <!-- Filtros (solo UI) -->
+            <!-- Filtros-->
             <div class="p-3 zona-filtros">
                 <div class="row g-2 align-items-end">
 
@@ -207,21 +196,14 @@ PANTALLA: LISTA DE USUARIOS (SOLO UI)
                         <tbody>
                             @foreach (var item in Model)
                             {
-                                // ============================
-                                // Variables UI (en español)
-                                // Ajusta según tu entidad Usuario
-                                // BD: usuarios(correo, estado, ultimo_acceso)
-                                // Rol: viene de usuario_roles + roles (UI placeholder aquí)
-                                // ============================
                                 var correo = item.Correo ?? "—";
                                 var estado = item.Estado?.ToString() ?? "—";
 
-                                // Si tienes UltimoAcceso como DateTime?
                                 var ultimoAccesoTexto = item.UltimoAcceso != null
                                 ? item.UltimoAcceso.ToString()
                                 : "—";
 
-                                // Rol (placeholder UI). Luego lo conectas con Roles
+
                                 var rolTexto = "—";
 
                                 <tr>
@@ -246,7 +228,6 @@ PANTALLA: LISTA DE USUARIOS (SOLO UI)
                                     <td class="text-end">
                                         <div class="d-inline-flex gap-2 flex-wrap justify-content-end">
 
-                                            @* Opcional *@
                                             <a asp-action="Details"
                                                asp-route-id="@item.UsuarioId"
                                                class="btn-accion btn-ver">
@@ -280,10 +261,6 @@ PANTALLA: LISTA DE USUARIOS (SOLO UI)
                         </tbody>
 
                     </table>
-                </div>
-
-                <div class="text-secondary" style="font-size:12px; margin-top:10px;">
-                    * El campo “Rol” se puede completar cuando se cargue la relación Roles (usuario_roles / roles).
                 </div>
             </div>
 

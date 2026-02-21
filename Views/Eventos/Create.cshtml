@@ -1,72 +1,300 @@
 ﻿@model GestionFerias_CTPINVU.Models.Evento
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Crear evento";
+    var listaCentros = ViewBag.CentroId as IEnumerable<SelectListItem>;
 }
 
-<h1>Create</h1>
+<style>
+    :root {
+        --rojo: #BF1D1A;
+        --verde: #6A9A2C;
+        --amarillo: #F2B705;
+        --naranja: #CB6021;
+        --bg: #f4f4f4;
+        --card: #ffffff;
+        --line: #e5e5e5;
+        --text: #222;
+        --muted: #666;
+    }
 
-<h4>Evento</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="CodigoEvento" class="control-label"></label>
-                <input asp-for="CodigoEvento" class="form-control" />
-                <span asp-validation-for="CodigoEvento" class="text-danger"></span>
+    * {
+        box-sizing: border-box;
+    }
+
+    /* Contenedor principal de la vista */
+    .page-wrap {
+        max-width: 1200px;
+        margin: 22px auto;
+        padding: 0 8px;
+    }
+
+    .content {
+        padding: 26px;
+        background: #fafafa;
+        border-radius: 22px;
+        box-shadow: 0 10px 30px rgba(0,0,0,.06);
+        border: 1px solid rgba(0,0,0,.04);
+        min-height: 520px;
+    }
+
+    .header h2 {
+        margin: 0;
+        font-weight: normal;
+        color: var(--text);
+    }
+
+    .header p {
+        margin: 6px 0 0;
+        color: var(--muted);
+        font-size: 14px;
+    }
+
+    .card {
+        margin-top: 18px;
+        background: var(--card);
+        border-radius: 24px;
+        box-shadow: 0 6px 20px rgba(0,0,0,.06);
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,.04);
+    }
+
+    .card-top {
+        background: var(--verde);
+        color: #fff;
+        padding: 16px 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .mode {
+        background: rgba(255,255,255,.18);
+        border: 1px solid rgba(255,255,255,.35);
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+    }
+
+    .form {
+        padding: 20px;
+        background: #fff;
+    }
+
+    .section {
+        margin-bottom: 18px;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: #fff;
+    }
+
+    .section-title {
+        margin: 0 0 12px 0;
+        font-weight: normal;
+        font-size: 14px;
+        color: var(--naranja);
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+    }
+
+    .field label {
+        display: block;
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 6px;
+    }
+
+    .field input, .field select, .field textarea {
+        width: 100%;
+        padding: 11px 12px;
+        border-radius: 16px;
+        border: 1px solid var(--line);
+        background: #fff;
+        font-family: Arial, sans-serif;
+        outline: none;
+    }
+
+        .field input:focus, .field select:focus, .field textarea:focus {
+            border-color: rgba(191,29,26,.55);
+            box-shadow: 0 0 0 4px rgba(191,29,26,.10);
+        }
+
+    .field textarea {
+        min-height: 90px;
+        resize: none;
+    }
+
+    .text-danger {
+        font-size: 12px;
+        color: #b00020;
+        margin-top: 6px;
+        display: block;
+    }
+
+    .note {
+        margin-top: 12px;
+        font-size: 12px;
+        color: var(--muted);
+    }
+
+    .actions {
+        margin-top: 18px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .btnx {
+        padding: 10px 16px;
+        border-radius: 16px;
+        border: 1px solid rgba(0,0,0,.22);
+        font-size: 14px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        text-decoration: none;
+        user-select: none;
+    }
+
+        .btnx.cancel {
+            background: #fff;
+            color: #111;
+        }
+
+        .btnx.save {
+            background: var(--rojo);
+            color: #fff;
+            border-color: transparent;
+        }
+
+        .btnx.reset {
+            background: var(--naranja);
+            color: #fff;
+            border-color: transparent;
+        }
+
+    /* Responsive */
+    @@media (max-width: 900px) {
+        .content {
+            padding: 18px;
+        }
+
+        .grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="page-wrap">
+    <div class="content">
+        <div class="header">
+            <h2>Crear evento</h2>
+            <p>Complete la información del evento y seleccione el centro educativo.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-top">
+                <span>Formulario de evento</span>
+                <span class="mode">Modo: Crear</span>
             </div>
-            <div class="form-group">
-                <label asp-for="CentroId" class="control-label"></label>
-                <select asp-for="CentroId" class ="form-control" asp-items="ViewBag.CentroId"></select>
+
+            <div class="form">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="section">
+                        <h3 class="section-title">Datos del centro educativo</h3>
+                        <div class="grid">
+                            <div class="field" style="grid-column:1 / -1;">
+                                <label>Centro educativo</label>
+                                <select asp-for="CentroId" asp-items="listaCentros"></select>
+                                <span asp-validation-for="CentroId" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Datos del evento</h3>
+                        <div class="grid">
+                            <div class="field">
+                                <label>Código del evento</label>
+                                <input asp-for="CodigoEvento" />
+                                <span asp-validation-for="CodigoEvento" class="text-danger"></span>
+                            </div>
+
+                            <div class="field">
+                                <label>Nombre del evento</label>
+                                <input asp-for="NombreEvento" />
+                                <span asp-validation-for="NombreEvento" class="text-danger"></span>
+                            </div>
+
+                            <div class="field">
+                                <label>Tipo de evento</label>
+                                <input asp-for="TipoEvento" />
+                                <span asp-validation-for="TipoEvento" class="text-danger"></span>
+                            </div>
+
+                            <div class="field">
+                                <label>Estado</label>
+                                <select asp-for="EstadoEvento">
+                                    <option value="">Seleccione</option>
+                                    <option value="En proceso">En proceso</option>
+                                    <option value="Finalizado">Finalizado</option>
+                                    <option value="Cancelado">Cancelado</option>
+                                </select>
+                                <span asp-validation-for="EstadoEvento" class="text-danger"></span>
+                            </div>
+
+                            <div class="field">
+                                <label>Fecha de inicio</label>
+                                <input asp-for="FechaInicio" type="date" />
+                                <span asp-validation-for="FechaInicio" class="text-danger"></span>
+                            </div>
+
+                            <div class="field">
+                                <label>Fecha de finalización</label>
+                                <input asp-for="FechaFin" type="date" />
+                                <span asp-validation-for="FechaFin" class="text-danger"></span>
+                            </div>
+
+                            <div class="field" style="grid-column:1 / -1;">
+                                <label>Descripción</label>
+                                <textarea asp-for="Descripcion"></textarea>
+                                <span asp-validation-for="Descripcion" class="text-danger"></span>
+                            </div>
+
+                            <input asp-for="UsuarioCreacion" type="hidden" />
+                            <input asp-for="UsuarioModificacion" type="hidden" />
+                        </div>
+                    </div>
+
+                    <div class="note">
+                        * Puede validar luego: código único, campos obligatorios y fechas coherentes.
+                    </div>
+
+                    <div class="actions">
+                        <a class="btnx cancel" asp-action="Index">Cancelar</a>
+                        <button class="btnx reset" type="reset">Limpiar</button>
+                        <button class="btnx save" type="submit">Guardar</button>
+                    </div>
+                </form>
             </div>
-            <div class="form-group">
-                <label asp-for="NombreEvento" class="control-label"></label>
-                <input asp-for="NombreEvento" class="form-control" />
-                <span asp-validation-for="NombreEvento" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="TipoEvento" class="control-label"></label>
-                <input asp-for="TipoEvento" class="form-control" />
-                <span asp-validation-for="TipoEvento" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Descripcion" class="control-label"></label>
-                <input asp-for="Descripcion" class="form-control" />
-                <span asp-validation-for="Descripcion" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="FechaInicio" class="control-label"></label>
-                <input asp-for="FechaInicio" class="form-control" />
-                <span asp-validation-for="FechaInicio" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="FechaFin" class="control-label"></label>
-                <input asp-for="FechaFin" class="form-control" />
-                <span asp-validation-for="FechaFin" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UsuarioCreacion" class="control-label"></label>
-                <input asp-for="UsuarioCreacion" class="form-control" />
-                <span asp-validation-for="UsuarioCreacion" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UsuarioModificacion" class="control-label"></label>
-                <input asp-for="UsuarioModificacion" class="form-control" />
-                <span asp-validation-for="UsuarioModificacion" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

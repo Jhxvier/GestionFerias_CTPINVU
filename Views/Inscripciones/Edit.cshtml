@@ -1,79 +1,358 @@
 ﻿@model GestionFerias_CTPINVU.Models.Inscripcione
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Inscripción";
+    var listaEventos = ViewBag.EventoId as IEnumerable<SelectListItem>;
+    var listaCategorias = ViewBag.CategoriaId as IEnumerable<SelectListItem>;
+    var listaSubcategorias = ViewBag.SubcategoriaId as IEnumerable<SelectListItem>;
+    var listaTutores = ViewBag.TutorUsuarioId as IEnumerable<SelectListItem>;
 }
 
-<h1>Edit</h1>
+<style>
+    :root {
+        --rojo: #BF1D1A;
+        --verde: #6A9A2C;
+        --amarillo: #F2B705;
+        --naranja: #CB6021;
+        --bg: #f4f4f4;
+        --card: #ffffff;
+        --line: #e5e5e5;
+        --text: #222;
+        --muted: #666;
+    }
 
-<h4>Inscripcione</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="InscripcionId" />
-            <div class="form-group">
-                <label asp-for="EventoId" class="control-label"></label>
-                <select asp-for="EventoId" class="form-control" asp-items="ViewBag.EventoId"></select>
-                <span asp-validation-for="EventoId" class="text-danger"></span>
+    * {
+        box-sizing: border-box;
+    }
+
+    .page-wrap {
+        max-width: 1200px;
+        margin: 20px auto;
+        padding: 0 10px;
+    }
+
+    .content {
+        padding: 40px;
+        background: #fafafa;
+        min-height: 520px;
+        border-radius: 22px;
+        box-shadow: 0 10px 30px rgba(0,0,0,.06);
+        border: 1px solid rgba(0,0,0,.04);
+    }
+
+    .header h2 {
+        margin: 0;
+        font-weight: normal;
+        color: var(--text);
+    }
+
+    .header p {
+        margin: 6px 0 0;
+        color: var(--muted);
+        font-size: 14px;
+    }
+
+    .card {
+        margin-top: 18px;
+        background: var(--card);
+        border-radius: 24px;
+        box-shadow: 0 6px 20px rgba(0,0,0,.06);
+        overflow: hidden;
+        border: 1px solid var(--line);
+    }
+
+    .card-top {
+        background: var(--verde);
+        color: #fff;
+        padding: 16px 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .mode {
+        background: rgba(255,255,255,.18);
+        border: 1px solid rgba(255,255,255,.35);
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+    }
+
+    .form {
+        padding: 20px;
+        background: #fff;
+    }
+
+    .section {
+        margin-bottom: 18px;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: #fff;
+    }
+
+    .section-title {
+        margin: 0 0 12px 0;
+        font-weight: normal;
+        font-size: 14px;
+        color: var(--naranja);
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+    }
+
+    @@media (max-width:900px) {
+        .grid {
+            grid-template-columns: 1fr;
+        }
+
+        .content {
+            padding: 18px;
+        }
+    }
+
+    .field label {
+        display: block;
+        font-size: 13px;
+        margin-bottom: 6px;
+        color: var(--muted);
+    }
+
+    .field input, .field select, .field textarea {
+        width: 100%;
+        padding: 11px 12px;
+        border-radius: 16px;
+        border: 1px solid var(--line);
+        background: #fff;
+        font-family: Arial,sans-serif;
+        outline: none;
+    }
+
+    .field input, .field select {
+        height: 44px;
+    }
+
+    .field textarea {
+        min-height: 110px;
+        resize: none;
+    }
+
+    .field input:disabled {
+        background: #f3f3f3;
+        color: #666;
+        cursor: not-allowed;
+    }
+
+    .field input:focus, .field select:focus, .field textarea:focus {
+        border-color: rgba(191,29,26,.55);
+        box-shadow: 0 0 0 4px rgba(191,29,26,.10);
+    }
+
+    .highlight {
+        border: 2px dashed var(--amarillo);
+        background: #fffbe6;
+    }
+
+    .actions {
+        margin-top: 18px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 10px 16px;
+        border-radius: 16px;
+        border: 1px solid rgba(0,0,0,.22);
+        font-size: 14px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+        .btn.cancel {
+            background: #fff;
+            color: #111;
+        }
+
+        .btn.save {
+            background: var(--rojo);
+            color: #fff;
+            border-color: transparent;
+        }
+
+        .btn.manage {
+            background: var(--naranja);
+            color: #fff;
+            border-color: transparent;
+        }
+
+        .btn.approve {
+            background: var(--verde);
+            color: #fff;
+            border-color: transparent;
+        }
+
+    .note {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 10px;
+    }
+
+    .tutor-box {
+        display: none;
+    }
+
+    #gestionarToggle:checked ~ .tutor-box {
+        display: block;
+    }
+
+    #gestionarToggle:checked ~ .actions .btn.manage {
+        filter: saturate(1.1);
+        box-shadow: 0 0 0 4px rgba(203,96,33,.14);
+    }
+</style>
+
+<div class="page-wrap">
+    <div class="content">
+
+        <div class="header">
+            <h2>Inscripción</h2>
+            <p>Estudiante crea — Coordinador/Admin asignan tutor (aprueba automáticamente).</p>
+        </div>
+
+        <div class="card">
+            <div class="card-top">
+                <span>Formulario de inscripción</span>
+                <span class="mode" id="modoTxt">Modo: Crear</span>
             </div>
-            <div class="form-group">
-                <label asp-for="LiderUsuarioId" class="control-label"></label>
-                <select asp-for="LiderUsuarioId" class="form-control" asp-items="ViewBag.LiderUsuarioId"></select>
-                <span asp-validation-for="LiderUsuarioId" class="text-danger"></span>
+
+            <div class="form">
+                <form>
+                    <div class="section">
+                        <h3 class="section-title">Evento</h3>
+                        <div class="grid">
+                            <div class="field" style="grid-column:1 / -1;">
+                                <label>Evento en proceso</label>
+                                <select asp-for="EventoId" asp-items="listaEventos">
+                                    <option value="">Seleccione</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Clasificación</h3>
+                        <div class="grid">
+                            <div class="field">
+                                <label>Categoría</label>
+                                <select>
+                                    <option value="">Seleccione</option>
+                                    @if (listaCategorias != null)
+                                    {
+                                        foreach (var c in listaCategorias)
+                                        {
+                                            <option value="@c.Value">@c.Text</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="field">
+                                <label>Subcategoría</label>
+                                <select asp-for="SubcategoriaId" asp-items="listaSubcategorias">
+                                    <option value="">Seleccione</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Grupo</h3>
+                        <div class="grid">
+                            <div class="field">
+                                <label>Líder</label>
+                                <input disabled value="Autocompletado" />
+                            </div>
+                            <div class="field">
+                                <label>Integrante 1</label>
+                                <input />
+                            </div>
+                            <div class="field">
+                                <label>Integrante 2</label>
+                                <input />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Detalle del proyecto</h3>
+                        <div class="grid">
+                            <div class="field" style="grid-column:1 / -1;">
+                                <label>Título</label>
+                                <input asp-for="TituloProyecto" />
+                            </div>
+                            <div class="field" style="grid-column:1 / -1;">
+                                <label>Descripción</label>
+                                <textarea asp-for="DescripcionProyecto"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <input id="gestionarToggle" type="checkbox" hidden />
+
+                    <div class="actions">
+                        <a class="btn cancel" asp-action="Index">Cancelar</a>
+                        <button class="btn save" type="button">Enviar</button>
+                        <label class="btn manage" for="gestionarToggle">Gestionar</label>
+                    </div>
+
+                    <div class="section highlight tutor-box">
+                        <h3 class="section-title">Asignar tutor (aprueba inscripción)</h3>
+                        <div class="grid">
+                            <div class="field">
+                                <label>Tutor asignado</label>
+                                <select asp-for="TutorUsuarioId" asp-items="listaTutores">
+                                    <option value="">Seleccione tutor</option>
+                                </select>
+                            </div>
+                            <div class="field">
+                                <label>Buscar</label>
+                                <button class="btn" type="button">Buscar tutor</button>
+                            </div>
+                        </div>
+
+                        <div class="note">
+                            Al asignar tutor la inscripción se considera aprobada automáticamente.
+                        </div>
+
+                        <div class="actions" style="margin-top:12px;justify-content:flex-end;">
+                            <button class="btn approve" type="button">Asignar tutor</button>
+                        </div>
+                    </div>
+
+                </form>
             </div>
-            <div class="form-group">
-                <label asp-for="SubcategoriaId" class="control-label"></label>
-                <select asp-for="SubcategoriaId" class="form-control" asp-items="ViewBag.SubcategoriaId"></select>
-                <span asp-validation-for="SubcategoriaId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="TituloProyecto" class="control-label"></label>
-                <input asp-for="TituloProyecto" class="form-control" />
-                <span asp-validation-for="TituloProyecto" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DescripcionProyecto" class="control-label"></label>
-                <input asp-for="DescripcionProyecto" class="form-control" />
-                <span asp-validation-for="DescripcionProyecto" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="TutorUsuarioId" class="control-label"></label>
-                <select asp-for="TutorUsuarioId" class="form-control" asp-items="ViewBag.TutorUsuarioId"></select>
-                <span asp-validation-for="TutorUsuarioId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="EstadoInscripcion" class="control-label"></label>
-                <input asp-for="EstadoInscripcion" class="form-control" />
-                <span asp-validation-for="EstadoInscripcion" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UsuarioCreacion" class="control-label"></label>
-                <input asp-for="UsuarioCreacion" class="form-control" />
-                <span asp-validation-for="UsuarioCreacion" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="FechaCreacion" class="control-label"></label>
-                <input asp-for="FechaCreacion" class="form-control" />
-                <span asp-validation-for="FechaCreacion" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UsuarioModificacion" class="control-label"></label>
-                <input asp-for="UsuarioModificacion" class="form-control" />
-                <span asp-validation-for="UsuarioModificacion" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
+
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+<script>
+    (function(){
+      const t=document.getElementById("gestionarToggle");
+      const m=document.getElementById("modoTxt");
+      const sync=()=>m.textContent=t.checked?"Modo: Gestionar":"Modo: Crear";
+      t.addEventListener("change",sync);
+      sync();
+    })();
+</script>

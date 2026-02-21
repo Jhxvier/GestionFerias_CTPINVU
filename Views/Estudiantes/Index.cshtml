@@ -4,14 +4,6 @@
     ViewData["Title"] = "Estudiantes";
 }
 
-<!-- =========================================================
-PANTALLA: LISTA DE ESTUDIANTES (SOLO UI)
-- Menú NO va aquí (ya está en _Layout)
-- Tabla con estudiantes
-- Botón Crear nuevo
-- Acciones: Editar / Eliminar
-========================================================= -->
-
 <style>
     :root {
         --rojo: #BF1D1A;
@@ -23,8 +15,6 @@ PANTALLA: LISTA DE ESTUDIANTES (SOLO UI)
         --line: #e5e5e5;
         --muted: #666;
     }
-
-    /* Contenedor tipo “frame” */
     .marco-ui {
         background: #fff;
         border-radius: 22px;
@@ -68,8 +58,6 @@ PANTALLA: LISTA DE ESTUDIANTES (SOLO UI)
         border-radius: 16px;
         color: #fff;
     }
-
-    /* Tabla estilo tarjetas */
     .tabla-ui {
         border-collapse: separate;
         border-spacing: 0 10px;
@@ -157,7 +145,7 @@ PANTALLA: LISTA DE ESTUDIANTES (SOLO UI)
         <!-- Card -->
         <div class="card tarjeta-ui mt-3">
 
-            <!-- Filtros (solo UI) -->
+            <!-- Filtros -->
             <div class="p-3 zona-filtros">
                 <div class="row g-2 align-items-end">
                     <div class="col-12 col-md-6 col-lg-5">
@@ -202,7 +190,6 @@ PANTALLA: LISTA DE ESTUDIANTES (SOLO UI)
                         <tbody>
                             @foreach (var item in Model)
                             {
-                                // Variables UI (ajusta las rutas según tus entidades reales)
                                 var documento = item.Usuario?.Persona?.Documento ?? "—";
                                 var nombres = item.Usuario?.Persona?.Nombres ?? "—";
                                 var apellidos = item.Usuario?.Persona?.Apellidos ?? "—";
