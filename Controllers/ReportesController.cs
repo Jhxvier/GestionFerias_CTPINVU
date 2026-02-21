@@ -2,6 +2,7 @@
 
 namespace GestionFerias_CTPINVU.Controllers
 {
+
     public class ReportesController : Controller
     {
         public IActionResult Index()

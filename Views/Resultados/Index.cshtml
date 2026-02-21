@@ -1,83 +1,284 @@
 ﻿@model IEnumerable<GestionFerias_CTPINVU.Models.ResultadosEvento>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Resultados";
 }
 
-<h1>Index</h1>
+<style>
+    :root {
+        --rojo: #BF1D1A;
+        --verde: #6A9A2C;
+        --amarillo: #F2B705;
+        --naranja: #CB6021;
+        --bg: #f4f4f4;
+        --card: #ffffff;
+        --line: #e5e5e5;
+        --muted: #666;
+        --text: #222;
+    }
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.EstadoResultados)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ResolucionFinal)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.FechaPublicacion)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UsuarioCreacion)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.FechaCreacion)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UsuarioModificacion)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.FechaModificacion)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Evento)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.JuezResponsableUsuario)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.EstadoResultados)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ResolucionFinal)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FechaPublicacion)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UsuarioCreacion)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FechaCreacion)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UsuarioModificacion)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FechaModificacion)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Evento.EventoId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.JuezResponsableUsuario.UsuarioId)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.ResultadoEventoId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ResultadoEventoId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ResultadoEventoId">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+    .marco-ui {
+        background: #fff;
+        border-radius: 22px;
+        box-shadow: 0 10px 30px rgba(0,0,0,.08);
+        overflow: hidden;
+    }
+
+    .contenido-ui {
+        padding: 28px;
+        background: #fafafa;
+        min-height: 520px;
+        border-radius: 22px;
+    }
+
+    .tarjeta-ui {
+        background: var(--card);
+        border-radius: 24px;
+        box-shadow: 0 6px 20px rgba(0,0,0,.06);
+        overflow: hidden;
+        border: 1px solid var(--line);
+    }
+
+    .zona-filtros {
+        padding: 16px;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .form-control, .form-select {
+        border-radius: 16px;
+        height: 44px;
+    }
+
+    .btn-filtrar {
+        background: var(--naranja);
+        border-color: #000;
+        border-radius: 16px;
+        color: #fff;
+        height: 44px;
+    }
+
+    /* Tabla estilo tarjetas */
+    .tabla-ui {
+        border-collapse: separate;
+        border-spacing: 0 10px;
+    }
+
+        .tabla-ui thead th {
+            text-align: left;
+            font-size: 13px;
+            color: var(--muted);
+            font-weight: 400;
+            border: 0 !important;
+            white-space: nowrap;
+        }
+
+        .tabla-ui tbody tr {
+            background: #fff;
+            box-shadow: 0 3px 10px rgba(0,0,0,.05);
+        }
+
+        .tabla-ui tbody td {
+            padding: 12px;
+            font-size: 13px;
+            border-top: 1px solid var(--line);
+            border-bottom: 1px solid var(--line);
+            vertical-align: middle;
+        }
+
+            .tabla-ui tbody td:first-child {
+                border-left: 1px solid var(--line);
+                border-top-left-radius: 16px;
+                border-bottom-left-radius: 16px;
+            }
+
+            .tabla-ui tbody td:last-child {
+                border-right: 1px solid var(--line);
+                border-top-right-radius: 16px;
+                border-bottom-right-radius: 16px;
+            }
+
+    /* Badges */
+    .badge-estado {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        border: 1px solid var(--line);
+        background: #fafafa;
+        white-space: nowrap;
+        font-weight: 700;
+    }
+
+    .estado-pendiente {
+        background: #fff8d6;
+        border-color: #f0d36b;
+        color: #7a5d00;
+    }
+
+    .estado-publicado {
+        background: #eef8e6;
+        border-color: #cfe9b6;
+        color: var(--verde);
+    }
+
+    /* Acciones */
+    .btn-accion {
+        padding: 8px 12px;
+        border-radius: 14px;
+        border: 1px solid #000;
+        background: #fff;
+        font-size: 13px;
+        text-decoration: none;
+        display: inline-block;
+        white-space: nowrap;
+    }
+
+    .btn-ver {
+        background: var(--amarillo);
+        color: #111;
+    }
+
+    .btn-gestionar {
+        background: var(--verde);
+        color: #fff;
+    }
+
+    .nota-ui {
+        margin-top: 10px;
+        font-size: 12px;
+        color: var(--muted);
+    }
+</style>
+
+<div class="marco-ui">
+    <div class="contenido-ui">
+
+        <!-- Encabezado -->
+        <div class="d-flex align-items-start justify-content-between flex-wrap gap-3">
+            <div>
+                <h2 class="mb-1" style="color:var(--text);">Resultados</h2>
+                <p class="mb-0 text-secondary">
+                    Todos pueden consultar resultados. Solo Juez/Admin/Coordinador pueden registrar calificación.
+                </p>
+            </div>
+        </div>
+
+        <!-- Card -->
+        <div class="tarjeta-ui mt-3">
+
+            <!-- Filtros (solo UI) -->
+            <div class="zona-filtros">
+                <div class="row g-2 align-items-end">
+
+                    <div class="col-12 col-md-5 col-lg-4">
+                        <label class="form-label text-secondary mb-1">Evento</label>
+                        <select id="filtroEvento" class="form-select">
+                            <option value="">Seleccione evento</option>
+                            <option value="1">Feria de Ciencias 2026</option>
+                            <option value="2">Feria Tecnológica 2026</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-md-5 col-lg-4">
+                        <label class="form-label text-secondary mb-1">Estado de calificación</label>
+                        <select id="filtroEstado" class="form-select">
+                            <option value="">Todos</option>
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="Publicado">Publicado</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-md-4 col-lg-2">
+                        <button type="button" class="btn btn-filtrar w-100">Filtrar</button>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Tabla -->
+            <div class="p-3">
+                <div class="table-responsive">
+                    <table class="table tabla-ui align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Evento</th>
+                                <th>Estado</th>
+                                <th>1er lugar</th>
+                                <th>2do lugar</th>
+                                <th>3er lugar</th>
+                                <th class="text-end">Acciones</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                // ============================
+                                // Variables UI (en español)
+                                // Ajusta a tus propiedades reales
+                                // ============================
+                                var evento = item.Evento?.NombreEvento ?? "—";
+
+                                // Estado: Pendiente / Publicado (según tu BD: resultados_eventos.estado_resultados)
+                                var estado = item.EstadoResultados?.ToString() ?? "Pendiente";
+                                var claseEstado = (estado == "Publicado") ? "estado-publicado" : "estado-pendiente";
+
+                                // Ganadores: en tu BD están en resultados_ganadores (posicion 1,2,3)
+                                // Aquí lo dejamos UI (texto). Luego lo llenas con navegación/consulta.
+                                var primerLugar = "—";
+                                var segundoLugar = "—";
+                                var tercerLugar = "—";
+
+                                <tr>
+                                    <td>@evento</td>
+                                    <td>
+                                        <span class="badge-estado @claseEstado">@estado</span>
+                                    </td>
+                                    <td>@primerLugar</td>
+                                    <td>@segundoLugar</td>
+                                    <td>@tercerLugar</td>
+
+                                    <td class="text-end">
+                                        <div class="d-inline-flex gap-2 flex-wrap justify-content-end">
+
+                                            <!-- Ver resultados -->
+                                            <a asp-action="Details"
+                                               asp-route-id="@item.ResultadoEventoId"
+                                               class="btn-accion btn-ver">
+                                                Ver
+                                            </a>
+
+                                            <!-- SOLO JUEZ / ADMIN / COORDINADOR (render por rol) -->
+                                            @* Ejemplo futuro:
+                                               @if (User.IsInRole("Juez") || User.IsInRole("Administrador") || User.IsInRole("Coordinador")) { ... }
+                                            *@
+                                            <a asp-action="Edit"
+                                               asp-route-id="@item.ResultadoEventoId"
+                                               class="btn-accion btn-gestionar">
+                                                Gestionar / Calificar
+                                            </a>
+
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+
+                            @if (!Model.Any())
+                            {
+                                <tr>
+                                    <td colspan="6" class="text-center py-4 text-secondary">
+                                        No hay resultados para mostrar.
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="nota-ui">
+                    * El botón “Gestionar / Calificar” se muestra solo a Juez, Administrador y Coordinador.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

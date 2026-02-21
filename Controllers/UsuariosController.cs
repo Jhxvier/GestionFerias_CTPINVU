@@ -10,6 +10,7 @@ using GestionFerias_CTPINVU.Models;
 
 namespace GestionFerias_CTPINVU.Controllers
 {
+
     public class UsuariosController : Controller
     {
         private readonly AppDbContext _context;

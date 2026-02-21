@@ -30,7 +30,7 @@ public class AccountController : Controller
             HttpContext.Session.SetString("Usuario", usuario.Correo);
             HttpContext.Session.SetString("UsuarioId", usuario.UsuarioId.ToString());
 
-            return RedirectToAction("Index", "Eventos");
+            return RedirectToAction("Inicio", "Inicio");
         }
 
         ViewBag.Error = "Correo o contraseña incorrectos.";
