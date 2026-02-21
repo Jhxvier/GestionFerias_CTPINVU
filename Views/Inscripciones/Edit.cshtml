@@ -1,0 +1,79 @@
+﻿@model GestionFerias_CTPINVU.Models.Inscripcione
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Inscripcione</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="InscripcionId" />
+            <div class="form-group">
+                <label asp-for="EventoId" class="control-label"></label>
+                <select asp-for="EventoId" class="form-control" asp-items="ViewBag.EventoId"></select>
+                <span asp-validation-for="EventoId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="LiderUsuarioId" class="control-label"></label>
+                <select asp-for="LiderUsuarioId" class="form-control" asp-items="ViewBag.LiderUsuarioId"></select>
+                <span asp-validation-for="LiderUsuarioId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SubcategoriaId" class="control-label"></label>
+                <select asp-for="SubcategoriaId" class="form-control" asp-items="ViewBag.SubcategoriaId"></select>
+                <span asp-validation-for="SubcategoriaId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="TituloProyecto" class="control-label"></label>
+                <input asp-for="TituloProyecto" class="form-control" />
+                <span asp-validation-for="TituloProyecto" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DescripcionProyecto" class="control-label"></label>
+                <input asp-for="DescripcionProyecto" class="form-control" />
+                <span asp-validation-for="DescripcionProyecto" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="TutorUsuarioId" class="control-label"></label>
+                <select asp-for="TutorUsuarioId" class="form-control" asp-items="ViewBag.TutorUsuarioId"></select>
+                <span asp-validation-for="TutorUsuarioId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EstadoInscripcion" class="control-label"></label>
+                <input asp-for="EstadoInscripcion" class="form-control" />
+                <span asp-validation-for="EstadoInscripcion" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UsuarioCreacion" class="control-label"></label>
+                <input asp-for="UsuarioCreacion" class="form-control" />
+                <span asp-validation-for="UsuarioCreacion" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FechaCreacion" class="control-label"></label>
+                <input asp-for="FechaCreacion" class="form-control" />
+                <span asp-validation-for="FechaCreacion" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UsuarioModificacion" class="control-label"></label>
+                <input asp-for="UsuarioModificacion" class="form-control" />
+                <span asp-validation-for="UsuarioModificacion" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

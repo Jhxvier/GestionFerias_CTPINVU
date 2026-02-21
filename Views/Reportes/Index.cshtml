@@ -1,0 +1,239 @@
+﻿@{
+    ViewData["Title"] = "Reportes";
+}
+
+<div class="container-fluid px-0">
+    <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-3">
+        <div>
+            <h2 class="mb-1">Reportes</h2>
+            <p class="text-secondary mb-0">
+                Generación de reportes en <strong>Excel</strong> o <strong>PDF</strong> (solo Admin y Coordinador).
+            </p>
+        </div>
+    </div>
+
+    <div class="accordion" id="accReportes">
+
+        <!-- 1) Participantes por evento -->
+        <div class="accordion-item rounded-4 overflow-hidden border">
+            <h2 class="accordion-header" id="h1">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#c1" aria-expanded="true" aria-controls="c1">
+                    <strong class="me-2">1) Participantes por evento</strong>
+                    <span class="text-secondary small d-none d-md-inline">Lista de grupos/estudiantes inscritos en un evento seleccionado</span>
+                </button>
+            </h2>
+            <div id="c1" class="accordion-collapse collapse show" aria-labelledby="h1" data-bs-parent="#accReportes">
+                <div class="accordion-body bg-light">
+                    <div class="card border-0 rounded-4 shadow-sm">
+                        <div class="card-body p-3 p-md-4">
+                            <p class="text-secondary mb-3">
+                                Busque el evento y exporte el listado de participantes.
+                            </p>
+
+                            <div class="row g-3">
+                                <div class="col-12 col-lg-7">
+                                    <label class="form-label small text-secondary">Evento</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                        <input class="form-control" type="search"
+                                               placeholder="Buscar evento por código o nombre"
+                                               list="dlEventosParticipantes" />
+                                        <button class="btn btn-outline-secondary" type="button">Buscar</button>
+                                    </div>
+
+                                    <!-- Solo UI (ejemplo). Luego se llena con BD -->
+                                    <datalist id="dlEventosParticipantes">
+                                        <option value="EVT-003 - Feria de Ciencias 2026"></option>
+                                        <option value="EVT-004 - Feria Tecnológica 2026"></option>
+                                    </datalist>
+
+                                    <div class="small text-secondary mt-2">
+                                        * Campo de búsqueda (UI). En el sistema real se conecta a la BD.
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="d-flex flex-wrap gap-2 justify-content-end mt-2">
+                                        <button class="btn btn-outline-secondary">
+                                            <i class="bi bi-file-earmark-excel me-1"></i> Exportar a Excel
+                                        </button>
+                                        <button class="btn btn-danger">
+                                            <i class="bi bi-file-earmark-pdf me-1"></i> Exportar a PDF
+                                        </button>
+                                    </div>
+                                    <div class="small text-secondary mt-2">
+                                        * Excel: ClosedXML &nbsp;|&nbsp; PDF: QuestPDF
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2) Resultados por evento -->
+        <div class="accordion-item rounded-4 overflow-hidden border mt-3">
+            <h2 class="accordion-header" id="h2">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c2" aria-expanded="false" aria-controls="c2">
+                    <strong class="me-2">2) Resultados por evento</strong>
+                    <span class="text-secondary small d-none d-md-inline">Ganadores y calificaciones de un evento</span>
+                </button>
+            </h2>
+            <div id="c2" class="accordion-collapse collapse" aria-labelledby="h2" data-bs-parent="#accReportes">
+                <div class="accordion-body bg-light">
+                    <div class="card border-0 rounded-4 shadow-sm">
+                        <div class="card-body p-3 p-md-4">
+                            <p class="text-secondary mb-3">
+                                Busque el evento y exporte los resultados.
+                            </p>
+
+                            <div class="row g-3">
+                                <div class="col-12 col-lg-7">
+                                    <label class="form-label small text-secondary">Evento</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                        <input class="form-control" type="search"
+                                               placeholder="Buscar evento por código o nombre"
+                                               list="dlEventosResultados" />
+                                        <button class="btn btn-outline-secondary" type="button">Buscar</button>
+                                    </div>
+
+                                    <!-- Solo UI (ejemplo). Luego se llena con BD -->
+                                    <datalist id="dlEventosResultados">
+                                        <option value="EVT-003 - Feria de Ciencias 2026"></option>
+                                        <option value="EVT-004 - Feria Tecnológica 2026"></option>
+                                    </datalist>
+
+                                    <div class="small text-secondary mt-2">
+                                        * Campo de búsqueda (UI). En el sistema real se conecta a la BD.
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="d-flex flex-wrap gap-2 justify-content-end mt-2">
+                                        <button class="btn btn-outline-secondary">
+                                            <i class="bi bi-file-earmark-excel me-1"></i> Exportar a Excel
+                                        </button>
+                                        <button class="btn btn-danger">
+                                            <i class="bi bi-file-earmark-pdf me-1"></i> Exportar a PDF
+                                        </button>
+                                    </div>
+                                    <div class="small text-secondary mt-2">
+                                        * Excel: ClosedXML &nbsp;|&nbsp; PDF: QuestPDF
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3) Historial de eventos por año -->
+        <div class="accordion-item rounded-4 overflow-hidden border mt-3">
+            <h2 class="accordion-header" id="h3">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c3" aria-expanded="false" aria-controls="c3">
+                    <strong class="me-2">3) Historial de eventos por año</strong>
+                    <span class="text-secondary small d-none d-md-inline">Eventos realizados en un año específico</span>
+                </button>
+            </h2>
+            <div id="c3" class="accordion-collapse collapse" aria-labelledby="h3" data-bs-parent="#accReportes">
+                <div class="accordion-body bg-light">
+                    <div class="card border-0 rounded-4 shadow-sm">
+                        <div class="card-body p-3 p-md-4">
+                            <p class="text-secondary mb-3">
+                                Indique el año y exporte el historial de eventos.
+                            </p>
+
+                            <div class="row g-3">
+                                <div class="col-12 col-lg-4">
+                                    <label class="form-label small text-secondary">Año</label>
+                                    <input class="form-control" type="number" placeholder="Ej: 2026" />
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="d-flex flex-wrap gap-2 justify-content-end mt-2">
+                                        <button class="btn btn-outline-secondary">
+                                            <i class="bi bi-file-earmark-excel me-1"></i> Exportar a Excel
+                                        </button>
+                                        <button class="btn btn-danger">
+                                            <i class="bi bi-file-earmark-pdf me-1"></i> Exportar a PDF
+                                        </button>
+                                    </div>
+                                    <div class="small text-secondary mt-2">
+                                        * Excel: ClosedXML &nbsp;|&nbsp; PDF: QuestPDF
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4) Historial por estudiante -->
+        <div class="accordion-item rounded-4 overflow-hidden border mt-3">
+            <h2 class="accordion-header" id="h4">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c4" aria-expanded="false" aria-controls="c4">
+                    <strong class="me-2">4) Historial por estudiante</strong>
+                    <span class="text-secondary small d-none d-md-inline">Participaciones del estudiante en diferentes ferias</span>
+                </button>
+            </h2>
+            <div id="c4" class="accordion-collapse collapse" aria-labelledby="h4" data-bs-parent="#accReportes">
+                <div class="accordion-body bg-light">
+                    <div class="card border-0 rounded-4 shadow-sm">
+                        <div class="card-body p-3 p-md-4">
+                            <p class="text-secondary mb-3">
+                                Busque un estudiante para generar su historial.
+                            </p>
+
+                            <div class="row g-3">
+                                <div class="col-12 col-lg-7">
+                                    <label class="form-label small text-secondary">Estudiante</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                        <input class="form-control" type="search"
+                                               placeholder="Buscar por documento o nombre"
+                                               list="dlEstudiantes" />
+                                        <button class="btn btn-outline-secondary" type="button">Buscar</button>
+                                    </div>
+
+                                    <!-- Solo UI (ejemplo). Luego se llena con BD -->
+                                    <datalist id="dlEstudiantes">
+                                        <option value="1-1234-5678 - Juan Pérez"></option>
+                                        <option value="2-2345-6789 - María Rodríguez"></option>
+                                        <option value="3-3456-7890 - Carlos Jiménez"></option>
+                                    </datalist>
+
+                                    <div class="small text-secondary mt-2">
+                                        * Campo de búsqueda (UI). En el sistema real se conecta a la BD.
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="d-flex flex-wrap gap-2 justify-content-end mt-2">
+                                        <button class="btn btn-outline-secondary">
+                                            <i class="bi bi-file-earmark-excel me-1"></i> Exportar a Excel
+                                        </button>
+                                        <button class="btn btn-danger">
+                                            <i class="bi bi-file-earmark-pdf me-1"></i> Exportar a PDF
+                                        </button>
+                                    </div>
+                                    <div class="small text-secondary mt-2">
+                                        * Excel: ClosedXML &nbsp;|&nbsp; PDF: QuestPDF
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

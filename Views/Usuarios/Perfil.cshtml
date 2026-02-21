@@ -1,0 +1,428 @@
+﻿@{
+    ViewData["Title"] = "Usuarios — Crear / Editar";
+}
+
+<style>
+    :root {
+        --rojo: #BF1D1A;
+        --verde: #6A9A2C;
+        --amarillo: #F2B705;
+        --naranja: #CB6021;
+        --line: #e5e5e5;
+        --muted: #666;
+    }
+
+    .card-top {
+        background: var(--verde);
+        color: #fff;
+        border-top-left-radius: 1rem;
+        border-top-right-radius: 1rem;
+    }
+
+    .mode-pill {
+        background: rgba(255,255,255,.18);
+        border: 1px solid rgba(255,255,255,.35);
+        padding: .35rem .6rem;
+        border-radius: 999px;
+        font-size: .85rem;
+        white-space: nowrap;
+    }
+
+    .section-box {
+        border: 1px solid var(--line);
+        border-radius: 1rem;
+        padding: 1rem;
+        background: #fff;
+    }
+
+    .section-title {
+        color: var(--naranja);
+        font-weight: 500;
+        font-size: .95rem;
+        margin: 0 0 .75rem 0;
+    }
+
+    .note {
+        color: var(--muted);
+        font-size: .85rem;
+    }
+
+    /* ========= VISIBILIDAD POR ROL Y MODO ========= */
+    .only-admin, .only-coord, .admin-or-coord {
+        display: none;
+    }
+
+    body.role-admin .only-admin {
+        display: block;
+    }
+
+    body.role-coord .only-coord {
+        display: block;
+    }
+
+    body.role-admin .admin-or-coord,
+    body.role-coord .admin-or-coord {
+        display: block;
+    }
+
+    .only-create {
+        display: none;
+    }
+
+    .only-edit {
+        display: none;
+    }
+
+    body.mode-create .only-create {
+        display: block;
+    }
+
+    body.mode-edit .only-edit {
+        display: block;
+    }
+
+    .field-email-admin {
+        display: none;
+    }
+
+    body.role-admin.mode-create .field-email-admin,
+    body.role-admin.mode-edit .field-email-admin {
+        display: block;
+    }
+
+    .field-email-coord {
+        display: none;
+    }
+
+    body.role-coord.mode-edit .field-email-coord {
+        display: block;
+    }
+
+    .field-temp-pass {
+        display: none;
+    }
+
+    body.role-admin.mode-create .field-temp-pass {
+        display: block;
+    }
+
+    .section-role-create {
+        display: none;
+    }
+
+    body.role-admin.mode-create .section-role-create {
+        display: block;
+    }
+
+    .section-reset {
+        display: none;
+    }
+
+    body.role-admin.mode-edit .section-reset {
+        display: block;
+    }
+
+    .section-change-pass {
+        display: none;
+    }
+
+    body.role-admin.mode-edit .section-change-pass {
+        display: block;
+    }
+
+    .extra-estudiante, .extra-tutor, .extra-juez, .extra-coord {
+        display: none;
+    }
+
+    body.selected-estudiante .extra-estudiante {
+        display: block;
+    }
+
+    body.selected-tutor .extra-tutor {
+        display: block;
+    }
+
+    body.selected-juez .extra-juez {
+        display: block;
+    }
+
+    body.selected-coord .extra-coord {
+        display: block;
+    }
+
+    body.show-all-specific .extra-estudiante,
+    body.show-all-specific .extra-tutor,
+    body.show-all-specific .extra-juez,
+    body.show-all-specific .extra-coord {
+        display: block;
+    }
+</style>
+
+<div class="container-fluid px-3 px-md-4">
+    <div class="d-flex flex-wrap align-items-start align-items-md-center justify-content-between gap-2 mt-3">
+        <div>
+            <h2 class="mb-1">Usuarios — Crear / Editar</h2>
+            <p class="mb-0 text-muted">Formulario único para crear/editar usuarios según permisos.</p>
+        </div>
+
+        <!-- Controles solo para probar la UI (sin backend). Si no los quieres, bórralos. -->
+        <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="btnAdmin">Simular Admin</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="btnCoord">Simular Coordinador</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="btnCreate">Modo Crear</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="btnEdit">Modo Editar</button>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 mt-3">
+        <div class="card-top px-3 py-3 d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <div class="fw-semibold">Formulario de usuario</div>
+            <div class="mode-pill">Modo: Crear / Editar</div>
+        </div>
+
+        <div class="card-body bg-light">
+
+            <!-- ====== CREAR (solo Admin) ====== -->
+            <div class="section-box mb-3 section-role-create">
+                <h3 class="section-title">Configuración inicial (solo Administrador)</h3>
+
+                <div class="row g-3">
+                    <div class="col-12 col-lg-6">
+                        <label class="form-label small text-muted">Rol del usuario</label>
+                        <select class="form-select rounded-pill" id="rolSelect">
+                            <option>Seleccione</option>
+                            <option value="estudiante">Estudiante</option>
+                            <option value="tutor">Tutor</option>
+                            <option value="juez">Juez</option>
+                            <option value="coord">Coordinador</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-lg-6 field-email-admin">
+                        <label class="form-label small text-muted">Correo / Usuario</label>
+                        <input class="form-control rounded-pill" type="email" placeholder="usuario@colegio.edu" />
+                    </div>
+
+                    <div class="col-12 col-lg-6 field-temp-pass">
+                        <label class="form-label small text-muted">Contraseña temporal</label>
+                        <input class="form-control rounded-pill" type="text" placeholder="Generada por el sistema" />
+                    </div>
+                </div>
+
+                <div class="note mt-2">
+                    * Crear: seleccionar rol, ingresar correo/usuario y asignar contraseña temporal.
+                </div>
+            </div>
+
+            <!-- ====== DATOS BASE (Admin/Coord) ====== -->
+            <div class="section-box mb-3 admin-or-coord">
+                <h3 class="section-title">Datos base</h3>
+                <div class="note mb-2">
+                    * Estos datos también son editables por el usuario desde <strong>Mi perfil</strong>.
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-12 col-lg-6">
+                        <label class="form-label small text-muted">Documento</label>
+                        <input class="form-control rounded-pill" type="text" placeholder="Ej: 1-1234-5678" />
+                    </div>
+
+                    <div class="col-12 col-lg-6">
+                        <label class="form-label small text-muted">Teléfono</label>
+                        <input class="form-control rounded-pill" type="text" placeholder="Ej: 8888-8888" />
+                    </div>
+
+                    <div class="col-12 col-lg-6">
+                        <label class="form-label small text-muted">Nombres</label>
+                        <input class="form-control rounded-pill" type="text" placeholder="Nombres" />
+                    </div>
+
+                    <div class="col-12 col-lg-6">
+                        <label class="form-label small text-muted">Apellidos</label>
+                        <input class="form-control rounded-pill" type="text" placeholder="Apellidos" />
+                    </div>
+
+                    <div class="col-12 col-lg-6">
+                        <label class="form-label small text-muted">Edad</label>
+                        <input class="form-control rounded-pill" type="number" min="0" placeholder="0" />
+                    </div>
+
+                    <div class="col-12 col-lg-6">
+                        <label class="form-label small text-muted">Sexo</label>
+                        <select class="form-select rounded-pill">
+                            <option>Seleccione</option>
+                            <option>Masculino</option>
+                            <option>Femenino</option>
+                            <option>Otro</option>
+                            <option>Prefiero no decir</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-lg-6">
+                        <label class="form-label small text-muted">Nacionalidad</label>
+                        <input class="form-control rounded-pill" type="text" placeholder="Ej: Costarricense" />
+                    </div>
+
+                    <!-- Correo editable SOLO Admin -->
+                    <div class="col-12 col-lg-6 field-email-admin">
+                        <label class="form-label small text-muted">Correo / Usuario (editable solo por Administrador)</label>
+                        <input class="form-control rounded-pill" type="email" placeholder="usuario@colegio.edu" />
+                    </div>
+
+                    <!-- Correo visible pero BLOQUEADO para Coordinador (editar) -->
+                    <div class="col-12 col-lg-6 field-email-coord">
+                        <label class="form-label small text-muted">Correo / Usuario (bloqueado para Coordinador)</label>
+                        <input class="form-control rounded-pill" type="email" placeholder="usuario@colegio.edu" disabled />
+                    </div>
+                </div>
+            </div>
+
+            <!-- ====== ESPECÍFICOS POR ROL (UI) ====== -->
+            <div class="section-box mb-3 extra-estudiante">
+                <h3 class="section-title">Datos específicos — Estudiante</h3>
+                <div class="row g-3">
+                    <div class="col-12 col-lg-6">
+                        <label class="form-label small text-muted">Grado</label>
+                        <select class="form-select rounded-pill">
+                            <option>Seleccione</option>
+                            <option>7°</option>
+                            <option>8°</option>
+                            <option>9°</option>
+                            <option>10°</option>
+                            <option>11°</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-box mb-3 extra-tutor">
+                <h3 class="section-title">Datos específicos — Tutor</h3>
+                <div class="row g-3">
+                    <div class="col-12 col-lg-6">
+                        <label class="form-label small text-muted">Especialidad</label>
+                        <select class="form-select rounded-pill">
+                            <option>Seleccione</option>
+                            <option>Ciencias</option>
+                            <option>Tecnología</option>
+                            <option>Matemática</option>
+                            <option>Español</option>
+                            <option>Sociales</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-box mb-3 extra-juez">
+                <h3 class="section-title">Datos específicos — Juez</h3>
+                <p class="note mb-0">* (Opcional) Si agregas campos de juez en el futuro, van aquí.</p>
+            </div>
+
+            <div class="section-box mb-3 extra-coord">
+                <h3 class="section-title">Datos específicos — Coordinador</h3>
+                <p class="note mb-0">* (Opcional) Si agregas campos de coordinador en el futuro, van aquí.</p>
+            </div>
+
+            <!-- ====== SEGURIDAD (Admin al editar) ====== -->
+            <div class="section-box mb-3 section-reset">
+                <h3 class="section-title">Seguridad (solo Admin al editar)</h3>
+
+                <div class="row g-3 align-items-end">
+                    <div class="col-12 col-lg-6">
+                        <label class="form-label small text-muted">Resetear contraseña temporal</label>
+                        <input class="form-control rounded-pill" type="text" placeholder="Generar nueva contraseña temporal" />
+                    </div>
+                    <div class="col-12 col-lg-6">
+                        <button class="btn btn-warning rounded-pill w-100" type="button">
+                            Generar y guardar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="note mt-2">
+                    * Opcional: asigna una nueva contraseña temporal al usuario.
+                </div>
+            </div>
+
+            <div class="section-box mb-3 section-change-pass">
+                <h3 class="section-title">Cambiar contraseña (acción independiente)</h3>
+
+                <div class="row g-3">
+                    <div class="col-12 col-lg-6">
+                        <label class="form-label small text-muted">Nueva contraseña</label>
+                        <input class="form-control rounded-pill" type="password" placeholder="••••••••" />
+                    </div>
+                    <div class="col-12 col-lg-6">
+                        <label class="form-label small text-muted">Confirmar nueva contraseña</label>
+                        <input class="form-control rounded-pill" type="password" placeholder="••••••••" />
+                    </div>
+                </div>
+
+                <div class="note mt-2">
+                    * Este cambio es independiente a la actualización de información.
+                </div>
+
+                <div class="d-flex justify-content-end mt-3">
+                    <button class="btn rounded-pill text-white" type="button"
+                            style="background: var(--verde); border-color: var(--verde);">
+                        Cambiar clave
+                    </button>
+                </div>
+            </div>
+
+            <hr />
+
+            <div class="d-flex flex-wrap justify-content-end gap-2">
+                <button class="btn btn-outline-secondary rounded-pill" type="button">Cancelar</button>
+                <button class="btn rounded-pill text-white" type="reset"
+                        style="background: var(--naranja); border-color: var(--naranja);">
+                    Limpiar
+                </button>
+                <button class="btn rounded-pill text-white" type="button"
+                        style="background: var(--rojo); border-color: var(--rojo);">
+                    Guardar cambios
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // UI solo (sin backend): define cómo quieres verla al abrir
+        // Cambia estas clases para simular:
+        // role-admin / role-coord
+        // mode-create / mode-edit
+        // selected-estudiante / selected-tutor / selected-juez / selected-coord
+        // show-all-specific (solo prototipo)
+        (function(){
+            document.body.classList.add("role-admin", "mode-edit", "show-all-specific");
+
+            const setRole = (r) => {
+                document.body.classList.remove("role-admin","role-coord");
+                document.body.classList.add(r);
+            };
+            const setMode = (m) => {
+                document.body.classList.remove("mode-create","mode-edit");
+                document.body.classList.add(m);
+            };
+
+            document.getElementById("btnAdmin")?.addEventListener("click", () => setRole("role-admin"));
+            document.getElementById("btnCoord")?.addEventListener("click", () => setRole("role-coord"));
+            document.getElementById("btnCreate")?.addEventListener("click", () => setMode("mode-create"));
+            document.getElementById("btnEdit")?.addEventListener("click", () => setMode("mode-edit"));
+
+            const rolSelect = document.getElementById("rolSelect");
+            if(rolSelect){
+                rolSelect.addEventListener("change", function(){
+                    document.body.classList.remove("selected-estudiante","selected-tutor","selected-juez","selected-coord");
+                    const v = (this.value || "").toLowerCase();
+                    if(v==="estudiante") document.body.classList.add("selected-estudiante");
+                    if(v==="tutor") document.body.classList.add("selected-tutor");
+                    if(v==="juez") document.body.classList.add("selected-juez");
+                    if(v==="coord") document.body.classList.add("selected-coord");
+                });
+            }
+        })();
+    </script>
+}

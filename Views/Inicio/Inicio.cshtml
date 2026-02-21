@@ -1,0 +1,160 @@
+﻿@{
+    ViewData["Title"] = "Inicio";
+}
+
+<style>
+    :root {
+        --rojo: #BF1D1A;
+        --verde: #6A9A2C;
+        --amarillo: #F2B705;
+        --naranja: #CB6021;
+        --bg: #f4f4f4;
+        --card: #ffffff;
+        --line: #e5e5e5;
+        --text: #222;
+        --muted: #666;
+    }
+
+    /* Header */
+    .inicio-header h2 {
+        margin: 0;
+        font-weight: 400;
+        font-size: 1.4rem;
+        color: var(--text);
+    }
+
+    .inicio-header p {
+        margin: .35rem 0 0;
+        font-size: .95rem;
+        color: var(--muted);
+    }
+
+    /* Hero */
+    .hero {
+        background: var(--card);
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 6px 20px rgba(0,0,0,.06);
+        border: 1px solid var(--line);
+    }
+
+    .hero-top {
+        background: var(--verde);
+        padding: 14px 18px;
+        color: #fff;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+        .hero-top span {
+            font-size: .95rem;
+        }
+
+    .hero-body {
+        min-height: 260px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        background: linear-gradient(135deg,#ffffff,#f2f2f2);
+        padding: 22px;
+        color: #444;
+    }
+
+        .hero-body h3 {
+            margin: 0;
+            font-weight: 400;
+            font-size: 1.4rem;
+        }
+
+        .hero-body p {
+            margin: .5rem 0 0;
+            font-size: .95rem;
+            color: var(--muted);
+        }
+
+    .hero-actions {
+        padding: 18px;
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        background: #fff;
+        flex-wrap: wrap;
+    }
+
+    .btn-hero {
+        padding: 10px 18px;
+        border-radius: 16px;
+        font-size: .95rem;
+        border: 1px solid rgba(0,0,0,.35);
+        color: #fff;
+        background: var(--rojo);
+    }
+
+        .btn-hero:hover {
+            filter: brightness(.95);
+            color: #fff;
+        }
+
+        .btn-hero.secondary {
+            background: var(--naranja);
+        }
+
+    .inicio-footer {
+        margin-top: 24px;
+        text-align: center;
+        font-size: .8rem;
+        color: var(--muted);
+    }
+</style>
+
+<div class="container-fluid px-3 px-md-4 py-4">
+
+    <div class="inicio-header mb-4">
+        <h2>Inicio</h2>
+        <p>Bienvenido al sistema. Aquí se muestran los anuncios principales.</p>
+    </div>
+
+    <div class="hero">
+        <div class="hero-top">
+            <span><i class="bi bi-megaphone me-1"></i> Bienvenido al año escolar 2026</span>
+        </div>
+
+
+
+        <div class="hero-body">
+            <div class="text-center">
+
+                <!-- Imagen -->
+                <img src="~/images/Inicio.png"
+                     alt="Feria de Ciencias 2026"
+                     class="img-fluid mb-3"
+                     style="max-height:80%; object-fit:contain;" />
+
+                <!-- Texto -->
+                <h3>Feria de Ciencias 2026</h3>
+
+            </div>
+        </div>
+
+        <div class="hero-actions">
+            <a class="btn btn-hero"
+               asp-controller="Inscripciones" asp-action="Index">
+                Ir a Inscripciones
+            </a>
+
+            <a class="btn btn-hero secondary"
+               asp-controller="Eventos" asp-action="Index">
+                Ver Detalles
+            </a>
+        </div>
+    </div>
+
+    <div class="inicio-footer">
+        CTP Invu Las Cañas · Sistema de Gestión de Ferias
+    </div>
+
+</div>

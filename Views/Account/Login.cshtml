@@ -1,0 +1,233 @@
+﻿@{
+    ViewData["Title"] = "Inicio de sesión";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - Sistema de Ferias</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <style>
+        :root {
+            --rojo: #BF1D1A;
+            --verde: #6A9A2C;
+            --amarillo: #F2B705;
+            --naranja: #CB6021;
+            --bg: #f4f4f4;
+            --card: #ffffff;
+            --line: #e5e5e5;
+            --muted: #666;
+        }
+
+        body {
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .frame {
+            width: 1100px;
+            max-width: 95vw;
+            background: #fff;
+            border-radius: 22px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,.08);
+        }
+
+        .topbar {
+            background: linear-gradient(90deg, var(--rojo), var(--naranja));
+            color: #fff;
+        }
+
+        .logo {
+            height: 40px;
+            display: flex;
+            align-items: center;
+        }
+
+        .pill {
+            padding: .45rem .75rem;
+            border-radius: 999px;
+            background: rgba(255,255,255,.15);
+            border: 1px solid rgba(255,255,255,.35);
+            font-size: .85rem;
+            white-space: nowrap;
+        }
+
+        .content {
+            background: #fafafa;
+            padding: 44px 18px;
+        }
+
+        .card-login {
+            width: 430px;
+            max-width: 94vw;
+            border-radius: 24px;
+            border: 1px solid var(--line);
+            box-shadow: 0 6px 20px rgba(0,0,0,.06);
+            overflow: hidden;
+        }
+
+        .card-top {
+            background: var(--verde);
+            color: #fff;
+        }
+
+        .info {
+            border: 2px dashed var(--amarillo);
+            background: #fffbe6;
+            color: #7a5d00;
+            border-radius: 18px;
+        }
+
+        .form-control, .btn {
+            border-radius: 16px;
+        }
+
+        .btn-login {
+            background: var(--rojo);
+            color: #fff;
+            border: 1px solid rgba(0,0,0,.25);
+        }
+
+            .btn-login:hover {
+                filter: brightness(.95);
+                color: #fff;
+            }
+
+        .btn-alt {
+            background: var(--naranja);
+            color: #fff;
+            border: 1px solid rgba(0,0,0,.25);
+        }
+
+            .btn-alt:hover {
+                filter: brightness(.95);
+                color: #fff;
+            }
+
+        a.link-rojo {
+            color: var(--rojo);
+            text-decoration: none;
+        }
+
+            a.link-rojo:hover {
+                text-decoration: underline;
+            }
+
+        .muted {
+            color: var(--muted);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="frame">
+
+        <!-- Topbar -->
+        <div class="topbar p-3 p-md-4">
+            <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="logo">
+                        <img src="~/images/logo-invu.png"
+                             alt="Logo CTP INVU"
+                             style="max-height:100%; width:auto;" />
+                    </div>
+                    <div class="lh-sm">
+                        <div class="fw-bold">Sistema de Ferias</div>
+                        <div class="small opacity-75">CTP INVU Las Cañas</div>
+                    </div>
+                </div>
+                <div class="pill"><i class="bi bi-shield-lock me-1"></i> Acceso al sistema</div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content d-flex justify-content-center">
+            <div class="card card-login">
+                <div class="card-top px-3 py-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-person-lock fs-5"></i>
+                        <span class="fw-semibold">Inicio de sesión</span>
+                    </div>
+                </div>
+
+                <div class="p-3 p-md-4">
+
+                    <div class="info p-3 mb-3">
+                        Ingrese con su <strong>correo/usuario</strong> y <strong>contraseña</strong>.
+                        <div class="small mt-2">
+                            Pruebas: <strong>admin@invu.cr</strong> / <strong>1234</strong>
+                        </div>
+                    </div>
+
+                    <!-- Form (POST) -->
+                    <form asp-controller="Account" asp-action="Login" method="post" class="needs-validation" novalidate>
+                        <div class="mb-3">
+                            <label class="form-label small muted">Usuario o correo</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white"><i class="bi bi-person"></i></span>
+                                <input name="correo" type="text" class="form-control" placeholder="usuario@colegio.edu" required />
+                                <div class="invalid-feedback">Digite su usuario o correo.</div>
+                            </div>
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label small muted">Contraseña</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white"><i class="bi bi-key"></i></span>
+                                <input name="clave" type="password" class="form-control" placeholder="••••••••" required />
+                                <div class="invalid-feedback">Digite su contraseña.</div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2 flex-wrap mt-3">
+                            <button type="submit" class="btn btn-login flex-fill">
+                                <i class="bi bi-box-arrow-in-right me-1"></i> Ingresar
+                            </button>
+                            <button type="reset" class="btn btn-alt flex-fill">
+                                <i class="bi bi-eraser me-1"></i> Limpiar
+                            </button>
+                        </div>
+
+                        <div class="text-center mt-3">
+                            <a class="link-rojo small" href="#"><i class="bi bi-question-circle me-1"></i> ¿Olvidó su contraseña?</a>
+                        </div>
+
+                        <div class="text-center mt-3 small muted">
+                            © Sistema de Ferias
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Validación Bootstrap (opcional)
+        (() => {
+            const forms = document.querySelectorAll('.needs-validation');
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        })();
+    </script>
+</body>
+</html>
