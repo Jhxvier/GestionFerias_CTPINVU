@@ -192,11 +192,11 @@
                             @foreach (var item in Model)
                             {
 
-                                var documento = item.Usuario?.Persona?.Documento ?? "—";
-                                var nombres = item.Usuario?.Persona?.Nombres ?? "—";
-                                var apellidos = item.Usuario?.Persona?.Apellidos ?? "—";
-                                var correo = item.Usuario?.Correo ?? "—";
-                                var estado = item.Usuario?.Estado?.ToString() ?? "—";
+                                var documento = item.Juez?.Persona?.Documento ?? "—";
+                                var nombres = item.Juez?.Persona?.Nombres ?? "—";
+                                var apellidos = item.Juez?.Persona?.Apellidos ?? "—";
+                                var correo = item.Juez?.Correo ?? "—";
+                                var estado = item.Juez?.Estado?.ToString() ?? "—";
 
                                 <tr>
                                     <td>@documento</td>
@@ -220,13 +220,13 @@
                                     <td class="text-end">
                                         <div class="d-inline-flex gap-2 flex-wrap justify-content-end">
                                             <a asp-action="Edit"
-                                               asp-route-id="@item.UsuarioId"
+                                               asp-route-id="@item.JuezId"
                                                class="btn-accion btn-editar">
                                                 Editar
                                             </a>
 
                                             <a asp-action="Delete"
-                                               asp-route-id="@item.UsuarioId"
+                                               asp-route-id="@item.JuezId"
                                                class="btn-accion btn-eliminar">
                                                 Eliminar
                                             </a>

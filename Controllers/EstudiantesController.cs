@@ -9,16 +9,16 @@ namespace GestionFerias_CTPINVU.Controllers
 {
     public class EstudiantesController : Controller
     {
-        private readonly AppDbContext _context;
+        private readonly Data.AppDbContext _context;
 
-        public EstudiantesController(AppDbContext context)
+        public EstudiantesController(Data.AppDbContext context)
         {
             _context = context;
         }
 
         public async Task<IActionResult> Index()
         {
-            var appDbContext = _context.Estudiantes.Include(e => e.Usuario);
+            var appDbContext = _context.Estudiantes.Include(e => e.EstudianteNavigation);
             return View(await appDbContext.ToListAsync());
         }
 
@@ -59,8 +59,8 @@ namespace GestionFerias_CTPINVU.Controllers
             }
 
             var estudiante = await _context.Estudiantes
-                .Include(e => e.Usuario)
-                .FirstOrDefaultAsync(m => m.UsuarioId == id);
+                .Include(e => e.EstudianteNavigation)
+                .FirstOrDefaultAsync(m => m.EstudianteId == id);
 
             if (estudiante == null)
             {
@@ -78,8 +78,8 @@ namespace GestionFerias_CTPINVU.Controllers
             }
 
             var estudiante = await _context.Estudiantes
-                .Include(e => e.Usuario)
-                .FirstOrDefaultAsync(m => m.UsuarioId == id);
+                .Include(e => e.EstudianteNavigation)
+                .FirstOrDefaultAsync(m => m.EstudianteId == id);
 
             if (estudiante == null)
             {
@@ -105,7 +105,7 @@ namespace GestionFerias_CTPINVU.Controllers
 
         private bool EstudianteExists(long id)
         {
-            return _context.Estudiantes.Any(e => e.UsuarioId == id);
+            return _context.Estudiantes.Any(e => e.EstudianteId == id);
         }
     }
 }

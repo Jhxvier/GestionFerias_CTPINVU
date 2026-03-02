@@ -7,6 +7,8 @@ public partial class Usuario
 {
     public long UsuarioId { get; set; }
 
+    public long PersonaId { get; set; }
+
     public string Correo { get; set; } = null!;
 
     public string PasswordHash { get; set; } = null!;
@@ -25,11 +27,7 @@ public partial class Usuario
 
     public virtual Estudiante? Estudiante { get; set; }
 
-    public virtual ICollection<InscripcionIntegrante> InscripcionIntegrantes { get; set; } = new List<InscripcionIntegrante>();
-
-    public virtual ICollection<Inscripcione> InscripcioneLiderUsuarios { get; set; } = new List<Inscripcione>();
-
-    public virtual ICollection<Inscripcione> InscripcioneTutorUsuarios { get; set; } = new List<Inscripcione>();
+    public virtual ICollection<Inscripcione> Inscripciones { get; set; } = new List<Inscripcione>();
 
     public virtual ICollection<Usuario> InverseUsuarioCreacionNavigation { get; set; } = new List<Usuario>();
 
@@ -37,9 +35,7 @@ public partial class Usuario
 
     public virtual Juece? Juece { get; set; }
 
-    public virtual Persona? Persona { get; set; }
-
-    public virtual ICollection<ResultadosEvento> ResultadosEventos { get; set; } = new List<ResultadosEvento>();
+    public virtual Persona Persona { get; set; } = null!;
 
     public virtual Tutore? Tutore { get; set; }
 

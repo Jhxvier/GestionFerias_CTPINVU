@@ -5,7 +5,7 @@ namespace GestionFerias_CTPINVU.Models;
 
 public partial class Tutore
 {
-    public long UsuarioId { get; set; }
+    public long TutorId { get; set; }
 
     public string Especialidad { get; set; } = null!;
 
@@ -17,5 +17,7 @@ public partial class Tutore
 
     public DateTime? FechaModificacion { get; set; }
 
-    public virtual Usuario Usuario { get; set; } = null!;
+    public virtual ICollection<Inscripcione> Inscripciones { get; set; } = new List<Inscripcione>();
+
+    public virtual Usuario Tutor { get; set; } = null!;
 }

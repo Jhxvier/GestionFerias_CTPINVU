@@ -20,7 +20,7 @@ namespace GestionFerias_CTPINVU.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var appDbContext = _context.Tutores.Include(t => t.Usuario);
+            var appDbContext = _context.Tutores.Include(t => t.Tutor);
             return View(await appDbContext.ToListAsync());
         }
 
@@ -61,8 +61,8 @@ namespace GestionFerias_CTPINVU.Controllers
             }
 
             var tutore = await _context.Tutores
-                .Include(t => t.Usuario)
-                .FirstOrDefaultAsync(m => m.UsuarioId == id);
+                .Include(t => t.Tutor)
+                .FirstOrDefaultAsync(m => m.TutorId == id);
 
             if (tutore == null)
             {
@@ -80,8 +80,8 @@ namespace GestionFerias_CTPINVU.Controllers
             }
 
             var tutore = await _context.Tutores
-                .Include(t => t.Usuario)
-                .FirstOrDefaultAsync(m => m.UsuarioId == id);
+                .Include(t => t.Tutor)
+                .FirstOrDefaultAsync(m => m.TutorId == id);
 
             if (tutore == null)
             {
@@ -107,7 +107,7 @@ namespace GestionFerias_CTPINVU.Controllers
 
         private bool TutoreExists(long id)
         {
-            return _context.Tutores.Any(e => e.UsuarioId == id);
+            return _context.Tutores.Any(e => e.TutorId == id);
         }
     }
 }

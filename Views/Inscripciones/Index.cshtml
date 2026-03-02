@@ -276,7 +276,7 @@
                                 var textoTutor = item.TutorUsuarioId == null
                                 ? "— (sin asignar)"
                                 : (item.TutorUsuario != null
-                                ? $"Tutor ID: {item.TutorUsuario.UsuarioId}"
+                                ? $"Tutor ID: {item.TutorUsuario.TutorId}"
                                 : $"Tutor ID: {item.TutorUsuarioId}");
 
                                 var estado = item.EstadoInscripcion?.ToString() ?? "Pendiente";

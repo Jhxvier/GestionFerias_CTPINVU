@@ -1,4 +1,4 @@
-namespace GestionFerias_CTPINVU.Models
+﻿namespace GestionFerias_CTPINVU.Models
 {
     public class ErrorViewModel
     {

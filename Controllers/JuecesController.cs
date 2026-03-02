@@ -20,7 +20,7 @@ namespace GestionFerias_CTPINVU.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var appDbContext = _context.Jueces.Include(j => j.Usuario);
+            var appDbContext = _context.Jueces.Include(j => j.Juez);
             return View(await appDbContext.ToListAsync());
         }
 
@@ -61,8 +61,8 @@ namespace GestionFerias_CTPINVU.Controllers
             }
 
             var juece = await _context.Jueces
-                .Include(j => j.Usuario)
-                .FirstOrDefaultAsync(m => m.UsuarioId == id);
+                .Include(j => j.Juez)
+                .FirstOrDefaultAsync(m => m.JuezId == id);
 
             if (juece == null)
             {
@@ -80,8 +80,8 @@ namespace GestionFerias_CTPINVU.Controllers
             }
 
             var juece = await _context.Jueces
-                .Include(j => j.Usuario)
-                .FirstOrDefaultAsync(m => m.UsuarioId == id);
+                .Include(j => j.Juez)
+                .FirstOrDefaultAsync(m => m.JuezId == id);
 
             if (juece == null)
             {
@@ -107,7 +107,7 @@ namespace GestionFerias_CTPINVU.Controllers
 
         private bool JueceExists(long id)
         {
-            return _context.Jueces.Any(e => e.UsuarioId == id);
+            return _context.Jueces.Any(e => e.JuezId == id);
         }
     }
 }

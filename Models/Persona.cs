@@ -7,8 +7,6 @@ public partial class Persona
 {
     public long PersonaId { get; set; }
 
-    public long UsuarioId { get; set; }
-
     public string Documento { get; set; } = null!;
 
     public string Nombres { get; set; } = null!;
@@ -31,5 +29,5 @@ public partial class Persona
 
     public DateTime? FechaModificacion { get; set; }
 
-    public virtual Usuario Usuario { get; set; } = null!;
+    public virtual Usuario? Usuario { get; set; }
 }

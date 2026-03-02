@@ -9,6 +9,8 @@ public partial class Categoria
 
     public string Nombre { get; set; } = null!;
 
+    public string TipoFeria { get; set; } = null!;
+
     public long? UsuarioCreacion { get; set; }
 
     public DateTime FechaCreacion { get; set; }

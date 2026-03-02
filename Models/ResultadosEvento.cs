@@ -27,7 +27,7 @@ public partial class ResultadosEvento
 
     public virtual Evento Evento { get; set; } = null!;
 
-    public virtual Usuario? JuezResponsableUsuario { get; set; }
+    public virtual Juece? JuezResponsableUsuario { get; set; }
 
     public virtual ICollection<ResultadosGanadore> ResultadosGanadores { get; set; } = new List<ResultadosGanadore>();
 }

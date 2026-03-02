@@ -39,5 +39,5 @@ public partial class Inscripcione
 
     public virtual Subcategoria Subcategoria { get; set; } = null!;
 
-    public virtual Usuario? TutorUsuario { get; set; }
+    public virtual Tutore? TutorUsuario { get; set; }
 }

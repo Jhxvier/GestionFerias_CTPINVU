@@ -13,7 +13,7 @@ public partial class Evento
 
     public string NombreEvento { get; set; } = null!;
 
-    public string? TipoEvento { get; set; }
+    public string TipoFeria { get; set; } = null!;
 
     public string? Descripcion { get; set; }
 

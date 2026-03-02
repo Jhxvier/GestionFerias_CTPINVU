@@ -17,7 +17,7 @@ public partial class InscripcionIntegrante
 
     public DateTime? FechaModificacion { get; set; }
 
-    public virtual Usuario EstudianteUsuario { get; set; } = null!;
+    public virtual Estudiante EstudianteUsuario { get; set; } = null!;
 
     public virtual Inscripcione Inscripcion { get; set; } = null!;
 }

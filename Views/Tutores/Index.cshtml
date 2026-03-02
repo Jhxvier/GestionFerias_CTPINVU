@@ -195,12 +195,12 @@
                         <tbody>
                             @foreach (var item in Model)
                             {
-                                var documento = item.Usuario?.Persona?.Documento ?? "—";
-                                var nombres = item.Usuario?.Persona?.Nombres ?? "—";
-                                var apellidos = item.Usuario?.Persona?.Apellidos ?? "—";
-                                var correo = item.Usuario?.Correo ?? "—";
+                                var documento = item.Tutor?.Persona?.Documento ?? "—";
+                                var nombres = item.Tutor?.Persona?.Nombres ?? "—";
+                                var apellidos = item.Tutor?.Persona?.Apellidos ?? "—";
+                                var correo = item.Tutor?.Correo ?? "—";
                                 var especialidad = item.Especialidad ?? "—";
-                                var estado = item.Usuario?.Estado?.ToString() ?? "—";
+                                var estado = item.Tutor?.Estado?.ToString() ?? "—";
 
                                 <tr>
                                     <td>@documento</td>
@@ -225,13 +225,13 @@
                                     <td class="text-end">
                                         <div class="d-inline-flex gap-2 flex-wrap justify-content-end">
                                             <a asp-action="Edit"
-                                               asp-route-id="@item.UsuarioId"
+                                               asp-route-id="@item.TutorId"
                                                class="btn-accion btn-editar">
                                                 Editar
                                             </a>
 
                                             <a asp-action="Delete"
-                                               asp-route-id="@item.UsuarioId"
+                                               asp-route-id="@item.TutorId"
                                                class="btn-accion btn-eliminar">
                                                 Eliminar
                                             </a>

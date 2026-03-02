@@ -240,8 +240,12 @@
 
                             <div class="field">
                                 <label>Tipo de evento</label>
-                                <input asp-for="TipoEvento" />
-                                <span asp-validation-for="TipoEvento" class="text-danger"></span>
+                                <select asp-for="EstadoEvento">
+                                    <option value="">Seleccione</option>
+                                    <option value="En proceso">Artes</option>
+                                    <option value="Finalizado">Cientifica</option>
+                                </select>
+                                <span asp-validation-for="TipoFeria" class="text-danger"></span>
                             </div>
 
                             <div class="field">

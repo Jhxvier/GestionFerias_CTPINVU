@@ -190,12 +190,12 @@
                         <tbody>
                             @foreach (var item in Model)
                             {
-                                var documento = item.Usuario?.Persona?.Documento ?? "—";
-                                var nombres = item.Usuario?.Persona?.Nombres ?? "—";
-                                var apellidos = item.Usuario?.Persona?.Apellidos ?? "—";
-                                var correo = item.Usuario?.Correo ?? "—";
+                                var documento = item.EstudianteNavigation?.Persona?.Documento ?? "—";
+                                var nombres = item.EstudianteNavigation?.Persona?.Nombres ?? "—";
+                                var apellidos = item.EstudianteNavigation?.Persona?.Apellidos ?? "—";
+                                var correo = item.EstudianteNavigation?.Correo ?? "—";
                                 var grado = item.Grado?.ToString() ?? "—";
-                                var estado = item.Usuario?.Estado?.ToString() ?? "—";
+                                var estado = item.EstudianteNavigation?.Estado?.ToString() ?? "—";
 
                                 <tr>
                                     <td>@documento</td>
@@ -218,8 +218,8 @@
                                     </td>
                                     <td class="text-end">
                                         <div class="d-inline-flex gap-2 flex-wrap justify-content-end">
-                                            <a asp-action="Edit" asp-route-id="@item.UsuarioId" class="btn-accion btn-editar">Editar</a>
-                                            <a asp-action="Delete" asp-route-id="@item.UsuarioId" class="btn-accion btn-eliminar">Eliminar</a>
+                                            <a asp-action="Edit" asp-route-id="@item.EstudianteId" class="btn-accion btn-editar">Editar</a>
+                                            <a asp-action="Delete" asp-route-id="@item.EstudianteId" class="btn-accion btn-eliminar">Eliminar</a>
                                         </div>
                                     </td>
                                 </tr>

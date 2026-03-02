@@ -65,7 +65,9 @@ public partial class AppDbContext : DbContext
 
             entity.ToTable("categorias");
 
-            entity.HasIndex(e => e.Nombre, "nombre").IsUnique();
+            entity.HasIndex(e => e.TipoFeria, "idx_cat_tipo_feria");
+
+            entity.HasIndex(e => new { e.Nombre, e.TipoFeria }, "uq_categoria_tipo").IsUnique();
 
             entity.Property(e => e.CategoriaId).HasColumnName("categoria_id");
             entity.Property(e => e.FechaCreacion)
@@ -79,6 +81,9 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Nombre)
                 .HasMaxLength(80)
                 .HasColumnName("nombre");
+            entity.Property(e => e.TipoFeria)
+                .HasMaxLength(60)
+                .HasColumnName("tipo_feria");
             entity.Property(e => e.UsuarioCreacion).HasColumnName("usuario_creacion");
             entity.Property(e => e.UsuarioModificacion).HasColumnName("usuario_modificacion");
         });
@@ -146,15 +151,15 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<Estudiante>(entity =>
         {
-            entity.HasKey(e => e.UsuarioId).HasName("PRIMARY");
+            entity.HasKey(e => e.EstudianteId).HasName("PRIMARY");
 
             entity.ToTable("estudiantes");
 
             entity.HasIndex(e => e.Grado, "idx_estudiantes_grado");
 
-            entity.Property(e => e.UsuarioId)
+            entity.Property(e => e.EstudianteId)
                 .ValueGeneratedNever()
-                .HasColumnName("usuario_id");
+                .HasColumnName("estudiante_id");
             entity.Property(e => e.FechaCreacion)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime")
@@ -169,9 +174,8 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.UsuarioCreacion).HasColumnName("usuario_creacion");
             entity.Property(e => e.UsuarioModificacion).HasColumnName("usuario_modificacion");
 
-            entity.HasOne(d => d.Usuario).WithOne(p => p.Estudiante)
-                .HasForeignKey<Estudiante>(d => d.UsuarioId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+            entity.HasOne(d => d.EstudianteNavigation).WithOne(p => p.Estudiante)
+                .HasForeignKey<Estudiante>(d => d.EstudianteId)
                 .HasConstraintName("fk_estudiantes_usuario");
         });
 
@@ -188,6 +192,8 @@ public partial class AppDbContext : DbContext
             entity.HasIndex(e => new { e.FechaInicio, e.FechaFin }, "idx_eventos_fechas");
 
             entity.HasIndex(e => e.NombreEvento, "idx_eventos_nombre");
+
+            entity.HasIndex(e => e.TipoFeria, "idx_eventos_tipo_feria");
 
             entity.Property(e => e.EventoId).HasColumnName("evento_id");
             entity.Property(e => e.CentroId).HasColumnName("centro_id");
@@ -214,9 +220,9 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.NombreEvento)
                 .HasMaxLength(160)
                 .HasColumnName("nombre_evento");
-            entity.Property(e => e.TipoEvento)
+            entity.Property(e => e.TipoFeria)
                 .HasMaxLength(60)
-                .HasColumnName("tipo_evento");
+                .HasColumnName("tipo_feria");
             entity.Property(e => e.UsuarioCreacion).HasColumnName("usuario_creacion");
             entity.Property(e => e.UsuarioModificacion).HasColumnName("usuario_modificacion");
 
@@ -251,7 +257,6 @@ public partial class AppDbContext : DbContext
 
             entity.HasOne(d => d.EstudianteUsuario).WithMany(p => p.InscripcionIntegrantes)
                 .HasForeignKey(d => d.EstudianteUsuarioId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_integ_estudiante");
 
             entity.HasOne(d => d.Inscripcion).WithMany(p => p.InscripcionIntegrantes)
@@ -307,7 +312,7 @@ public partial class AppDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_insc_evento");
 
-            entity.HasOne(d => d.LiderUsuario).WithMany(p => p.InscripcioneLiderUsuarios)
+            entity.HasOne(d => d.LiderUsuario).WithMany(p => p.Inscripciones)
                 .HasForeignKey(d => d.LiderUsuarioId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_insc_lider");
@@ -317,20 +322,20 @@ public partial class AppDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_insc_subcat");
 
-            entity.HasOne(d => d.TutorUsuario).WithMany(p => p.InscripcioneTutorUsuarios)
+            entity.HasOne(d => d.TutorUsuario).WithMany(p => p.Inscripciones)
                 .HasForeignKey(d => d.TutorUsuarioId)
                 .HasConstraintName("fk_insc_tutor");
         });
 
         modelBuilder.Entity<Juece>(entity =>
         {
-            entity.HasKey(e => e.UsuarioId).HasName("PRIMARY");
+            entity.HasKey(e => e.JuezId).HasName("PRIMARY");
 
             entity.ToTable("jueces");
 
-            entity.Property(e => e.UsuarioId)
+            entity.Property(e => e.JuezId)
                 .ValueGeneratedNever()
-                .HasColumnName("usuario_id");
+                .HasColumnName("juez_id");
             entity.Property(e => e.FechaCreacion)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime")
@@ -342,9 +347,8 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.UsuarioCreacion).HasColumnName("usuario_creacion");
             entity.Property(e => e.UsuarioModificacion).HasColumnName("usuario_modificacion");
 
-            entity.HasOne(d => d.Usuario).WithOne(p => p.Juece)
-                .HasForeignKey<Juece>(d => d.UsuarioId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+            entity.HasOne(d => d.Juez).WithOne(p => p.Juece)
+                .HasForeignKey<Juece>(d => d.JuezId)
                 .HasConstraintName("fk_jueces_usuario");
         });
 
@@ -355,8 +359,6 @@ public partial class AppDbContext : DbContext
             entity.ToTable("personas");
 
             entity.HasIndex(e => e.Documento, "documento").IsUnique();
-
-            entity.HasIndex(e => e.UsuarioId, "usuario_id").IsUnique();
 
             entity.Property(e => e.PersonaId).HasColumnName("persona_id");
             entity.Property(e => e.Apellidos)
@@ -387,13 +389,7 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(30)
                 .HasColumnName("telefono");
             entity.Property(e => e.UsuarioCreacion).HasColumnName("usuario_creacion");
-            entity.Property(e => e.UsuarioId).HasColumnName("usuario_id");
             entity.Property(e => e.UsuarioModificacion).HasColumnName("usuario_modificacion");
-
-            entity.HasOne(d => d.Usuario).WithOne(p => p.Persona)
-                .HasForeignKey<Persona>(d => d.UsuarioId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("fk_personas_usuario");
         });
 
         modelBuilder.Entity<ResultadosEvento>(entity =>
@@ -541,15 +537,15 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<Tutore>(entity =>
         {
-            entity.HasKey(e => e.UsuarioId).HasName("PRIMARY");
+            entity.HasKey(e => e.TutorId).HasName("PRIMARY");
 
             entity.ToTable("tutores");
 
             entity.HasIndex(e => e.Especialidad, "idx_tutores_especialidad");
 
-            entity.Property(e => e.UsuarioId)
+            entity.Property(e => e.TutorId)
                 .ValueGeneratedNever()
-                .HasColumnName("usuario_id");
+                .HasColumnName("tutor_id");
             entity.Property(e => e.Especialidad)
                 .HasMaxLength(80)
                 .HasColumnName("especialidad");
@@ -564,9 +560,8 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.UsuarioCreacion).HasColumnName("usuario_creacion");
             entity.Property(e => e.UsuarioModificacion).HasColumnName("usuario_modificacion");
 
-            entity.HasOne(d => d.Usuario).WithOne(p => p.Tutore)
-                .HasForeignKey<Tutore>(d => d.UsuarioId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+            entity.HasOne(d => d.Tutor).WithOne(p => p.Tutore)
+                .HasForeignKey<Tutore>(d => d.TutorId)
                 .HasConstraintName("fk_tutores_usuario");
         });
 
@@ -583,6 +578,8 @@ public partial class AppDbContext : DbContext
             entity.HasIndex(e => e.UsuarioModificacion, "fk_usu_modificacion");
 
             entity.HasIndex(e => e.Estado, "idx_usuarios_estado");
+
+            entity.HasIndex(e => e.PersonaId, "persona_id").IsUnique();
 
             entity.Property(e => e.UsuarioId).HasColumnName("usuario_id");
             entity.Property(e => e.Correo)
@@ -603,11 +600,17 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.PasswordHash)
                 .HasMaxLength(255)
                 .HasColumnName("password_hash");
+            entity.Property(e => e.PersonaId).HasColumnName("persona_id");
             entity.Property(e => e.UltimoAcceso)
                 .HasColumnType("datetime")
                 .HasColumnName("ultimo_acceso");
             entity.Property(e => e.UsuarioCreacion).HasColumnName("usuario_creacion");
             entity.Property(e => e.UsuarioModificacion).HasColumnName("usuario_modificacion");
+
+            entity.HasOne(d => d.Persona).WithOne(p => p.Usuario)
+                .HasForeignKey<Usuario>(d => d.PersonaId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_usuarios_persona");
 
             entity.HasOne(d => d.UsuarioCreacionNavigation).WithMany(p => p.InverseUsuarioCreacionNavigation)
                 .HasForeignKey(d => d.UsuarioCreacion)

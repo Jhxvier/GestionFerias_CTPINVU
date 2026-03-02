@@ -5,7 +5,7 @@ namespace GestionFerias_CTPINVU.Models;
 
 public partial class Juece
 {
-    public long UsuarioId { get; set; }
+    public long JuezId { get; set; }
 
     public long? UsuarioCreacion { get; set; }
 
@@ -15,5 +15,7 @@ public partial class Juece
 
     public DateTime? FechaModificacion { get; set; }
 
-    public virtual Usuario Usuario { get; set; } = null!;
+    public virtual Usuario Juez { get; set; } = null!;
+
+    public virtual ICollection<ResultadosEvento> ResultadosEventos { get; set; } = new List<ResultadosEvento>();
 }

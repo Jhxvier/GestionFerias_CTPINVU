@@ -5,7 +5,7 @@ namespace GestionFerias_CTPINVU.Models;
 
 public partial class Estudiante
 {
-    public long UsuarioId { get; set; }
+    public long EstudianteId { get; set; }
 
     public string? Grado { get; set; }
 
@@ -17,5 +17,7 @@ public partial class Estudiante
 
     public DateTime? FechaModificacion { get; set; }
 
-    public virtual Usuario Usuario { get; set; } = null!;
+    public virtual Usuario EstudianteNavigation { get; set; } = null!;
+
+    public virtual ICollection<InscripcionIntegrante> InscripcionIntegrantes { get; set; } = new List<InscripcionIntegrante>();
 }
