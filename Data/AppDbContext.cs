@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using GestionFerias_CTPINVU.Models;
 using Microsoft.EntityFrameworkCore;
@@ -50,8 +50,8 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<UsuarioRole> UsuarioRoles { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseMySql("server=localhost;port=3306;database=BD_FeriasCTPINVU;user=root;password=1234", Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.44-mysql"));
+    {
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -660,6 +660,32 @@ public partial class AppDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_uroles_usuario");
         });
+
+        // Seed Data for Administrator
+        modelBuilder.Entity<Role>().HasData(
+            new Role { RolId = 1, NombreRol = "Administrador", Descripcion = "Administrador del sistema", FechaCreacion = DateTime.Now }
+        );
+
+        modelBuilder.Entity<Persona>().HasData(
+            new Persona { PersonaId = 1, Documento = "000000000", Nombres = "Administrador", Apellidos = "Sistema", FechaCreacion = DateTime.Now }
+        );
+
+        modelBuilder.Entity<Usuario>().HasData(
+            new Usuario 
+            { 
+                UsuarioId = 1, 
+                PersonaId = 1, 
+                Correo = "admin@invu.cr", 
+                // Using SHA256 Hash of '1234' for simplicity. Real implementation should use proper ASP.NET Core Identity hashing or equivalent
+                PasswordHash = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4", 
+                Estado = "Activo", 
+                FechaCreacion = DateTime.Now 
+            }
+        );
+
+        modelBuilder.Entity<UsuarioRole>().HasData(
+            new UsuarioRole { UsuarioId = 1, RolId = 1, FechaAsignacion = DateTime.Now, FechaCreacion = DateTime.Now }
+        );
 
         OnModelCreatingPartial(modelBuilder);
     }
