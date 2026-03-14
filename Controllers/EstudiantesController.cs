@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -22,33 +22,37 @@ namespace GestionFerias_CTPINVU.Controllers
             return View(await appDbContext.ToListAsync());
         }
 
+        // GET: Estudiantes/Create
         public IActionResult Create()
         {
-            return RedirectToAction("Perfil", "Usuarios");
+            return RedirectToAction("Perfil", "Usuarios", new { modo = "create", rol = "estudiante" });
         }
 
+        // POST: Estudiantes/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Estudiante estudiante)
+        public IActionResult Create([Bind("EstudianteId,Grado,UsuarioCreacion,FechaCreacion,UsuarioModificacion,FechaModificacion")] Estudiante estudiante)
         {
-            return RedirectToAction("Perfil", "Usuarios");
+            return RedirectToAction("Perfil", "Usuarios", new { modo = "create", rol = "estudiante" });
         }
 
-        public IActionResult Edit(long? id)
+        // GET: Estudiantes/Edit/5
+        public async Task<IActionResult> Edit(long? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            return RedirectToAction("Perfil", "Usuarios");
+            return RedirectToAction("Perfil", "Usuarios", new { id, modo = "edit", rol = "estudiante" });
         }
 
+        // POST: Estudiantes/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(long id, Estudiante estudiante)
+        public async Task<IActionResult> Edit(long id, [Bind("EstudianteId,Grado,UsuarioCreacion,FechaCreacion,UsuarioModificacion,FechaModificacion")] Estudiante estudiante)
         {
-            return RedirectToAction("Perfil", "Usuarios");
+            return RedirectToAction("Perfil", "Usuarios", new { id, modo = "edit", rol = "estudiante" });
         }
 
         public async Task<IActionResult> Details(long? id)

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -24,33 +24,37 @@ namespace GestionFerias_CTPINVU.Controllers
             return View(await appDbContext.ToListAsync());
         }
 
+        // GET: Jueces/Create
         public IActionResult Create()
         {
-            return RedirectToAction("Perfil", "Usuarios");
+            return RedirectToAction("Perfil", "Usuarios", new { modo = "create", rol = "juez" });
         }
 
+        // POST: Jueces/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Juece juece)
+        public IActionResult Create([Bind("JuezId,UsuarioCreacion,FechaCreacion,UsuarioModificacion,FechaModificacion")] Juece juece)
         {
-            return RedirectToAction("Perfil", "Usuarios");
+            return RedirectToAction("Perfil", "Usuarios", new { modo = "create", rol = "juez" });
         }
 
-        public IActionResult Edit(long? id)
+        // GET: Jueces/Edit/5
+        public async Task<IActionResult> Edit(long? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            return RedirectToAction("Perfil", "Usuarios");
+            return RedirectToAction("Perfil", "Usuarios", new { id, modo = "edit", rol = "juez" });
         }
 
+        // POST: Jueces/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(long id, Juece juece)
+        public async Task<IActionResult> Edit(long id, [Bind("JuezId,UsuarioCreacion,FechaCreacion,UsuarioModificacion,FechaModificacion")] Juece juece)
         {
-            return RedirectToAction("Perfil", "Usuarios");
+            return RedirectToAction("Perfil", "Usuarios", new { id, modo = "edit", rol = "juez" });
         }
 
         public async Task<IActionResult> Details(long? id)

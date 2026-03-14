@@ -1,9 +1,11 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using GestionFerias_CTPINVU.Data;
 using GestionFerias_CTPINVU.Models;
+
+using GestionFerias_CTPINVU.ViewModels;
 
 namespace GestionFerias_CTPINVU.Controllers
 {
@@ -26,39 +28,186 @@ namespace GestionFerias_CTPINVU.Controllers
             return View(lista);
         }
 
-        public async Task<IActionResult> Perfil()
+        [HttpGet]
+        public async Task<IActionResult> Perfil(long? id, string modo = "create", string rol = "")
         {
-            var appDbContext = _context.Usuarios.Include(u => u.UsuarioCreacionNavigation).Include(u => u.UsuarioModificacionNavigation);
-            return View(await appDbContext.ToListAsync());
-        }
+            var vm = new PerfilViewModel
+            {
+                Modo = modo,
+                RolSeleccionado = rol
+            };
 
-        public IActionResult Create(string rol = "")
-        {
-            return RedirectToAction("Perfil", new { modo = "create", rol });
+            if (id.HasValue && modo == "edit")
+            {
+                var usr = await _context.Usuarios
+                    .Include(u => u.Persona)
+                    .Include(u => u.Estudiante)
+                    .Include(u => u.Juece)
+                    .Include(u => u.Tutore)
+                    .FirstOrDefaultAsync(u => u.UsuarioId == id.Value);
+
+                if (usr == null) return NotFound();
+
+                vm.UsuarioId = usr.UsuarioId;
+                vm.PersonaId = usr.PersonaId;
+                vm.EstadoUsuario = usr.Estado ?? "Activo";
+                vm.Correo = usr.Correo;
+
+                if (usr.Persona != null)
+                {
+                    vm.Documento = usr.Persona.Documento;
+                    vm.Nombres = usr.Persona.Nombres;
+                    vm.Apellidos = usr.Persona.Apellidos;
+                    vm.Telefono = usr.Persona.Telefono;
+                    // Age usually isn't saved directly but calculated (FechaNacimiento in DB)
+                    // Currently leaving Edad mapping as null just for the form placeholder, mapping manual if needed
+                    vm.Sexo = usr.Persona.Sexo;
+                    vm.Nacionalidad = usr.Persona.Nacionalidad;
+                }
+
+                if (usr.Estudiante != null) // Changed from EstudianteNavigation
+                {
+                    vm.RolSeleccionado = "estudiante";
+                    vm.Grado = usr.Estudiante.Grado != null ? int.Parse(usr.Estudiante.Grado) : null;
+                }
+                else if (usr.Tutore != null)
+                {
+                    vm.RolSeleccionado = "tutor";
+                    vm.Especialidad = usr.Tutore.Especialidad;
+                }
+                else if (usr.Juece != null)
+                {
+                    vm.RolSeleccionado = "juez";
+                }
+                else
+                {
+                    vm.RolSeleccionado = "coord";
+                }
+            }
+            
+            return View(vm);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Usuario usuario)
+        public async Task<IActionResult> GuardarPerfil(PerfilViewModel model)
         {
-            return RedirectToAction("Perfil", new { modo = "create" });
-        }
-
-        public IActionResult Edit(long? id, string rol = "")
-        {
-            if (id == null)
+            if (!ModelState.IsValid)
             {
-                return NotFound();
+                return View("Perfil", model);
             }
 
-            return RedirectToAction("Perfil", new { id, modo = "edit", rol });
+            Persona per;
+            Usuario usr;
+
+            // Encriptación manual (SHA-256)
+            string hashClave = null;
+            if (!string.IsNullOrEmpty(model.Clave))
+            {
+                using (var sha256 = System.Security.Cryptography.SHA256.Create())
+                {
+                    var bytes = System.Text.Encoding.UTF8.GetBytes(model.Clave);
+                    var hashBytes = sha256.ComputeHash(bytes);
+                    hashClave = BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
+                }
+            }
+
+            if (model.Modo == "edit" && model.UsuarioId.HasValue)
+            {
+                // UPDATE
+                usr = await _context.Usuarios
+                    .Include(u => u.Persona)
+                    .FirstOrDefaultAsync(u => u.UsuarioId == model.UsuarioId.Value);
+
+                if (usr == null) return NotFound();
+
+                per = usr.Persona;
+                if (per != null)
+                {
+                    per.Documento = model.Documento;
+                    per.Nombres = model.Nombres;
+                    per.Apellidos = model.Apellidos;
+                    per.Telefono = model.Telefono;
+                    per.Sexo = model.Sexo;
+                    per.Nacionalidad = model.Nacionalidad;
+                    per.FechaModificacion = DateTime.Now;
+                    _context.Personas.Update(per);
+                }
+
+                usr.Correo = model.Correo;
+                if (hashClave != null) usr.PasswordHash = hashClave;
+                usr.Estado = model.EstadoUsuario;
+                usr.FechaModificacion = DateTime.Now;
+                _context.Usuarios.Update(usr);
+            }
+            else
+            {
+                // CREATE
+                per = new Persona
+                {
+                    Documento = model.Documento,
+                    Nombres = model.Nombres,
+                    Apellidos = model.Apellidos,
+                    Telefono = model.Telefono,
+                    Sexo = model.Sexo,
+                    Nacionalidad = model.Nacionalidad,
+                    FechaCreacion = DateTime.Now
+                };
+
+                _context.Personas.Add(per);
+                await _context.SaveChangesAsync(); // Se necesita el PersonaId
+
+                usr = new Usuario
+                {
+                    PersonaId = per.PersonaId,
+                    Correo = model.Correo,
+                    PasswordHash = hashClave ?? "", // Clave obligatoria si se crea? Asumimos manejado arriba o validado
+                    Estado = model.EstadoUsuario,
+                    FechaCreacion = DateTime.Now
+                };
+                _context.Usuarios.Add(usr);
+                await _context.SaveChangesAsync(); // Se necesita el UsuarioId
+            }
+
+            // Mapeos específicos de Rol
+            await LimpiarRolesAnteriores(usr.UsuarioId);
+
+            string rolLower = model.RolSeleccionado?.ToLower() ?? "";
+            
+            if (rolLower == "estudiante")
+            {
+                _context.Estudiantes.Add(new Estudiante { EstudianteId = usr.UsuarioId, Grado = model.Grado?.ToString() });
+            }
+            else if (rolLower == "tutor")
+            {
+                _context.Tutores.Add(new Tutore { TutorId = usr.UsuarioId, Especialidad = model.Especialidad });
+            }
+            else if (rolLower == "juez")
+            {
+                _context.Jueces.Add(new Juece { JuezId = usr.UsuarioId });
+            }
+
+            await _context.SaveChangesAsync();
+
+            // Retornar a una lista (por defecto a quien llamó o a index principal)
+            if (rolLower == "estudiante") return RedirectToAction("Index", "Estudiantes");
+            if (rolLower == "tutor") return RedirectToAction("Index", "Tutores");
+            if (rolLower == "juez") return RedirectToAction("Index", "Jueces");
+            return RedirectToAction("Index", "Usuarios");
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Edit(long id, Usuario usuario)
+        private async Task LimpiarRolesAnteriores(long usuarioId)
         {
-            return RedirectToAction("Perfil", new { id, modo = "edit" });
+            var est = await _context.Estudiantes.FindAsync(usuarioId);
+            if (est != null) _context.Estudiantes.Remove(est);
+
+            var tut = await _context.Tutores.FindAsync(usuarioId);
+            if (tut != null) _context.Tutores.Remove(tut);
+
+            var jue = await _context.Jueces.FindAsync(usuarioId);
+            if (jue != null) _context.Jueces.Remove(jue);
+
+            await _context.SaveChangesAsync();
         }
 
         public async Task<IActionResult> Details(long? id)

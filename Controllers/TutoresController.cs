@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -24,33 +24,37 @@ namespace GestionFerias_CTPINVU.Controllers
             return View(await appDbContext.ToListAsync());
         }
 
+        // GET: Tutores/Create
         public IActionResult Create()
         {
-            return RedirectToAction("Perfil", "Usuarios");
+            return RedirectToAction("Perfil", "Usuarios", new { modo = "create", rol = "tutor" });
         }
 
+        // POST: Tutores/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Tutore tutore)
+        public IActionResult Create([Bind("TutorId,Especialidad,UsuarioCreacion,FechaCreacion,UsuarioModificacion,FechaModificacion")] Tutore tutore)
         {
-            return RedirectToAction("Perfil", "Usuarios");
+            return RedirectToAction("Perfil", "Usuarios", new { modo = "create", rol = "tutor" });
         }
 
-        public IActionResult Edit(long? id)
+        // GET: Tutores/Edit/5
+        public async Task<IActionResult> Edit(long? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            return RedirectToAction("Perfil", "Usuarios");
+            return RedirectToAction("Perfil", "Usuarios", new { id, modo = "edit", rol = "tutor" });
         }
 
+        // POST: Tutores/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(long id, Tutore tutore)
+        public async Task<IActionResult> Edit(long id, [Bind("TutorId,Especialidad,UsuarioCreacion,FechaCreacion,UsuarioModificacion,FechaModificacion")] Tutore tutore)
         {
-            return RedirectToAction("Perfil", "Usuarios");
+            return RedirectToAction("Perfil", "Usuarios", new { id, modo = "edit", rol = "tutor" });
         }
 
         public async Task<IActionResult> Details(long? id)
