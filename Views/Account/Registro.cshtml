@@ -1,5 +1,5 @@
 @{
-    ViewData["Title"] = "Inicio de sesión";
+    ViewData["Title"] = "Registro";
     Layout = null;
 }
 
@@ -40,6 +40,7 @@
             border-radius: 22px;
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(0,0,0,.08);
+            margin: 20px 0;
         }
 
         .topbar {
@@ -68,7 +69,7 @@
         }
 
         .card-login {
-            width: 430px;
+            width: 480px;
             max-width: 94vw;
             border-radius: 24px;
             border: 1px solid var(--line);
@@ -77,15 +78,8 @@
         }
 
         .card-top {
-            background: var(--verde);
+            background: var(--naranja);
             color: #fff;
-        }
-
-        .info {
-            border: 2px dashed var(--amarillo);
-            background: #fffbe6;
-            color: #7a5d00;
-            border-radius: 18px;
         }
 
         .form-control, .btn {
@@ -104,7 +98,7 @@
             }
 
         .btn-alt {
-            background: var(--naranja);
+            background: var(--verde);
             color: #fff;
             border: 1px solid rgba(0,0,0,.25);
         }
@@ -131,7 +125,6 @@
 
 <body>
     <div class="frame">
-
         <!-- Topbar -->
         <div class="topbar p-3 p-md-4">
             <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3">
@@ -146,7 +139,7 @@
                         <div class="small opacity-75">CTP INVU Las Cañas</div>
                     </div>
                 </div>
-                <div class="pill"><i class="bi bi-shield-lock me-1"></i> Acceso al sistema</div>
+                <div class="pill"><i class="bi bi-person-plus me-1"></i> Registro de Usuario</div>
             </div>
         </div>
 
@@ -155,78 +148,82 @@
             <div class="card card-login">
                 <div class="card-top px-3 py-3">
                     <div class="d-flex align-items-center gap-2">
-                        <i class="bi bi-person-lock fs-5"></i>
-                        <span class="fw-semibold">Inicio de sesión</span>
+                        <i class="bi bi-person-plus-fill fs-5"></i>
+                        <span class="fw-semibold">Crea una nueva cuenta</span>
                     </div>
                 </div>
 
                 <div class="p-3 p-md-4">
-                    @if (TempData["ErrorLogin"] != null)
+                    @if (TempData["ErrorRegistro"] != null)
                     {
                         <div class="alert alert-danger mb-3">
                             <i class="bi bi-exclamation-triangle me-1"></i>
-                            @TempData["ErrorLogin"]
+                            @TempData["ErrorRegistro"]
                         </div>
                     }
 
-                    <div class="info p-3 mb-3">
-                        Ingrese con su <strong>correo/usuario</strong> y <strong>contraseña</strong>.
-                        <div class="small mt-2">
-                            Para pruebas: <strong>admin@invu.cr</strong> / <strong>1234</strong>
-                        </div>
-                    </div>
-
-
-
                     <!-- Form (POST) -->
-                    <form asp-controller="Account" asp-action="Login" method="post" class="needs-validation" novalidate>
+                    <form asp-controller="Account" asp-action="Registro" method="post" class="needs-validation" novalidate>
+                        
                         <div class="mb-3">
-                            <label class="form-label small muted">Usuario o correo</label>
+                            <label class="form-label small muted">Número de documento o cédula *</label>
                             <div class="input-group">
-                                <span class="input-group-text bg-white"><i class="bi bi-person"></i></span>
-                                <input name="correo" type="text" class="form-control" placeholder="usuario@colegio.edu" required />
-                                <div class="invalid-feedback">Digite su usuario o correo.</div>
+                                <span class="input-group-text bg-white"><i class="bi bi-card-text"></i></span>
+                                <input name="documento" type="text" class="form-control" placeholder="Ej. 102340567" required />
+                                <div class="invalid-feedback">Digite su documento de identidad.</div>
                             </div>
                         </div>
 
-                        <div class="mb-2">
-                            <label class="form-label small muted">Contraseña</label>
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label small muted">Nombre(s) *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white"><i class="bi bi-person"></i></span>
+                                    <input name="nombres" type="text" class="form-control" placeholder="Juan" required />
+                                    <div class="invalid-feedback">Obligatorio.</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small muted">Apellidos *</label>
+                                <input name="apellidos" type="text" class="form-control" placeholder="Pérez López" required />
+                                <div class="invalid-feedback">Obligatorio.</div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small muted">Correo Electrónico *</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white"><i class="bi bi-envelope"></i></span>
+                                <input name="correo" type="email" class="form-control" placeholder="usuario@colegio.edu" required />
+                                <div class="invalid-feedback">Digite un correo válido.</div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small muted">Contraseña *</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-white"><i class="bi bi-key"></i></span>
                                 <input name="clave" type="password" class="form-control" placeholder="••••••••" required />
-                                <div class="invalid-feedback">Digite su contraseña.</div>
+                                <div class="invalid-feedback">Digite una contraseña para su cuenta.</div>
                             </div>
+                            <div class="form-text small">La contraseña será encriptada de forma segura.</div>
                         </div>
 
-                        <div class="d-flex gap-2 flex-wrap mt-3">
+                        <div class="d-flex gap-2 flex-wrap mt-4">
                             <button type="submit" class="btn btn-login flex-fill">
-                                <i class="bi bi-box-arrow-in-right me-1"></i> Ingresar
-                            </button>
-                            <button type="reset" class="btn btn-alt flex-fill">
-                                <i class="bi bi-eraser me-1"></i> Limpiar
+                                <i class="bi bi-check-circle me-1"></i> Completar Registro
                             </button>
                         </div>
 
-                        <div class="text-center mt-3">
-                            <a class="link-rojo small" asp-controller="Account" asp-action="OlvideContrasena">
-                                <i class="bi bi-question-circle me-1"></i> ¿Olvidó su contraseña?
-                            </a>
-                        </div>
-
-                        <hr class="my-3 text-muted" />
+                        <hr class="my-4 text-muted" />
 
                         <div class="text-center small">
-                            ¿No tienes una cuenta? 
-                            <a class="link-rojo fw-bold" asp-controller="Account" asp-action="Registro">
-                                Regístrate aquí
+                            ¿Ya tienes una cuenta? 
+                            <a class="link-rojo fw-bold" asp-controller="Account" asp-action="Login">
+                                Inicia sesión aquí
                             </a>
                         </div>
-
-                        <div class="text-center mt-3 small muted">
-                            © Sistema de Ferias
-                        </div>
                     </form>
-
                 </div>
             </div>
         </div>
