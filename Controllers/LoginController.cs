@@ -35,14 +35,25 @@ public class AccountController : Controller
         }
 
         var usuario = await _context.Usuarios
+            .Include(u => u.Estudiante)
+            .Include(u => u.Tutore)
+            .Include(u => u.Juece)
+            .Include(u => u.UsuarioRoles).ThenInclude(ur => ur.Rol) // Fallback for Coordinador
             .FirstOrDefaultAsync(u => u.Correo == correo
                                    && u.PasswordHash == hashClave
                                    && u.Estado == "Activo");
 
         if (usuario != null)
         {
+            string rolNombre = "Usuario";
+            if (usuario.Estudiante != null) rolNombre = "Estudiante";
+            else if (usuario.Tutore != null) rolNombre = "Tutor";
+            else if (usuario.Juece != null) rolNombre = "Juez";
+            else if (usuario.UsuarioRoles.Any()) rolNombre = usuario.UsuarioRoles.First().Rol?.NombreRol ?? "Coordinador Administrador";
+            
             HttpContext.Session.SetString("Usuario", usuario.Correo);
             HttpContext.Session.SetString("UsuarioId", usuario.UsuarioId.ToString());
+            HttpContext.Session.SetString("Rol", rolNombre);
             return RedirectToAction("Inicio", "Inicio");
         }
 

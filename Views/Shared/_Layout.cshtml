@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8" />
@@ -198,7 +198,7 @@
                     <!-- Zona derecha -->
                     <div class="d-flex align-items-center gap-2">
                         <span class="chip-navbar">
-                            <i class="bi bi-person-badge"></i> Rol: Coordinador / Administrador
+                            <i class="bi bi-person-badge"></i> Rol: @(Context.Session.GetString("Rol") ?? "Usuario")
                         </span>
                         <a class="btn-logout" asp-controller="Account" asp-action="Logout">
                             <i class="bi bi-box-arrow-right"></i> Cerrar sesión
@@ -224,7 +224,7 @@
             <div class="offcanvas-body">
                 <div class="d-flex flex-column gap-2 mb-3">
                     <span class="chip-navbar" style="color:#111;background:#f1f3f5;border-color:#dee2e6">
-                        <i class="bi bi-person-badge"></i> Rol: Coordinador / Administrador
+                        <i class="bi bi-person-badge"></i> Rol: @(Context.Session.GetString("Rol") ?? "Usuario")
                     </span>
                     <a class="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2"
                        asp-controller="Account" asp-action="Logout">
