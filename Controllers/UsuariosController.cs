@@ -59,8 +59,7 @@ namespace GestionFerias_CTPINVU.Controllers
                     vm.Nombres = usr.Persona.Nombres;
                     vm.Apellidos = usr.Persona.Apellidos;
                     vm.Telefono = usr.Persona.Telefono;
-                    // Age usually isn't saved directly but calculated (FechaNacimiento in DB)
-                    // Currently leaving Edad mapping as null just for the form placeholder, mapping manual if needed
+                    vm.FechaNacimiento = usr.Persona.FechaNacimiento;
                     vm.Sexo = usr.Persona.Sexo;
                     vm.Nacionalidad = usr.Persona.Nacionalidad;
                 }
@@ -92,8 +91,16 @@ namespace GestionFerias_CTPINVU.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> GuardarPerfil(PerfilViewModel model)
         {
+            // If editing, password is not required
+            if (model.Modo == "edit")
+            {
+                ModelState.Remove("Clave");
+            }
+
             if (!ModelState.IsValid)
             {
+                var errores = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+                ViewData["ErroresModelState"] = string.Join(" | ", errores);
                 return View("Perfil", model);
             }
 
@@ -128,6 +135,7 @@ namespace GestionFerias_CTPINVU.Controllers
                     per.Nombres = model.Nombres;
                     per.Apellidos = model.Apellidos;
                     per.Telefono = model.Telefono;
+                    per.FechaNacimiento = model.FechaNacimiento;
                     per.Sexo = model.Sexo;
                     per.Nacionalidad = model.Nacionalidad;
                     per.FechaModificacion = DateTime.Now;
@@ -149,6 +157,7 @@ namespace GestionFerias_CTPINVU.Controllers
                     Nombres = model.Nombres,
                     Apellidos = model.Apellidos,
                     Telefono = model.Telefono,
+                    FechaNacimiento = model.FechaNacimiento,
                     Sexo = model.Sexo,
                     Nacionalidad = model.Nacionalidad,
                     FechaCreacion = DateTime.Now
@@ -208,6 +217,19 @@ namespace GestionFerias_CTPINVU.Controllers
             if (jue != null) _context.Jueces.Remove(jue);
 
             await _context.SaveChangesAsync();
+        }
+
+        // GET: Usuarios/Create
+        public IActionResult Create()
+        {
+            return RedirectToAction("Perfil", new { modo = "create" });
+        }
+
+        // GET: Usuarios/Edit/5
+        public async Task<IActionResult> Edit(long? id)
+        {
+            if (id == null) return NotFound();
+            return RedirectToAction("Perfil", new { id, modo = "edit" });
         }
 
         public async Task<IActionResult> Details(long? id)

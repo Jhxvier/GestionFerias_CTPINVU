@@ -183,7 +183,13 @@
                 
                 @if (!ViewData.ModelState.IsValid)
                 {
-                    <div class="alert alert-danger">Por favor, revise los errores abajo antes de continuar.</div>
+                    <div class="alert alert-danger" asp-validation-summary="All">
+                        <p class="mb-0 fw-bold">Por favor, revise los errores abajo antes de continuar:</p>
+                        @if (ViewData["ErroresModelState"] != null)
+                        {
+                            <span class="small d-block mt-1">@ViewData["ErroresModelState"]</span>
+                        }
+                    </div>
                 }
 
                 <!-- ====== CONFIGURACIÓN INICIAL ====== -->
@@ -248,8 +254,8 @@
                         </div>
 
                         <div class="col-12 col-lg-6">
-                            <label class="form-label small text-muted">Edad</label>
-                            <input class="form-control rounded-pill" type="number" min="0" asp-for="Edad" />
+                            <label class="form-label small text-muted">Fecha de Nacimiento</label>
+                            <input class="form-control rounded-pill" type="date" asp-for="FechaNacimiento" />
                         </div>
 
                         <div class="col-12 col-lg-6">
