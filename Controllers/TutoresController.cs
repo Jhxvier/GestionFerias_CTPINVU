@@ -18,12 +18,32 @@ namespace GestionFerias_CTPINVU.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? textoBuscar, string? filtroEspecialidad)
         {
-            var appDbContext = _context.Tutores
+            var query = _context.Tutores
                 .Include(t => t.Tutor)
-                    .ThenInclude(u => u.Persona);
-            return View(await appDbContext.ToListAsync());
+                    .ThenInclude(u => u.Persona)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(textoBuscar))
+            {
+                var lowerBuscar = textoBuscar.ToLower();
+                query = query.Where(t => (t.Tutor != null && t.Tutor.Correo.ToLower().Contains(lowerBuscar)) ||
+                                         (t.Tutor != null && t.Tutor.Persona != null && 
+                                            (t.Tutor.Persona.Nombres.ToLower().Contains(lowerBuscar) ||
+                                             t.Tutor.Persona.Apellidos.ToLower().Contains(lowerBuscar) ||
+                                             t.Tutor.Persona.Documento.ToLower().Contains(lowerBuscar))));
+            }
+
+            if (!string.IsNullOrWhiteSpace(filtroEspecialidad))
+            {
+                query = query.Where(t => t.Especialidad == filtroEspecialidad);
+            }
+
+            ViewData["CurrentBuscar"] = textoBuscar;
+            ViewData["CurrentEspecialidad"] = filtroEspecialidad;
+
+            return View(await query.ToListAsync());
         }
 
         // GET: Tutores/Create

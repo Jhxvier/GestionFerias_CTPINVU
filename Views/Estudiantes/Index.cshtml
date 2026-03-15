@@ -1,4 +1,4 @@
-﻿@model IEnumerable<GestionFerias_CTPINVU.Models.Estudiante>
+@model IEnumerable<GestionFerias_CTPINVU.Models.Estudiante>
 
 @{
     ViewData["Title"] = "Estudiantes";
@@ -146,31 +146,31 @@
         <div class="card tarjeta-ui mt-3">
 
             <!-- Filtros -->
-            <div class="p-3 zona-filtros">
+            <form method="get" action="/Estudiantes/Index" class="p-3 zona-filtros">
                 <div class="row g-2 align-items-end">
                     <div class="col-12 col-md-6 col-lg-5">
                         <label class="form-label text-secondary mb-1">Buscar</label>
-                        <input id="textoBuscar" type="text" class="form-control"
-                               placeholder="Nombre, documento o correo..." />
+                        <input name="textoBuscar" type="text" class="form-control"
+                               placeholder="Nombre, documento o correo..." value="@ViewData["CurrentBuscar"]" />
                     </div>
 
                     <div class="col-12 col-md-4 col-lg-3">
                         <label class="form-label text-secondary mb-1">Grado</label>
-                        <select id="filtroGrado" class="form-select">
-                            <option value="">Todos</option>
-                            <option value="7">7°</option>
-                            <option value="8">8°</option>
-                            <option value="9">9°</option>
-                            <option value="10">10°</option>
-                            <option value="11">11°</option>
+                        <select name="filtroGrado" class="form-select">
+                            <option value="" selected="@(ViewData["CurrentGrado"]?.ToString() == "" ? "selected" : null)">Todos</option>
+                            <option value="7" selected="@(ViewData["CurrentGrado"]?.ToString() == "7" ? "selected" : null)">7°</option>
+                            <option value="8" selected="@(ViewData["CurrentGrado"]?.ToString() == "8" ? "selected" : null)">8°</option>
+                            <option value="9" selected="@(ViewData["CurrentGrado"]?.ToString() == "9" ? "selected" : null)">9°</option>
+                            <option value="10" selected="@(ViewData["CurrentGrado"]?.ToString() == "10" ? "selected" : null)">10°</option>
+                            <option value="11" selected="@(ViewData["CurrentGrado"]?.ToString() == "11" ? "selected" : null)">11°</option>
                         </select>
                     </div>
 
                     <div class="col-12 col-md-4 col-lg-2">
-                        <button type="button" class="btn btn-filtrar w-100">Filtrar</button>
+                        <button type="submit" class="btn btn-filtrar w-100">Filtrar</button>
                     </div>
                 </div>
-            </div>
+            </form>
 
             <!-- Tabla -->
             <div class="p-3">

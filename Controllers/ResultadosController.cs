@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,10 +21,37 @@ namespace GestionFerias_CTPINVU.Controllers
         }
 
         // GET: ResultadosEventos
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? textoBuscar, string? filtroEvento, string? filtroEstado)
         {
-            var appDbContext = _context.ResultadosEventos.Include(r => r.Evento).Include(r => r.JuezResponsableUsuario);
-            return View(await appDbContext.ToListAsync());
+            var query = _context.ResultadosEventos
+                .Include(r => r.Evento)
+                .Include(r => r.JuezResponsableUsuario)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(textoBuscar))
+            {
+                var lowerBuscar = textoBuscar.ToLower();
+                query = query.Where(r => (r.Evento != null && r.Evento.NombreEvento.ToLower().Contains(lowerBuscar)) ||
+                                         (r.ResolucionFinal != null && r.ResolucionFinal.ToLower().Contains(lowerBuscar)));
+            }
+
+            if (!string.IsNullOrWhiteSpace(filtroEvento) && long.TryParse(filtroEvento, out long eventoId))
+            {
+                query = query.Where(r => r.EventoId == eventoId);
+            }
+
+            if (!string.IsNullOrWhiteSpace(filtroEstado))
+            {
+                query = query.Where(r => r.EstadoResultados == filtroEstado);
+            }
+
+            ViewData["EventosList"] = new SelectList(await _context.Eventos.ToListAsync(), "EventoId", "NombreEvento", filtroEvento);
+            
+            ViewData["CurrentBuscar"] = textoBuscar;
+            ViewData["CurrentEvento"] = filtroEvento;
+            ViewData["CurrentEstado"] = filtroEstado;
+
+            return View(await query.ToListAsync());
         }
 
         // GET: ResultadosEventos/Details/5

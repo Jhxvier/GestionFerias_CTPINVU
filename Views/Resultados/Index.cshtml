@@ -1,4 +1,4 @@
-﻿@model IEnumerable<GestionFerias_CTPINVU.Models.ResultadosEvento>
+@model IEnumerable<GestionFerias_CTPINVU.Models.ResultadosEvento>
 
 @{
     ViewData["Title"] = "Resultados";
@@ -164,33 +164,38 @@
         <div class="tarjeta-ui mt-3">
 
             <!-- Filtros-->
-            <div class="zona-filtros">
+            <!-- Filtros-->
+            <form method="get" action="/Resultados/Index" class="zona-filtros">
                 <div class="row g-2 align-items-end">
 
-                    <div class="col-12 col-md-5 col-lg-4">
+                    <div class="col-12 col-md-4 col-lg-3">
+                        <label class="form-label text-secondary mb-1">Buscar</label>
+                        <input name="textoBuscar" type="text" class="form-control"
+                               placeholder="Nombre evento, resolución..." value="@ViewData["CurrentBuscar"]" />
+                    </div>
+
+                    <div class="col-12 col-md-4 col-lg-4">
                         <label class="form-label text-secondary mb-1">Evento</label>
-                        <select id="filtroEvento" class="form-select">
+                        <select name="filtroEvento" class="form-select" asp-items="ViewBag.EventosList">
                             <option value="">Seleccione evento</option>
-                            <option value="1">Feria de Ciencias 2026</option>
-                            <option value="2">Feria Tecnológica 2026</option>
                         </select>
                     </div>
 
-                    <div class="col-12 col-md-5 col-lg-4">
+                    <div class="col-12 col-md-4 col-lg-3">
                         <label class="form-label text-secondary mb-1">Estado de calificación</label>
-                        <select id="filtroEstado" class="form-select">
-                            <option value="">Todos</option>
-                            <option value="Pendiente">Pendiente</option>
-                            <option value="Publicado">Publicado</option>
+                        <select name="filtroEstado" class="form-select">
+                            <option value="" selected="@(ViewData["CurrentEstado"]?.ToString() == "" ? "selected" : null)">Todos</option>
+                            <option value="Pendiente" selected="@(ViewData["CurrentEstado"]?.ToString() == "Pendiente" ? "selected" : null)">Pendiente</option>
+                            <option value="Publicado" selected="@(ViewData["CurrentEstado"]?.ToString() == "Publicado" ? "selected" : null)">Publicado</option>
                         </select>
                     </div>
 
-                    <div class="col-12 col-md-4 col-lg-2">
-                        <button type="button" class="btn btn-filtrar w-100">Filtrar</button>
+                    <div class="col-12 col-md-12 col-lg-2">
+                        <button type="submit" class="btn btn-filtrar w-100">Filtrar</button>
                     </div>
 
                 </div>
-            </div>
+            </form>
 
             <!-- Tabla -->
             <div class="p-3">

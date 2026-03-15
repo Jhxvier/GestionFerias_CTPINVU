@@ -18,12 +18,32 @@ namespace GestionFerias_CTPINVU.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? textoBuscar, string? filtroEstado)
         {
-            var appDbContext = _context.Jueces
+            var query = _context.Jueces
                 .Include(j => j.Juez)
-                    .ThenInclude(u => u.Persona);
-            return View(await appDbContext.ToListAsync());
+                    .ThenInclude(u => u.Persona)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(textoBuscar))
+            {
+                var lowerBuscar = textoBuscar.ToLower();
+                query = query.Where(j => (j.Juez != null && j.Juez.Correo.ToLower().Contains(lowerBuscar)) ||
+                                         (j.Juez != null && j.Juez.Persona != null && 
+                                            (j.Juez.Persona.Nombres.ToLower().Contains(lowerBuscar) ||
+                                             j.Juez.Persona.Apellidos.ToLower().Contains(lowerBuscar) ||
+                                             j.Juez.Persona.Documento.ToLower().Contains(lowerBuscar))));
+            }
+
+            if (!string.IsNullOrWhiteSpace(filtroEstado))
+            {
+                query = query.Where(j => j.Juez != null && j.Juez.Estado == filtroEstado);
+            }
+
+            ViewData["CurrentBuscar"] = textoBuscar;
+            ViewData["CurrentEstado"] = filtroEstado;
+
+            return View(await query.ToListAsync());
         }
 
         // GET: Jueces/Create

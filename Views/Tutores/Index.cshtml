@@ -1,4 +1,4 @@
-﻿@model IEnumerable<GestionFerias_CTPINVU.Models.Tutore>
+@model IEnumerable<GestionFerias_CTPINVU.Models.Tutore>
 
 @{
     ViewData["Title"] = "Tutores";
@@ -150,32 +150,32 @@
         <div class="card tarjeta-ui mt-3">
 
             <!-- Filtros -->
-            <div class="p-3 zona-filtros">
+            <form method="get" action="/Tutores/Index" class="p-3 zona-filtros">
                 <div class="row g-2 align-items-end">
 
                     <div class="col-12 col-md-6 col-lg-5">
                         <label class="form-label text-secondary mb-1">Buscar</label>
-                        <input id="textoBuscar" type="text" class="form-control"
-                               placeholder="Nombre, documento o correo..." />
+                        <input name="textoBuscar" type="text" class="form-control"
+                               placeholder="Nombre, documento o correo..." value="@ViewData["CurrentBuscar"]" />
                     </div>
 
                     <div class="col-12 col-md-4 col-lg-3">
                         <label class="form-label text-secondary mb-1">Especialidad</label>
-                        <select id="filtroEspecialidad" class="form-select">
-                            <option value="">Todas</option>
-                            <option value="Ciencias">Ciencias</option>
-                            <option value="Tecnología">Tecnología</option>
-                            <option value="Matemática">Matemática</option>
-                            <option value="Español">Español</option>
+                        <select name="filtroEspecialidad" class="form-select">
+                            <option value="" selected="@(ViewData["CurrentEspecialidad"]?.ToString() == "" ? "selected" : null)">Todas</option>
+                            <option value="Ciencias" selected="@(ViewData["CurrentEspecialidad"]?.ToString() == "Ciencias" ? "selected" : null)">Ciencias</option>
+                            <option value="Tecnología" selected="@(ViewData["CurrentEspecialidad"]?.ToString() == "Tecnología" ? "selected" : null)">Tecnología</option>
+                            <option value="Matemática" selected="@(ViewData["CurrentEspecialidad"]?.ToString() == "Matemática" ? "selected" : null)">Matemática</option>
+                            <option value="Español" selected="@(ViewData["CurrentEspecialidad"]?.ToString() == "Español" ? "selected" : null)">Español</option>
                         </select>
                     </div>
 
                     <div class="col-12 col-md-4 col-lg-2">
-                        <button type="button" class="btn btn-filtrar w-100">Filtrar</button>
+                        <button type="submit" class="btn btn-filtrar w-100">Filtrar</button>
                     </div>
 
                 </div>
-            </div>
+            </form>
 
             <!-- Tabla -->
             <div class="p-3">

@@ -16,12 +16,32 @@ namespace GestionFerias_CTPINVU.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? textoBuscar, string? filtroGrado)
         {
-            var appDbContext = _context.Estudiantes
+            var query = _context.Estudiantes
                 .Include(e => e.EstudianteNavigation)
-                    .ThenInclude(u => u.Persona);
-            return View(await appDbContext.ToListAsync());
+                    .ThenInclude(u => u.Persona)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(textoBuscar))
+            {
+                var lowerBuscar = textoBuscar.ToLower();
+                query = query.Where(e => (e.EstudianteNavigation != null && e.EstudianteNavigation.Correo.ToLower().Contains(lowerBuscar)) ||
+                                         (e.EstudianteNavigation != null && e.EstudianteNavigation.Persona != null && 
+                                            (e.EstudianteNavigation.Persona.Nombres.ToLower().Contains(lowerBuscar) ||
+                                             e.EstudianteNavigation.Persona.Apellidos.ToLower().Contains(lowerBuscar) ||
+                                             e.EstudianteNavigation.Persona.Documento.ToLower().Contains(lowerBuscar))));
+            }
+
+            if (!string.IsNullOrWhiteSpace(filtroGrado))
+            {
+                query = query.Where(e => e.Grado == filtroGrado);
+            }
+
+            ViewData["CurrentBuscar"] = textoBuscar;
+            ViewData["CurrentGrado"] = filtroGrado;
+
+            return View(await query.ToListAsync());
         }
 
         // GET: Estudiantes/Create
