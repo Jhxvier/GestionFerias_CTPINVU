@@ -18,7 +18,9 @@ namespace GestionFerias_CTPINVU.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var appDbContext = _context.Estudiantes.Include(e => e.EstudianteNavigation);
+            var appDbContext = _context.Estudiantes
+                .Include(e => e.EstudianteNavigation)
+                    .ThenInclude(u => u.Persona);
             return View(await appDbContext.ToListAsync());
         }
 
