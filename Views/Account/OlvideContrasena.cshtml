@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Olvidé mi contraseña";
     Layout = null;
 }
@@ -167,7 +167,7 @@
                         </div>
                     </div>
 
-                    <form method="post" action="#" class="needs-validation" novalidate>
+                    <form method="post" asp-action="OlvideContrasena" class="needs-validation" novalidate>
                         <div class="mb-3">
                             <label class="form-label small muted">Correo institucional</label>
                             <div class="input-group">
@@ -205,6 +205,29 @@
 
     </div>
 
+    <!-- Modal -->
+    @if (TempData["MensajeRecuperacion"] != null)
+    {
+        <div class="modal fade" id="recoveryModal" tabindex="-1" aria-labelledby="recoveryModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="border-radius: 20px; border: 0; box-shadow: 0 10px 30px rgba(0,0,0,.15); overflow: hidden;">
+                    <div class="modal-header" style="background: var(--rojo); color: white; border-bottom: 0;">
+                        <h5 class="modal-title" id="recoveryModalLabel"><i class="bi bi-info-circle me-2"></i>Recuperación</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4 text-center">
+                        <i class="bi bi-envelope-check text-success mb-3" style="font-size: 3rem;"></i>
+                        <p class="fs-5 mb-0">@TempData["MensajeRecuperacion"]</p>
+                    </div>
+                    <div class="modal-footer justify-content-center" style="border-top: 0;">
+                        <a asp-controller="Account" asp-action="Login" class="btn btn-primary px-4" style="border-radius: 999px;">Ir al Login</a>
+                        <button type="button" class="btn btn-outline-secondary px-4" style="border-radius: 999px;" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         (() => {
@@ -218,6 +241,16 @@
                     form.classList.add('was-validated');
                 }, false);
             });
+
+            @if (TempData["MensajeRecuperacion"] != null)
+            {
+                <text>
+                document.addEventListener('DOMContentLoaded', function() {
+                    var myModal = new bootstrap.Modal(document.getElementById('recoveryModal'));
+                    myModal.show();
+                });
+                </text>
+            }
         })();
     </script>
 </body>

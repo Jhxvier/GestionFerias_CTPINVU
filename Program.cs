@@ -1,9 +1,12 @@
 using GestionFerias_CTPINVU.Data;
+using GestionFerias_CTPINVU.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddTransient<IEmailService, EmailService>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
