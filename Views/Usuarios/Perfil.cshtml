@@ -181,14 +181,17 @@
                 <input type="hidden" asp-for="PersonaId" />
                 <input type="hidden" asp-for="Modo" />
                 
+                @if (ViewData["ErroresModelState"] != null)
+                {
+                    <div class="alert alert-danger">
+                        <p class="mb-0 fw-bold">⚠ @ViewData["ErroresModelState"]</p>
+                    </div>
+                }
+
                 @if (!ViewData.ModelState.IsValid)
                 {
                     <div class="alert alert-danger" asp-validation-summary="All">
                         <p class="mb-0 fw-bold">Por favor, revise los errores abajo antes de continuar:</p>
-                        @if (ViewData["ErroresModelState"] != null)
-                        {
-                            <span class="small d-block mt-1">@ViewData["ErroresModelState"]</span>
-                        }
                     </div>
                 }
 
