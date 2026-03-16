@@ -121,9 +121,16 @@ namespace GestionFerias_CTPINVU.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
-            var tutore = await _context.Tutores.FindAsync(id);
+            var tutore = await _context.Tutores
+                .Include(t => t.Tutor)
+                .FirstOrDefaultAsync(t => t.TutorId == id);
             if (tutore != null)
             {
+                // Soft-delete: mark the parent Usuario as Inactivo
+                if (tutore.Tutor != null)
+                {
+                    tutore.Tutor.Estado = "Inactivo";
+                }
                 _context.Tutores.Remove(tutore);
             }
 

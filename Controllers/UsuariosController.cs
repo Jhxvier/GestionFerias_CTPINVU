@@ -34,7 +34,13 @@ namespace GestionFerias_CTPINVU.Controllers
                                                                 u.Persona.Documento.ToLower().Contains(lowerBuscar))));
             }
 
-            if (!string.IsNullOrWhiteSpace(filtroEstado))
+            // Default: show only Activo. "Todos" shows all, specific values filter exactly.
+            if (string.IsNullOrWhiteSpace(filtroEstado))
+            {
+                query = query.Where(u => u.Estado == "Activo");
+                filtroEstado = "Activo";
+            }
+            else if (filtroEstado != "Todos")
             {
                 query = query.Where(u => u.Estado == filtroEstado);
             }
