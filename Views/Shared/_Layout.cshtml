@@ -123,6 +123,12 @@
 </head>
 
 <body>
+    @{
+        var rol = Context.Session.GetString("Rol") ?? "";
+        var esAdmin = rol.Contains("Administrador", StringComparison.OrdinalIgnoreCase);
+        var esCoord = rol.Contains("Coordinador", StringComparison.OrdinalIgnoreCase);
+        var esAdminOCoord = esAdmin || esCoord;
+    }
     <header>
         <nav class="navbar navbar-ferias navbar-expand-lg navbar-light">
             <div class="container-fluid">
@@ -153,41 +159,55 @@
                             </a>
                         </li>
 
-                        <!-- Agrupación: Personas -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button"
-                               data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="bi bi-people"></i> Personas
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" asp-controller="Usuarios" asp-action="Index"><i class="bi bi-people me-2"></i>Usuarios</a></li>
-                                <li><a class="dropdown-item" asp-controller="Estudiantes" asp-action="Index"><i class="bi bi-mortarboard me-2"></i>Estudiantes</a></li>
-                                <li><a class="dropdown-item" asp-controller="Tutores" asp-action="Index"><i class="bi bi-person-video3 me-2"></i>Tutores</a></li>
-                                <li><a class="dropdown-item" asp-controller="Jueces" asp-action="Index"><i class="bi bi-person-check me-2"></i>Jueces</a></li>
-                            </ul>
-                        </li>
+                        @if (esAdminOCoord)
+                        {
+                            <!-- Agrupación: Personas (solo Admin/Coordinador) -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button"
+                                   data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-people"></i> Personas
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" asp-controller="Usuarios" asp-action="Index"><i class="bi bi-people me-2"></i>Usuarios</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Estudiantes" asp-action="Index"><i class="bi bi-mortarboard me-2"></i>Estudiantes</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Tutores" asp-action="Index"><i class="bi bi-person-video3 me-2"></i>Tutores</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Jueces" asp-action="Index"><i class="bi bi-person-check me-2"></i>Jueces</a></li>
+                                </ul>
+                            </li>
 
-                        <!-- Agrupación: Gestión -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button"
-                               data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="bi bi-kanban"></i> Gestión
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" asp-controller="Eventos" asp-action="Index"><i class="bi bi-calendar-event me-2"></i>Eventos</a></li>
-                                <li><a class="dropdown-item" asp-controller="Inscripciones" asp-action="Index"><i class="bi bi-clipboard-check me-2"></i>Inscripciones</a></li>
-                                <li><a class="dropdown-item" asp-controller="Resultados" asp-action="Index"><i class="bi bi-trophy me-2"></i>Resultados</a></li>
-                            </ul>
-                        </li>
+                            <!-- Eventos (solo Admin/Coordinador) -->
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Eventos" asp-action="Index">
+                                    <i class="bi bi-calendar-event"></i> Eventos
+                                </a>
+                            </li>
+                        }
 
-                        <!-- Reportes -->
+                        <!-- Inscripciones (todos los roles) -->
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Reportes" asp-action="Index">
-                                <i class="bi bi-file-earmark-bar-graph"></i> Reportes
+                            <a class="nav-link" asp-controller="Inscripciones" asp-action="Index">
+                                <i class="bi bi-clipboard-check"></i> Inscripciones
                             </a>
                         </li>
 
-                        <!-- Perfil -->
+                        <!-- Resultados (todos los roles) -->
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Resultados" asp-action="Index">
+                                <i class="bi bi-trophy"></i> Resultados
+                            </a>
+                        </li>
+
+                        @if (esAdminOCoord)
+                        {
+                            <!-- Reportes (solo Admin/Coordinador) -->
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Reportes" asp-action="Index">
+                                    <i class="bi bi-file-earmark-bar-graph"></i> Reportes
+                                </a>
+                            </li>
+                        }
+
+                        <!-- Perfil (todos los roles) -->
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Usuarios" asp-action="Perfil">
                                 <i class="bi bi-person-circle"></i> Perfil
@@ -198,7 +218,7 @@
                     <!-- Zona derecha -->
                     <div class="d-flex align-items-center gap-2">
                         <span class="chip-navbar">
-                            <i class="bi bi-person-badge"></i> Rol: @(Context.Session.GetString("Rol") ?? "Usuario")
+                            <i class="bi bi-person-badge"></i> Rol: @(rol != "" ? rol : "Usuario")
                         </span>
                         <a class="btn-logout" asp-controller="Account" asp-action="Logout">
                             <i class="bi bi-box-arrow-right"></i> Cerrar sesión
@@ -224,7 +244,7 @@
             <div class="offcanvas-body">
                 <div class="d-flex flex-column gap-2 mb-3">
                     <span class="chip-navbar" style="color:#111;background:#f1f3f5;border-color:#dee2e6">
-                        <i class="bi bi-person-badge"></i> Rol: @(Context.Session.GetString("Rol") ?? "Usuario")
+                        <i class="bi bi-person-badge"></i> Rol: @(rol != "" ? rol : "Usuario")
                     </span>
                     <a class="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2"
                        asp-controller="Account" asp-action="Logout">
@@ -234,38 +254,41 @@
 
                 <div class="list-group">
                     <a class="list-group-item list-group-item-action"
-                       asp-controller="Home" asp-action="Index">
+                       asp-controller="Inicio" asp-action="Inicio">
                         <i class="bi bi-house"></i> Inicio
                     </a>
 
-                    <div class="list-group-item fw-semibold">Personas</div>
+                    @if (esAdminOCoord)
+                    {
+                        <div class="list-group-item fw-semibold">Personas</div>
 
-                    <a class="list-group-item list-group-item-action"
-                       asp-controller="Usuarios" asp-action="Index">
-                        <i class="bi bi-people"></i> Usuarios
-                    </a>
+                        <a class="list-group-item list-group-item-action"
+                           asp-controller="Usuarios" asp-action="Index">
+                            <i class="bi bi-people"></i> Usuarios
+                        </a>
 
-                    <a class="list-group-item list-group-item-action"
-                       asp-controller="Estudiantes" asp-action="Index">
-                        <i class="bi bi-mortarboard"></i> Estudiantes
-                    </a>
+                        <a class="list-group-item list-group-item-action"
+                           asp-controller="Estudiantes" asp-action="Index">
+                            <i class="bi bi-mortarboard"></i> Estudiantes
+                        </a>
 
-                    <a class="list-group-item list-group-item-action"
-                       asp-controller="Tutores" asp-action="Index">
-                        <i class="bi bi-person-video3"></i> Tutores
-                    </a>
+                        <a class="list-group-item list-group-item-action"
+                           asp-controller="Tutores" asp-action="Index">
+                            <i class="bi bi-person-video3"></i> Tutores
+                        </a>
 
-                    <a class="list-group-item list-group-item-action"
-                       asp-controller="Jueces" asp-action="Index">
-                        <i class="bi bi-person-check"></i> Jueces
-                    </a>
+                        <a class="list-group-item list-group-item-action"
+                           asp-controller="Jueces" asp-action="Index">
+                            <i class="bi bi-person-check"></i> Jueces
+                        </a>
 
-                    <div class="list-group-item fw-semibold">Gestión</div>
+                        <div class="list-group-item fw-semibold">Gestión</div>
 
-                    <a class="list-group-item list-group-item-action"
-                       asp-controller="Eventos" asp-action="Index">
-                        <i class="bi bi-calendar-event"></i> Eventos
-                    </a>
+                        <a class="list-group-item list-group-item-action"
+                           asp-controller="Eventos" asp-action="Index">
+                            <i class="bi bi-calendar-event"></i> Eventos
+                        </a>
+                    }
 
                     <a class="list-group-item list-group-item-action"
                        asp-controller="Inscripciones" asp-action="Index">
@@ -277,10 +300,13 @@
                         <i class="bi bi-trophy"></i> Resultados
                     </a>
 
-                    <a class="list-group-item list-group-item-action"
-                       asp-controller="Reportes" asp-action="Index">
-                        <i class="bi bi-file-earmark-bar-graph"></i> Reportes
-                    </a>
+                    @if (esAdminOCoord)
+                    {
+                        <a class="list-group-item list-group-item-action"
+                           asp-controller="Reportes" asp-action="Index">
+                            <i class="bi bi-file-earmark-bar-graph"></i> Reportes
+                        </a>
+                    }
 
                     <a class="list-group-item list-group-item-action"
                        asp-controller="Usuarios" asp-action="Perfil">
