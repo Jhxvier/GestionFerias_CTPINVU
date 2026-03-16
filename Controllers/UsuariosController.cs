@@ -148,90 +148,119 @@ namespace GestionFerias_CTPINVU.Controllers
                 }
             }
 
-            if (model.Modo == "edit" && model.UsuarioId.HasValue)
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
-                // UPDATE
-                usr = await _context.Usuarios
-                    .Include(u => u.Persona)
-                    .FirstOrDefaultAsync(u => u.UsuarioId == model.UsuarioId.Value);
-
-                if (usr == null) return NotFound();
-
-                per = usr.Persona;
-                if (per != null)
+                if (model.Modo == "edit" && model.UsuarioId.HasValue)
                 {
-                    per.Documento = model.Documento;
-                    per.Nombres = model.Nombres;
-                    per.Apellidos = model.Apellidos;
-                    per.Telefono = model.Telefono;
-                    per.FechaNacimiento = model.FechaNacimiento;
-                    per.Sexo = model.Sexo;
-                    per.Nacionalidad = model.Nacionalidad;
-                    per.FechaModificacion = DateTime.Now;
-                    _context.Personas.Update(per);
+                    // UPDATE
+                    usr = await _context.Usuarios
+                        .Include(u => u.Persona)
+                        .FirstOrDefaultAsync(u => u.UsuarioId == model.UsuarioId.Value);
+
+                    if (usr == null) return NotFound();
+
+                    per = usr.Persona;
+                    if (per != null)
+                    {
+                        per.Documento = model.Documento;
+                        per.Nombres = model.Nombres;
+                        per.Apellidos = model.Apellidos;
+                        per.Telefono = model.Telefono;
+                        per.FechaNacimiento = model.FechaNacimiento;
+                        per.Sexo = model.Sexo;
+                        per.Nacionalidad = model.Nacionalidad;
+                        per.FechaModificacion = DateTime.Now;
+                        _context.Personas.Update(per);
+                    }
+
+                    usr.Correo = model.Correo;
+                    if (hashClave != null) usr.PasswordHash = hashClave;
+                    usr.Estado = model.EstadoUsuario;
+                    usr.FechaModificacion = DateTime.Now;
+                    _context.Usuarios.Update(usr);
+                }
+                else
+                {
+                    // CREATE
+                    per = new Persona
+                    {
+                        Documento = model.Documento,
+                        Nombres = model.Nombres,
+                        Apellidos = model.Apellidos,
+                        Telefono = model.Telefono,
+                        FechaNacimiento = model.FechaNacimiento,
+                        Sexo = model.Sexo,
+                        Nacionalidad = model.Nacionalidad,
+                        FechaCreacion = DateTime.Now
+                    };
+
+                    _context.Personas.Add(per);
+                    await _context.SaveChangesAsync(); // Se necesita el PersonaId
+
+                    usr = new Usuario
+                    {
+                        PersonaId = per.PersonaId,
+                        Correo = model.Correo,
+                        PasswordHash = hashClave ?? "",
+                        Estado = model.EstadoUsuario,
+                        FechaCreacion = DateTime.Now
+                    };
+                    _context.Usuarios.Add(usr);
+                    await _context.SaveChangesAsync(); // Se necesita el UsuarioId
                 }
 
-                usr.Correo = model.Correo;
-                if (hashClave != null) usr.PasswordHash = hashClave;
-                usr.Estado = model.EstadoUsuario;
-                usr.FechaModificacion = DateTime.Now;
-                _context.Usuarios.Update(usr);
-            }
-            else
-            {
-                // CREATE
-                per = new Persona
+                // Mapeos específicos de Rol
+                await LimpiarRolesAnteriores(usr.UsuarioId);
+
+                string rolLower = model.RolSeleccionado?.ToLower() ?? "";
+                
+                if (rolLower == "estudiante")
                 {
-                    Documento = model.Documento,
-                    Nombres = model.Nombres,
-                    Apellidos = model.Apellidos,
-                    Telefono = model.Telefono,
-                    FechaNacimiento = model.FechaNacimiento,
-                    Sexo = model.Sexo,
-                    Nacionalidad = model.Nacionalidad,
-                    FechaCreacion = DateTime.Now
-                };
-
-                _context.Personas.Add(per);
-                await _context.SaveChangesAsync(); // Se necesita el PersonaId
-
-                usr = new Usuario
+                    _context.Estudiantes.Add(new Estudiante { EstudianteId = usr.UsuarioId, Grado = model.Grado?.ToString() });
+                }
+                else if (rolLower == "tutor")
                 {
-                    PersonaId = per.PersonaId,
-                    Correo = model.Correo,
-                    PasswordHash = hashClave ?? "", // Clave obligatoria si se crea? Asumimos manejado arriba o validado
-                    Estado = model.EstadoUsuario,
-                    FechaCreacion = DateTime.Now
-                };
-                _context.Usuarios.Add(usr);
-                await _context.SaveChangesAsync(); // Se necesita el UsuarioId
+                    _context.Tutores.Add(new Tutore { TutorId = usr.UsuarioId, Especialidad = model.Especialidad });
+                }
+                else if (rolLower == "juez")
+                {
+                    _context.Jueces.Add(new Juece { JuezId = usr.UsuarioId });
+                }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                // Retornar a una lista
+                if (rolLower == "estudiante") return RedirectToAction("Index", "Estudiantes");
+                if (rolLower == "tutor") return RedirectToAction("Index", "Tutores");
+                if (rolLower == "juez") return RedirectToAction("Index", "Jueces");
+                return RedirectToAction("Index", "Usuarios");
             }
-
-            // Mapeos específicos de Rol
-            await LimpiarRolesAnteriores(usr.UsuarioId);
-
-            string rolLower = model.RolSeleccionado?.ToLower() ?? "";
-            
-            if (rolLower == "estudiante")
+            catch (DbUpdateException ex)
             {
-                _context.Estudiantes.Add(new Estudiante { EstudianteId = usr.UsuarioId, Grado = model.Grado?.ToString() });
-            }
-            else if (rolLower == "tutor")
-            {
-                _context.Tutores.Add(new Tutore { TutorId = usr.UsuarioId, Especialidad = model.Especialidad });
-            }
-            else if (rolLower == "juez")
-            {
-                _context.Jueces.Add(new Juece { JuezId = usr.UsuarioId });
-            }
+                await transaction.RollbackAsync();
 
-            await _context.SaveChangesAsync();
+                var innerMsg = ex.InnerException?.Message ?? ex.Message;
+                string errorUsuario;
 
-            // Retornar a una lista (por defecto a quien llamó o a index principal)
-            if (rolLower == "estudiante") return RedirectToAction("Index", "Estudiantes");
-            if (rolLower == "tutor") return RedirectToAction("Index", "Tutores");
-            if (rolLower == "juez") return RedirectToAction("Index", "Jueces");
-            return RedirectToAction("Index", "Usuarios");
+                if (innerMsg.Contains("Duplicate entry", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (innerMsg.Contains("correo", StringComparison.OrdinalIgnoreCase))
+                        errorUsuario = "Ya existe un usuario con ese correo electrónico.";
+                    else if (innerMsg.Contains("documento", StringComparison.OrdinalIgnoreCase))
+                        errorUsuario = "Ya existe una persona con ese número de documento.";
+                    else
+                        errorUsuario = "Ya existe un registro con datos duplicados. Verifique los campos únicos.";
+                }
+                else
+                {
+                    errorUsuario = "Ocurrió un error al guardar los datos. Por favor intente de nuevo.";
+                }
+
+                ViewData["ErroresModelState"] = errorUsuario;
+                return View("Perfil", model);
+            }
         }
 
         private async Task LimpiarRolesAnteriores(long usuarioId)
