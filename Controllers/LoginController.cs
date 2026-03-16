@@ -54,6 +54,11 @@ public class AccountController : Controller
             HttpContext.Session.SetString("Usuario", usuario.Correo);
             HttpContext.Session.SetString("UsuarioId", usuario.UsuarioId.ToString());
             HttpContext.Session.SetString("Rol", rolNombre);
+
+            // Update last access timestamp
+            usuario.UltimoAcceso = DateTime.Now;
+            await _context.SaveChangesAsync();
+
             return RedirectToAction("Inicio", "Inicio");
         }
 

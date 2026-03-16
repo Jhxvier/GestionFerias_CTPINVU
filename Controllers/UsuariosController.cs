@@ -23,6 +23,11 @@ namespace GestionFerias_CTPINVU.Controllers
             var query = _context.Usuarios
                 .Include(u => u.UsuarioCreacionNavigation)
                 .Include(u => u.UsuarioModificacionNavigation)
+                .Include(u => u.Estudiante)
+                .Include(u => u.Juece)
+                .Include(u => u.Tutore)
+                .Include(u => u.UsuarioRoles)
+                    .ThenInclude(ur => ur.Rol)
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(textoBuscar))

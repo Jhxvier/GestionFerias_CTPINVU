@@ -199,12 +199,15 @@
                                 var correo = item.Correo ?? "—";
                                 var estado = item.Estado?.ToString() ?? "—";
 
-                                var ultimoAccesoTexto = item.UltimoAcceso != null
-                                ? item.UltimoAcceso.ToString()
-                                : "—";
+                                var ultimoAccesoTexto = item.UltimoAcceso.HasValue
+                                    ? item.UltimoAcceso.Value.ToString("dd/MM/yyyy HH:mm")
+                                    : "Sin acceso";
 
-
-                                var rolTexto = "—";
+                                var rolTexto = "Usuario";
+                                if (item.Estudiante != null) rolTexto = "Estudiante";
+                                else if (item.Tutore != null) rolTexto = "Tutor";
+                                else if (item.Juece != null) rolTexto = "Juez";
+                                else if (item.UsuarioRoles.Any()) rolTexto = item.UsuarioRoles.First().Rol?.NombreRol ?? "Coordinador";
 
                                 <tr>
                                     <td>@correo</td>
