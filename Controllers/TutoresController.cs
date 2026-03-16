@@ -107,6 +107,7 @@ namespace GestionFerias_CTPINVU.Controllers
 
             var tutore = await _context.Tutores
                 .Include(t => t.Tutor)
+                    .ThenInclude(u => u.Persona)
                 .FirstOrDefaultAsync(m => m.TutorId == id);
 
             if (tutore == null)

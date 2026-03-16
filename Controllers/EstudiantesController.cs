@@ -105,6 +105,7 @@ namespace GestionFerias_CTPINVU.Controllers
 
             var estudiante = await _context.Estudiantes
                 .Include(e => e.EstudianteNavigation)
+                    .ThenInclude(u => u.Persona)
                 .FirstOrDefaultAsync(m => m.EstudianteId == id);
 
             if (estudiante == null)

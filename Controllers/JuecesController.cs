@@ -107,6 +107,7 @@ namespace GestionFerias_CTPINVU.Controllers
 
             var juece = await _context.Jueces
                 .Include(j => j.Juez)
+                    .ThenInclude(u => u.Persona)
                 .FirstOrDefaultAsync(m => m.JuezId == id);
 
             if (juece == null)
