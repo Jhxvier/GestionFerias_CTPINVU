@@ -127,7 +127,7 @@ namespace GestionFerias_CTPINVU.Controllers
                 .FirstOrDefaultAsync(j => j.JuezId == id);
             if (juece != null)
             {
-                // Soft-delete: mark the parent Usuario as Inactivo
+                //cambiar estado del usuario a inactivo antes de eliminar el juez
                 if (juece.Juez != null)
                 {
                     juece.Juez.Estado = "Inactivo";

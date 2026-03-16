@@ -5,12 +5,12 @@ namespace GestionFerias_CTPINVU.ViewModels
 {
     public class PerfilViewModel
     {
-        // Identity
+        // identificadores
         public long? UsuarioId { get; set; }
         public long? PersonaId { get; set; }
-        public string Modo { get; set; } = "create"; // create / edit
+        public string Modo { get; set; } = "create"; //crear o editar
 
-        // Role Control
+        //control de acceso
         [Required(ErrorMessage = "Debe asignar un rol en el sistema.")]
         public string RolSeleccionado { get; set; } // estudiante, tutor, juez, coord
 
@@ -37,14 +37,14 @@ namespace GestionFerias_CTPINVU.ViewModels
         [EmailAddress(ErrorMessage = "El formato de correo no es válido.")]
         public string Correo { get; set; }
 
-        public string? Clave { get; set; } // Only required to reset/create passwords
+        public string? Clave { get; set; } // solo para creación, no se muestra en edición
 
         public string? EstadoUsuario { get; set; } = "Activo";
 
-        // Role-Specific Data (Estudiante)
+        // rol específico (Estudiante)
         public int? Grado { get; set; }
 
-        // Role-Specific Data (Tutor)
+        // rol específico (Tutor)
         public string? Especialidad { get; set; }
     }
 }
