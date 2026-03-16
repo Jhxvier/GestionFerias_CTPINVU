@@ -237,13 +237,27 @@ namespace GestionFerias_CTPINVU.Controllers
                 if (rolLower == "juez") return RedirectToAction("Index", "Jueces");
                 return RedirectToAction("Index", "Usuarios");
             }
-            catch (DbUpdateException ex)
+            catch (Exception ex)
             {
-                await transaction.RollbackAsync();
+                try { await transaction.RollbackAsync(); } catch { /* already rolled back */ }
 
-                var innerMsg = ex.InnerException?.Message ?? ex.Message;
+                // Clear EF change tracker to avoid stale entity state
+                _context.ChangeTracker.Clear();
+
+                // Walk the exception chain to find the MySQL duplicate message
+                var current = ex;
+                string innerMsg = ex.Message;
+                while (current != null)
+                {
+                    if (current.Message.Contains("Duplicate entry", StringComparison.OrdinalIgnoreCase))
+                    {
+                        innerMsg = current.Message;
+                        break;
+                    }
+                    current = current.InnerException;
+                }
+
                 string errorUsuario;
-
                 if (innerMsg.Contains("Duplicate entry", StringComparison.OrdinalIgnoreCase))
                 {
                     if (innerMsg.Contains("correo", StringComparison.OrdinalIgnoreCase))
