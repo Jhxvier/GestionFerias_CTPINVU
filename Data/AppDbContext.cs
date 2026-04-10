@@ -600,6 +600,9 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.PasswordHash)
                 .HasMaxLength(255)
                 .HasColumnName("password_hash");
+            entity.Property(e => e.RequiereCambioClave)
+                .HasColumnName("requiere_cambio_clave")
+                .HasDefaultValue(false);
             entity.Property(e => e.PersonaId).HasColumnName("persona_id");
             entity.Property(e => e.UltimoAcceso)
                 .HasColumnType("datetime")

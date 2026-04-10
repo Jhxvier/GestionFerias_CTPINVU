@@ -1,0 +1,234 @@
+@{
+    ViewData["Title"] = "Cambiar contraseña";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - Sistema de Ferias</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
+    <style>
+        :root {
+            --rojo: #BF1D1A;
+            --verde: #6A9A2C;
+            --amarillo: #F2B705;
+            --naranja: #CB6021;
+            --bg: #f4f4f4;
+            --card: #ffffff;
+            --line: #e5e5e5;
+            --muted: #666;
+        }
+
+        body {
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .frame {
+            width: 1100px;
+            max-width: 95vw;
+            background: #fff;
+            border-radius: 22px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,.08);
+        }
+
+        .topbar {
+            background: linear-gradient(90deg, var(--rojo), var(--naranja));
+            color: #fff;
+        }
+
+        .logo {
+            height: 40px;
+            display: flex;
+            align-items: center;
+        }
+
+        .pill {
+            padding: .45rem .75rem;
+            border-radius: 999px;
+            background: rgba(255,255,255,.15);
+            border: 1px solid rgba(255,255,255,.35);
+            font-size: .85rem;
+            white-space: nowrap;
+        }
+
+        .content {
+            background: #fafafa;
+            padding: 44px 18px;
+        }
+
+        .card-cambio {
+            width: 480px;
+            max-width: 94vw;
+            border-radius: 24px;
+            border: 1px solid var(--line);
+            box-shadow: 0 6px 20px rgba(0,0,0,.06);
+            overflow: hidden;
+        }
+
+        .card-top {
+            background: var(--naranja);
+            color: #fff;
+        }
+
+        .aviso-temporal {
+            border: 2px solid var(--rojo);
+            background: #fff5f5;
+            color: #7a1a1a;
+            border-radius: 18px;
+        }
+
+        .form-control, .btn {
+            border-radius: 16px;
+        }
+
+        .btn-guardar {
+            background: var(--verde);
+            color: #fff;
+            border: 1px solid rgba(0,0,0,.25);
+        }
+
+            .btn-guardar:hover {
+                filter: brightness(.95);
+                color: #fff;
+            }
+
+        .muted {
+            color: var(--muted);
+        }
+
+        .requisitos li {
+            font-size: 13px;
+            color: var(--muted);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="frame">
+
+        <!-- Topbar -->
+        <div class="topbar p-3 p-md-4">
+            <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="logo">
+                        <img src="~/images/logo-invu.png"
+                             alt="Logo CTP INVU"
+                             style="max-height:100%; width:auto;" />
+                    </div>
+                    <div class="lh-sm">
+                        <div class="fw-bold">Sistema de Ferias</div>
+                        <div class="small opacity-75">CTP INVU Las Cañas</div>
+                    </div>
+                </div>
+                <div class="pill"><i class="bi bi-shield-exclamation me-1"></i> Cambio de contraseña obligatorio</div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content d-flex justify-content-center">
+            <div class="card card-cambio">
+                <div class="card-top px-3 py-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-key-fill fs-5"></i>
+                        <span class="fw-semibold">Crear nueva contraseña</span>
+                    </div>
+                </div>
+
+                <div class="p-3 p-md-4">
+
+                    @if (TempData["ErrorCambio"] != null)
+                    {
+                        <div class="alert alert-danger mb-3">
+                            <i class="bi bi-exclamation-triangle me-1"></i>
+                            @TempData["ErrorCambio"]
+                        </div>
+                    }
+
+                    <div class="aviso-temporal p-3 mb-3">
+                        <div class="d-flex align-items-start gap-2">
+                            <i class="bi bi-exclamation-triangle-fill fs-5 mt-1" style="color: var(--rojo);"></i>
+                            <div>
+                                <strong>Contraseña temporal detectada</strong>
+                                <div class="small mt-1">
+                                    Está usando una contraseña temporal generada por el sistema. 
+                                    Por seguridad, <strong>debe crear una nueva contraseña</strong> antes de poder acceder al sistema.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form asp-controller="Account" asp-action="CambiarContrasena" method="post" class="needs-validation" novalidate>
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-3">
+                            <label class="form-label small muted">Nueva contraseña</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white"><i class="bi bi-lock"></i></span>
+                                <input name="nuevaClave" type="password" class="form-control" placeholder="••••••••" required minlength="6" />
+                                <div class="invalid-feedback">Ingrese una nueva contraseña (mín. 6 caracteres).</div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small muted">Confirmar contraseña</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white"><i class="bi bi-lock-fill"></i></span>
+                                <input name="confirmarClave" type="password" class="form-control" placeholder="••••••••" required minlength="6" />
+                                <div class="invalid-feedback">Confirme su nueva contraseña.</div>
+                            </div>
+                        </div>
+
+                        <ul class="requisitos mb-3 ps-3">
+                            <li>Mínimo 6 caracteres</li>
+                            <li>Debe ser diferente a la contraseña temporal</li>
+                        </ul>
+
+                        <button type="submit" class="btn btn-guardar w-100 py-2">
+                            <i class="bi bi-check-circle me-1"></i> Guardar nueva contraseña
+                        </button>
+
+                        <div class="text-center mt-3">
+                            <a class="small muted text-decoration-none" asp-controller="Account" asp-action="Logout">
+                                <i class="bi bi-box-arrow-left me-1"></i> Cerrar sesión
+                            </a>
+                        </div>
+
+                        <div class="text-center mt-3 small muted">
+                            © Sistema de Ferias
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        (() => {
+            const forms = document.querySelectorAll('.needs-validation');
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        })();
+    </script>
+</body>
+</html>

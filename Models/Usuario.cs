@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace GestionFerias_CTPINVU.Models;
@@ -12,6 +12,8 @@ public partial class Usuario
     public string Correo { get; set; } = null!;
 
     public string PasswordHash { get; set; } = null!;
+
+    public bool RequiereCambioClave { get; set; }
 
     public string Estado { get; set; } = null!;
 

@@ -128,6 +128,12 @@
         var esAdmin = rol.Contains("Administrador", StringComparison.OrdinalIgnoreCase);
         var esCoord = rol.Contains("Coordinador", StringComparison.OrdinalIgnoreCase);
         var esAdminOCoord = esAdmin || esCoord;
+        var requiereCambio = Context.Session.GetString("RequiereCambioClave") == "true";
+    }
+
+    @if (requiereCambio)
+    {
+        <script>window.location.href = '@Url.Action("CambiarContrasena", "Account")';</script>
     }
     <header>
         <nav class="navbar navbar-ferias navbar-expand-lg navbar-light">

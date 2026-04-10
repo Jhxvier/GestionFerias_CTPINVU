@@ -59,6 +59,13 @@ public class AccountController : Controller
             usuario.UltimoAcceso = DateTime.Now;
             await _context.SaveChangesAsync();
 
+            // If temp password → force change
+            if (usuario.RequiereCambioClave)
+            {
+                HttpContext.Session.SetString("RequiereCambioClave", "true");
+                return RedirectToAction("CambiarContrasena");
+            }
+
             return RedirectToAction("Inicio", "Inicio");
         }
 
@@ -100,22 +107,28 @@ public class AccountController : Controller
                 usuario.PasswordHash = BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
             }
 
+            // Mark as temporary password
+            usuario.RequiereCambioClave = true;
+
             // Save to DB
             _context.Usuarios.Update(usuario);
             await _context.SaveChangesAsync();
 
             // Send Email
-            string subject = "Recuperación de Contraseña - Sistema de Ferias INVU";
+            string subject = "Contraseña temporal - Sistema de Ferias INVU";
             string names = usuario.Persona?.Nombres ?? "Usuario";
             string bodyHtml = $@"
                 <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;'>
                     <h2 style='color: #BF1D1A; text-align: center;'>Sistema de Ferias INVU</h2>
                     <p>Hola <strong>{names}</strong>,</p>
-                    <p>Has solicitado reestablecer tu contraseña. Tu nueva contraseña temporal es:</p>
+                    <p>Has solicitado reestablecer tu contraseña. Se ha generado una <strong>contraseña temporal</strong>:</p>
                     <div style='background-color: #f4f4f4; padding: 15px; text-align: center; border-radius: 5px; font-size: 20px; font-weight: bold; letter-spacing: 2px; margin: 20px 0;'>
                         {newPass}
                     </div>
-                    <p>Por favor, usa esta contraseña para ingresar al sistema y te recomendamos cambiarla enseguida editando tu Perfil.</p>
+                    <div style='background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 12px; margin: 16px 0;'>
+                        <strong>⚠ Importante:</strong> Esta contraseña es <strong>temporal</strong>. Al iniciar sesión se le solicitará crear una contraseña nueva de forma obligatoria. No podrá acceder al sistema hasta que la cambie.
+                    </div>
+                    <p>Si usted no solicitó este cambio, puede ignorar este mensaje.</p>
                     <hr style='border: 0; border-top: 1px solid #eee; margin: 30px 0;'/>
                     <p style='font-size: 12px; color: #999; text-align: center;'>Este es un mensaje automático. Por favor no respondas a este correo.</p>
                 </div>";
@@ -127,6 +140,63 @@ public class AccountController : Controller
         TempData["MensajeRecuperacion"] = $"Si la cuenta existe, se ha enviado un correo con instrucciones a {correo}. Por favor verifique su bandeja de entrada o carpeta de Spam.";
         
         return View();
+    }
+
+    // ─── Forced password change ──────────────────────────────
+
+    [HttpGet]
+    public IActionResult CambiarContrasena()
+    {
+        var requiere = HttpContext.Session.GetString("RequiereCambioClave");
+        if (requiere != "true")
+            return RedirectToAction("Inicio", "Inicio");
+
+        return View();
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CambiarContrasena(string nuevaClave, string confirmarClave)
+    {
+        var requiere = HttpContext.Session.GetString("RequiereCambioClave");
+        if (requiere != "true")
+            return RedirectToAction("Inicio", "Inicio");
+
+        if (string.IsNullOrWhiteSpace(nuevaClave) || nuevaClave.Length < 6)
+        {
+            TempData["ErrorCambio"] = "La contraseña debe tener al menos 6 caracteres.";
+            return View();
+        }
+
+        if (nuevaClave != confirmarClave)
+        {
+            TempData["ErrorCambio"] = "Las contraseñas no coinciden.";
+            return View();
+        }
+
+        var usuarioIdStr = HttpContext.Session.GetString("UsuarioId");
+        if (string.IsNullOrEmpty(usuarioIdStr))
+            return RedirectToAction("Login");
+
+        var usuario = await _context.Usuarios.FindAsync(long.Parse(usuarioIdStr));
+        if (usuario == null) return RedirectToAction("Login");
+
+        // Hash the new password
+        using (var sha256 = SHA256.Create())
+        {
+            var bytes = Encoding.UTF8.GetBytes(nuevaClave);
+            var hashBytes = sha256.ComputeHash(bytes);
+            usuario.PasswordHash = BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
+        }
+
+        usuario.RequiereCambioClave = false;
+        _context.Usuarios.Update(usuario);
+        await _context.SaveChangesAsync();
+
+        // Clear session flag
+        HttpContext.Session.Remove("RequiereCambioClave");
+
+        return RedirectToAction("Inicio", "Inicio");
     }
 
     [HttpGet]
