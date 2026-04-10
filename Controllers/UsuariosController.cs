@@ -39,7 +39,7 @@ namespace GestionFerias_CTPINVU.Controllers
                                                                 u.Persona.Documento.ToLower().Contains(lowerBuscar))));
             }
 
-            // Default: show only Activo. "Todos" shows all, specific values filter exactly.
+            // por defecto mostrar solo activos, pero si se selecciona "Todos" mostrar todos
             if (string.IsNullOrWhiteSpace(filtroEstado))
             {
                 query = query.Where(u => u.Estado == "Activo");
@@ -93,7 +93,7 @@ namespace GestionFerias_CTPINVU.Controllers
                     vm.Nacionalidad = usr.Persona.Nacionalidad;
                 }
 
-                if (usr.Estudiante != null) // Changed from EstudianteNavigation
+                if (usr.Estudiante != null) // cambiado para que no se asuma que si no es estudiante es tutor, ya que puede ser juez o coord
                 {
                     vm.RolSeleccionado = "estudiante";
                     vm.Grado = usr.Estudiante.Grado != null ? int.Parse(usr.Estudiante.Grado) : null;
@@ -120,7 +120,7 @@ namespace GestionFerias_CTPINVU.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> GuardarPerfil(PerfilViewModel model)
         {
-            // If editing, password is not required
+            // si edita no se requiere validar la clave, ya que no siempre se va a cambiar, pero si es creación si se requiere
             if (model.Modo == "edit")
             {
                 ModelState.Remove("Clave");
@@ -153,7 +153,7 @@ namespace GestionFerias_CTPINVU.Controllers
             {
                 if (model.Modo == "edit" && model.UsuarioId.HasValue)
                 {
-                    // UPDATE
+                    // actualizar tanto Usuario como Persona
                     usr = await _context.Usuarios
                         .Include(u => u.Persona)
                         .FirstOrDefaultAsync(u => u.UsuarioId == model.UsuarioId.Value);
@@ -182,7 +182,7 @@ namespace GestionFerias_CTPINVU.Controllers
                 }
                 else
                 {
-                    // CREATE
+                    //crear nuevo Usuario y Persona
                     per = new Persona
                     {
                         Documento = model.Documento,
@@ -239,12 +239,12 @@ namespace GestionFerias_CTPINVU.Controllers
             }
             catch (Exception ex)
             {
-                try { await transaction.RollbackAsync(); } catch { /* already rolled back */ }
+                try { await transaction.RollbackAsync(); } catch { /* en caso de error, intentar hacer rollback, pero si falla el rollback no hacer nada para no enmascarar el error original */ }
 
-                // Clear EF change tracker to avoid stale entity state
+                // limpiar el ChangeTracker para evitar que queden entidades en estado modificado o agregado después del error
                 _context.ChangeTracker.Clear();
 
-                // Walk the exception chain to find the MySQL duplicate message
+                // buscar en la cadena de excepciones internas si hay un mensaje que contenga "Duplicate entry" para dar un mensaje de error más amigable
                 var current = ex;
                 string innerMsg = ex.Message;
                 while (current != null)

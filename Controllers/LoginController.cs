@@ -25,7 +25,7 @@ public class AccountController : Controller
     [HttpPost]
     public async Task<IActionResult> Login(string correo, string clave)
     {
-        // Compute SHA256 of the input password to match seed
+        //encriptar la clave usando SHA256
         string hashClave;
         using (var sha256 = System.Security.Cryptography.SHA256.Create())
         {
@@ -38,7 +38,7 @@ public class AccountController : Controller
             .Include(u => u.Estudiante)
             .Include(u => u.Tutore)
             .Include(u => u.Juece)
-            .Include(u => u.UsuarioRoles).ThenInclude(ur => ur.Rol) // Fallback for Coordinador
+            .Include(u => u.UsuarioRoles).ThenInclude(ur => ur.Rol) // Include para obtener el rol del usuario
             .FirstOrDefaultAsync(u => u.Correo == correo
                                    && u.PasswordHash == hashClave
                                    && u.Estado == "Activo");
@@ -55,7 +55,7 @@ public class AccountController : Controller
             HttpContext.Session.SetString("UsuarioId", usuario.UsuarioId.ToString());
             HttpContext.Session.SetString("Rol", rolNombre);
 
-            // Update last access timestamp
+            //actualizar el ultimo acceso
             usuario.UltimoAcceso = DateTime.Now;
             await _context.SaveChangesAsync();
 
@@ -96,10 +96,10 @@ public class AccountController : Controller
 
         if (usuario != null)
         {
-            // Generate Random Password
-            string newPass = Guid.NewGuid().ToString().Substring(0, 8); // 8 char alphanumeric
+            //generar una nueva contraseña temporal
+            string newPass = Guid.NewGuid().ToString().Substring(0, 8); // 8 caracteres aleatorios
 
-            // Hash the password
+            // Encriptar la nueva contraseña usando SHA256
             using (var sha256 = SHA256.Create())
             {
                 var bytes = Encoding.UTF8.GetBytes(newPass);
@@ -136,7 +136,7 @@ public class AccountController : Controller
             await _emailService.SendEmailAsync(usuario.Correo, subject, bodyHtml);
         }
 
-        // Always show the same generic success message to prevent user-enumeration attacks
+        //permitir mostrar el mensaje aunque el correo no exista para evitar revelar información sobre cuentas registradas
         TempData["MensajeRecuperacion"] = $"Si la cuenta existe, se ha enviado un correo con instrucciones a {correo}. Por favor verifique su bandeja de entrada o carpeta de Spam.";
         
         return View();

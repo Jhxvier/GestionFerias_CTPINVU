@@ -127,7 +127,7 @@ namespace GestionFerias_CTPINVU.Controllers
                 .FirstOrDefaultAsync(t => t.TutorId == id);
             if (tutore != null)
             {
-                // Soft-delete: mark the parent Usuario as Inactivo
+                // En lugar de eliminar el usuario, se marca como inactivo para mantener la integridad referencial
                 if (tutore.Tutor != null)
                 {
                     tutore.Tutor.Estado = "Inactivo";

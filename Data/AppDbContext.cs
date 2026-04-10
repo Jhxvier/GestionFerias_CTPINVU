@@ -664,7 +664,7 @@ public partial class AppDbContext : DbContext
                 .HasConstraintName("fk_uroles_usuario");
         });
 
-        // Seed Data for Administrator
+        // alimentación inicial de datos para roles y un usuario administrador
         modelBuilder.Entity<Role>().HasData(
             new Role { RolId = 1, NombreRol = "Administrador", Descripcion = "Administrador del sistema", FechaCreacion = DateTime.Now }
         );
@@ -678,8 +678,8 @@ public partial class AppDbContext : DbContext
             { 
                 UsuarioId = 1, 
                 PersonaId = 1, 
-                Correo = "admin@invu.cr", 
-                // Using SHA256 Hash of '1234' for simplicity. Real implementation should use proper ASP.NET Core Identity hashing or equivalent
+                Correo = "admin@invu.cr",
+                // usa el hash de "1234" para el password
                 PasswordHash = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4", 
                 Estado = "Activo", 
                 FechaCreacion = DateTime.Now 
