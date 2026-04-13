@@ -1,0 +1,155 @@
+@model GestionFerias_CTPINVU.Models.CentrosEducativo
+
+@{
+    ViewData["Title"] = "Editar centro educativo";
+}
+
+<style>
+    :root {
+        --rojo: #BF1D1A;
+        --verde: #6A9A2C;
+        --amarillo: #F2B705;
+        --naranja: #CB6021;
+        --line: #e5e5e5;
+        --muted: #666;
+    }
+
+    * { box-sizing: border-box; }
+
+    .page-wrap { max-width: 1200px; margin: 22px auto; padding: 0 8px; }
+
+    .content {
+        padding: 26px; background: #fafafa; border-radius: 22px;
+        box-shadow: 0 10px 30px rgba(0,0,0,.06); border: 1px solid rgba(0,0,0,.04);
+    }
+
+    .header h2 { margin: 0; font-weight: normal; color: #222; }
+    .header p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
+
+    .card {
+        margin-top: 18px; background: #fff; border-radius: 24px;
+        box-shadow: 0 6px 20px rgba(0,0,0,.06); overflow: hidden;
+        border: 1px solid rgba(0,0,0,.04);
+    }
+
+    .card-top {
+        background: var(--amarillo); color: #111; padding: 16px 18px;
+        display: flex; justify-content: space-between; align-items: center;
+        gap: 10px; flex-wrap: wrap;
+    }
+
+    .mode {
+        background: rgba(0,0,0,.08); border: 1px solid rgba(0,0,0,.15);
+        padding: 6px 10px; border-radius: 999px; font-size: 12px;
+    }
+
+    .form { padding: 20px; background: #fff; }
+
+    .section {
+        margin-bottom: 18px; padding: 14px; border: 1px solid var(--line);
+        border-radius: 18px; background: #fff;
+    }
+
+    .section-title { margin: 0 0 12px 0; font-weight: normal; font-size: 14px; color: var(--naranja); }
+
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    .field label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+
+    .field input, .field select, .field textarea {
+        width: 100%; padding: 11px 12px; border-radius: 16px;
+        border: 1px solid var(--line); background: #fff; font-family: Arial, sans-serif; outline: none;
+    }
+
+    .field input:focus, .field select:focus, .field textarea:focus {
+        border-color: rgba(191,29,26,.55); box-shadow: 0 0 0 4px rgba(191,29,26,.10);
+    }
+
+    .field textarea { min-height: 90px; resize: none; }
+    .text-danger { font-size: 12px; color: #b00020; margin-top: 6px; display: block; }
+
+    .actions {
+        margin-top: 18px; display: flex; justify-content: flex-end; gap: 12px; flex-wrap: wrap;
+    }
+
+    .btnx {
+        padding: 10px 16px; border-radius: 16px; border: 1px solid rgba(0,0,0,.22);
+        font-size: 14px; cursor: pointer; display: inline-flex; align-items: center;
+        justify-content: center; gap: 8px; text-decoration: none; user-select: none;
+    }
+
+    .btnx.cancel { background: #fff; color: #111; }
+    .btnx.save { background: var(--rojo); color: #fff; border-color: transparent; }
+
+    @@media (max-width: 900px) {
+        .content { padding: 18px; }
+        .grid { grid-template-columns: 1fr; }
+    }
+</style>
+
+<div class="page-wrap">
+    <div class="content">
+        <div class="header">
+            <h2>Editar centro educativo</h2>
+            <p>Modifique la información del centro educativo.</p>
+        </div>
+
+        <div class="card">
+            <div class="card-top">
+                <span>Formulario de centro educativo</span>
+                <span class="mode">Modo: Editar</span>
+            </div>
+
+            <div class="form">
+                <form asp-action="Edit" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="CentroId" />
+
+                    <div class="section">
+                        <h3 class="section-title">Información general</h3>
+                        <div class="grid">
+                            <div class="field">
+                                <label>Nombre del centro</label>
+                                <input asp-for="NombreCentro" />
+                                <span asp-validation-for="NombreCentro" class="text-danger"></span>
+                            </div>
+
+                            <div class="field">
+                                <label>Nombre del director</label>
+                                <input asp-for="NombreDirector" />
+                                <span asp-validation-for="NombreDirector" class="text-danger"></span>
+                            </div>
+
+                            <div class="field">
+                                <label>Circuito educativo</label>
+                                <input asp-for="CircuitoEducativo" />
+                                <span asp-validation-for="CircuitoEducativo" class="text-danger"></span>
+                            </div>
+
+                            <div class="field">
+                                <label>Dirección regional</label>
+                                <input asp-for="DireccionRegional" />
+                                <span asp-validation-for="DireccionRegional" class="text-danger"></span>
+                            </div>
+
+                            <div class="field" style="grid-column:1 / -1;">
+                                <label>Dirección</label>
+                                <textarea asp-for="Direccion"></textarea>
+                                <span asp-validation-for="Direccion" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="actions">
+                        <a class="btnx cancel" asp-action="Index">Cancelar</a>
+                        <button class="btnx save" type="submit">Guardar cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

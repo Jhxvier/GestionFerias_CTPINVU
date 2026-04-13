@@ -1,4 +1,4 @@
-﻿@model GestionFerias_CTPINVU.Models.Evento
+@model GestionFerias_CTPINVU.Models.Evento
 
 @{
     ViewData["Title"] = "Crear evento";
@@ -239,11 +239,11 @@
                             </div>
 
                             <div class="field">
-                                <label>Tipo de evento</label>
-                                <select asp-for="EstadoEvento">
+                                <label>Tipo de feria</label>
+                                <select asp-for="TipoFeria">
                                     <option value="">Seleccione</option>
-                                    <option value="En proceso">Artes</option>
-                                    <option value="Finalizado">Cientifica</option>
+                                    <option value="Artes">Artes</option>
+                                    <option value="Científica">Científica</option>
                                 </select>
                                 <span asp-validation-for="TipoFeria" class="text-danger"></span>
                             </div>
@@ -276,9 +276,6 @@
                                 <textarea asp-for="Descripcion"></textarea>
                                 <span asp-validation-for="Descripcion" class="text-danger"></span>
                             </div>
-
-                            <input asp-for="UsuarioCreacion" type="hidden" />
-                            <input asp-for="UsuarioModificacion" type="hidden" />
                         </div>
                     </div>
 

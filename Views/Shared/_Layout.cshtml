@@ -181,37 +181,37 @@
                                 </ul>
                             </li>
 
-                            <!-- Eventos (solo Admin/Coordinador) -->
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Eventos" asp-action="Index">
-                                    <i class="bi bi-calendar-event"></i> Eventos
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button"
+                                   data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-gear"></i> Gestión
                                 </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" asp-controller="Eventos" asp-action="Index"><i class="bi bi-calendar-event me-2"></i>Eventos</a></li>
+                                    <li><a class="dropdown-item" asp-controller="CentrosEducativos" asp-action="Index"><i class="bi bi-building me-2"></i>Centros Educativos</a></li>
+                                </ul>
                             </li>
                         }
 
-                        <!-- Inscripciones (todos los roles) -->
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Inscripciones" asp-action="Index">
                                 <i class="bi bi-clipboard-check"></i> Inscripciones
                             </a>
                         </li>
 
-                        <!-- Resultados (todos los roles) -->
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Resultados" asp-action="Index">
-                                <i class="bi bi-trophy"></i> Resultados
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button"
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-trophy"></i> Resultados y Reportes
                             </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" asp-controller="Resultados" asp-action="Index"><i class="bi bi-trophy me-2"></i>Resultados</a></li>
+                                @if (esAdminOCoord)
+                                {
+                                    <li><a class="dropdown-item" asp-controller="Reportes" asp-action="Index"><i class="bi bi-file-earmark-bar-graph me-2"></i>Reportes</a></li>
+                                }
+                            </ul>
                         </li>
-
-                        @if (esAdminOCoord)
-                        {
-                            <!-- Reportes (solo Admin/Coordinador) -->
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Reportes" asp-action="Index">
-                                    <i class="bi bi-file-earmark-bar-graph"></i> Reportes
-                                </a>
-                            </li>
-                        }
 
                         <!-- Perfil (todos los roles) -->
                         <li class="nav-item">
@@ -294,12 +294,19 @@
                            asp-controller="Eventos" asp-action="Index">
                             <i class="bi bi-calendar-event"></i> Eventos
                         </a>
+
+                        <a class="list-group-item list-group-item-action"
+                           asp-controller="CentrosEducativos" asp-action="Index">
+                            <i class="bi bi-building"></i> Centros Educativos
+                        </a>
                     }
 
                     <a class="list-group-item list-group-item-action"
                        asp-controller="Inscripciones" asp-action="Index">
                         <i class="bi bi-clipboard-check"></i> Inscripciones
                     </a>
+
+                    <div class="list-group-item fw-semibold">Resultados y Reportes</div>
 
                     <a class="list-group-item list-group-item-action"
                        asp-controller="Resultados" asp-action="Index">

@@ -1,7 +1,7 @@
-﻿@model GestionFerias_CTPINVU.Models.Evento
+@model GestionFerias_CTPINVU.Models.Evento
 
 @{
-    ViewData["Title"] = "Crear evento";
+    ViewData["Title"] = "Editar evento";
     var listaCentros = ViewBag.CentroId as IEnumerable<SelectListItem>;
 }
 
@@ -22,7 +22,6 @@
         box-sizing: border-box;
     }
 
-    /* Contenedor principal de la vista */
     .page-wrap {
         max-width: 1200px;
         margin: 22px auto;
@@ -60,8 +59,8 @@
     }
 
     .card-top {
-        background: var(--verde);
-        color: #fff;
+        background: var(--amarillo);
+        color: #111;
         padding: 16px 18px;
         display: flex;
         justify-content: space-between;
@@ -71,8 +70,8 @@
     }
 
     .mode {
-        background: rgba(255,255,255,.18);
-        border: 1px solid rgba(255,255,255,.35);
+        background: rgba(0,0,0,.08);
+        border: 1px solid rgba(0,0,0,.15);
         padding: 6px 10px;
         border-radius: 999px;
         font-size: 12px;
@@ -138,12 +137,6 @@
         display: block;
     }
 
-    .note {
-        margin-top: 12px;
-        font-size: 12px;
-        color: var(--muted);
-    }
-
     .actions {
         margin-top: 18px;
         display: flex;
@@ -177,13 +170,6 @@
             border-color: transparent;
         }
 
-        .btnx.reset {
-            background: var(--naranja);
-            color: #fff;
-            border-color: transparent;
-        }
-
-    /* Responsive */
     @@media (max-width: 900px) {
         .content {
             padding: 18px;
@@ -198,19 +184,20 @@
 <div class="page-wrap">
     <div class="content">
         <div class="header">
-            <h2>Crear evento</h2>
-            <p>Complete la información del evento y seleccione el centro educativo.</p>
+            <h2>Editar evento</h2>
+            <p>Modifique la información del evento.</p>
         </div>
 
         <div class="card">
             <div class="card-top">
                 <span>Formulario de evento</span>
-                <span class="mode">Modo: Crear</span>
+                <span class="mode">Modo: Editar</span>
             </div>
 
             <div class="form">
-                <form asp-action="Create" method="post">
+                <form asp-action="Edit" method="post">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="EventoId" />
 
                     <div class="section">
                         <h3 class="section-title">Datos del centro educativo</h3>
@@ -239,11 +226,11 @@
                             </div>
 
                             <div class="field">
-                                <label>Tipo de evento</label>
-                                <select asp-for="EstadoEvento">
+                                <label>Tipo de feria</label>
+                                <select asp-for="TipoFeria">
                                     <option value="">Seleccione</option>
-                                    <option value="En proceso">Artes</option>
-                                    <option value="Finalizado">Cientifica</option>
+                                    <option value="Artes">Artes</option>
+                                    <option value="Científica">Científica</option>
                                 </select>
                                 <span asp-validation-for="TipoFeria" class="text-danger"></span>
                             </div>
@@ -276,20 +263,12 @@
                                 <textarea asp-for="Descripcion"></textarea>
                                 <span asp-validation-for="Descripcion" class="text-danger"></span>
                             </div>
-
-                            <input asp-for="UsuarioCreacion" type="hidden" />
-                            <input asp-for="UsuarioModificacion" type="hidden" />
                         </div>
-                    </div>
-
-                    <div class="note">
-                        * Puede validar luego: código único, campos obligatorios y fechas coherentes.
                     </div>
 
                     <div class="actions">
                         <a class="btnx cancel" asp-action="Index">Cancelar</a>
-                        <button class="btnx reset" type="reset">Limpiar</button>
-                        <button class="btnx save" type="submit">Guardar</button>
+                        <button class="btnx save" type="submit">Guardar cambios</button>
                     </div>
                 </form>
             </div>

@@ -1,90 +1,209 @@
-﻿@model GestionFerias_CTPINVU.Models.Evento
+@model GestionFerias_CTPINVU.Models.Evento
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Detalle del evento";
+
+    var estado = (Model.EstadoEvento ?? "").Trim();
+    var claseEstado = estado switch
+    {
+        "En proceso" => "estado-proceso",
+        "Finalizado" => "estado-finalizado",
+        "Cancelado" => "estado-cancelado",
+        _ => ""
+    };
 }
 
-<h1>Details</h1>
+<style>
+    :root {
+        --rojo: #BF1D1A;
+        --verde: #6A9A2C;
+        --amarillo: #F2B705;
+        --naranja: #CB6021;
+        --line: #e5e5e5;
+        --muted: #666;
+    }
 
-<div>
-    <h4>Evento</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CodigoEvento)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CodigoEvento)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NombreEvento)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NombreEvento)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TipoFeria)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TipoFeria)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Descripcion)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Descripcion)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.FechaInicio)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FechaInicio)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.FechaFin)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FechaFin)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.EstadoEvento)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.EstadoEvento)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UsuarioCreacion)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UsuarioCreacion)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.FechaCreacion)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FechaCreacion)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UsuarioModificacion)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UsuarioModificacion)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.FechaModificacion)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FechaModificacion)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Centro)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Centro.CentroId)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.EventoId">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    .page-wrap {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 0 12px;
+    }
+
+    .card-detail {
+        border-radius: 24px;
+        border: 1px solid rgba(0,0,0,.06);
+        box-shadow: 0 6px 20px rgba(0,0,0,.06);
+        overflow: hidden;
+    }
+
+    .card-detail-top {
+        background: linear-gradient(90deg, var(--rojo), var(--naranja));
+        color: #fff;
+        padding: 18px 22px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .card-detail-body {
+        padding: 24px;
+        background: #fff;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+    }
+
+    .info-row {
+        display: flex;
+        flex-direction: column;
+        border-bottom: 1px solid var(--line);
+        padding: 12px 0;
+    }
+
+    .info-row.full {
+        grid-column: 1 / -1;
+    }
+
+    .info-label {
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 4px;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+    }
+
+    .info-value {
+        font-size: 15px;
+        color: #222;
+    }
+
+    .badge-estado {
+        display: inline-block;
+        border: 1px solid rgba(0,0,0,.08);
+        font-weight: 600;
+        padding: 4px 14px;
+        border-radius: 999px;
+        font-size: 13px;
+    }
+
+    .estado-proceso {
+        background: rgba(203,96,33,.18);
+        color: #7a2e0b;
+    }
+
+    .estado-finalizado {
+        background: rgba(106,154,44,.18);
+        color: #2e4f13;
+    }
+
+    .estado-cancelado {
+        background: rgba(191,29,26,.18);
+        color: #7a0f0d;
+    }
+
+    .actions {
+        margin-top: 20px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+
+    .btnx {
+        padding: 10px 20px;
+        border-radius: 16px;
+        border: 1px solid rgba(0,0,0,.22);
+        font-size: 14px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .btnx.back {
+            background: #fff;
+            color: #111;
+        }
+
+        .btnx.edit {
+            background: var(--amarillo);
+            color: #111;
+            border-color: transparent;
+        }
+
+    @@media (max-width: 600px) {
+        .detail-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="page-wrap">
+    <div class="card-detail">
+        <div class="card-detail-top">
+            <i class="bi bi-calendar-event fs-5"></i>
+            <span class="fw-semibold">Detalle del evento</span>
+        </div>
+
+        <div class="card-detail-body">
+            <div class="detail-grid">
+                <div class="info-row">
+                    <div class="info-label">Código</div>
+                    <div class="info-value">@Model.CodigoEvento</div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-label">Nombre</div>
+                    <div class="info-value">@Model.NombreEvento</div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-label">Tipo de feria</div>
+                    <div class="info-value">@Model.TipoFeria</div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-label">Centro educativo</div>
+                    <div class="info-value">@Model.Centro?.NombreCentro</div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-label">Fecha de inicio</div>
+                    <div class="info-value">@Model.FechaInicio.ToString("dd/MM/yyyy")</div>
+                </div>
+
+                <div class="info-row">
+                    <div class="info-label">Fecha de fin</div>
+                    <div class="info-value">@Model.FechaFin.ToString("dd/MM/yyyy")</div>
+                </div>
+
+                <div class="info-row full">
+                    <div class="info-label">Estado</div>
+                    <div class="info-value">
+                        <span class="badge-estado @claseEstado">@estado</span>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.Descripcion))
+                {
+                    <div class="info-row full">
+                        <div class="info-label">Descripción</div>
+                        <div class="info-value">@Model.Descripcion</div>
+                    </div>
+                }
+            </div>
+
+            <div class="actions">
+                <a class="btnx back" asp-action="Index">
+                    <i class="bi bi-arrow-left"></i> Volver
+                </a>
+                <a class="btnx edit" asp-action="Edit" asp-route-id="@Model.EventoId">
+                    <i class="bi bi-pencil"></i> Editar
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
