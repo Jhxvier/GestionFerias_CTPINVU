@@ -189,6 +189,9 @@
                                 <ul class="dropdown-menu">
                                     <li><a class="dropdown-item" asp-controller="Eventos" asp-action="Index"><i class="bi bi-calendar-event me-2"></i>Eventos</a></li>
                                     <li><a class="dropdown-item" asp-controller="CentrosEducativos" asp-action="Index"><i class="bi bi-building me-2"></i>Centros Educativos</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" asp-controller="Categorias" asp-action="Index"><i class="bi bi-tags me-2"></i>Categorías</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Subcategorias" asp-action="Index"><i class="bi bi-tag me-2"></i>Subcategorías</a></li>
                                 </ul>
                             </li>
                         }
@@ -298,6 +301,16 @@
                         <a class="list-group-item list-group-item-action"
                            asp-controller="CentrosEducativos" asp-action="Index">
                             <i class="bi bi-building"></i> Centros Educativos
+                        </a>
+
+                        <a class="list-group-item list-group-item-action"
+                           asp-controller="Categorias" asp-action="Index">
+                            <i class="bi bi-tags"></i> Categorías
+                        </a>
+
+                        <a class="list-group-item list-group-item-action"
+                           asp-controller="Subcategorias" asp-action="Index">
+                            <i class="bi bi-tag"></i> Subcategorías
                         </a>
                     }
 
