@@ -43,6 +43,8 @@ namespace GestionFerias_CTPINVU.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("NombreCentro,NombreDirector,CircuitoEducativo,DireccionRegional,Direccion")] CentrosEducativo centro)
         {
+            ModelState.Remove("CentroTelefonos");
+            ModelState.Remove("Eventos");
             if (ModelState.IsValid)
             {
                 var usuarioId = long.TryParse(HttpContext.Session.GetString("UsuarioId"), out var uid) ? uid : (long?)null;
@@ -71,6 +73,8 @@ namespace GestionFerias_CTPINVU.Controllers
         {
             if (id != centro.CentroId) return NotFound();
 
+            ModelState.Remove("CentroTelefonos");
+            ModelState.Remove("Eventos");
             if (ModelState.IsValid)
             {
                 try
