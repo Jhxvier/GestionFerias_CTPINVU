@@ -1,248 +1,72 @@
-﻿@model GestionFerias_CTPINVU.Models.Inscripcione
+@model GestionFerias_CTPINVU.Models.Inscripcione
 
 @{
-    ViewData["Title"] = "Inscripción";
-    var listaEventos = ViewBag.EventoId as IEnumerable<SelectListItem>;
-    var listaCategorias = ViewBag.CategoriaId as IEnumerable<SelectListItem>;
-    var listaSubcategorias = ViewBag.SubcategoriaId as IEnumerable<SelectListItem>;
-    var listaTutores = ViewBag.TutorUsuarioId as IEnumerable<SelectListItem>;
+    ViewData["Title"] = "Editar inscripción";
+    var listaEventos = ViewData["EventoId"] as SelectList;
+    var listaCategorias = ViewData["CategoriaId"] as SelectList;
+    var listaSubcategorias = ViewData["SubcategoriaId"] as SelectList;
+    var listaTutores = ViewData["TutorUsuarioId"] as SelectList;
+    var liderNombre = ViewData["LiderNombre"] as string ?? "—";
+    var esAdminOCoord = (bool)(ViewData["EsAdminOCoord"] ?? false);
 }
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
 <style>
-    :root {
-        --rojo: #BF1D1A;
-        --verde: #6A9A2C;
-        --amarillo: #F2B705;
-        --naranja: #CB6021;
-        --bg: #f4f4f4;
-        --card: #ffffff;
-        --line: #e5e5e5;
-        --text: #222;
-        --muted: #666;
-    }
-
-    * {
-        box-sizing: border-box;
-    }
-
-    .page-wrap {
-        max-width: 1200px;
-        margin: 20px auto;
-        padding: 0 10px;
-    }
-
-    .content {
-        padding: 40px;
-        background: #fafafa;
-        min-height: 520px;
-        border-radius: 22px;
-        box-shadow: 0 10px 30px rgba(0,0,0,.06);
-        border: 1px solid rgba(0,0,0,.04);
-    }
-
-    .header h2 {
-        margin: 0;
-        font-weight: normal;
-        color: var(--text);
-    }
-
-    .header p {
-        margin: 6px 0 0;
-        color: var(--muted);
-        font-size: 14px;
-    }
-
-    .card {
-        margin-top: 18px;
-        background: var(--card);
-        border-radius: 24px;
-        box-shadow: 0 6px 20px rgba(0,0,0,.06);
-        overflow: hidden;
-        border: 1px solid var(--line);
-    }
-
-    .card-top {
-        background: var(--verde);
-        color: #fff;
-        padding: 16px 18px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-
-    .mode {
-        background: rgba(255,255,255,.18);
-        border: 1px solid rgba(255,255,255,.35);
-        padding: 6px 10px;
-        border-radius: 999px;
-        font-size: 12px;
-    }
-
-    .form {
-        padding: 20px;
-        background: #fff;
-    }
-
-    .section {
-        margin-bottom: 18px;
-        padding: 14px;
-        border: 1px solid var(--line);
-        border-radius: 18px;
-        background: #fff;
-    }
-
-    .section-title {
-        margin: 0 0 12px 0;
-        font-weight: normal;
-        font-size: 14px;
-        color: var(--naranja);
-    }
-
-    .grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 14px;
-    }
-
-    @@media (max-width:900px) {
-        .grid {
-            grid-template-columns: 1fr;
-        }
-
-        .content {
-            padding: 18px;
-        }
-    }
-
-    .field label {
-        display: block;
-        font-size: 13px;
-        margin-bottom: 6px;
-        color: var(--muted);
-    }
-
-    .field input, .field select, .field textarea {
-        width: 100%;
-        padding: 11px 12px;
-        border-radius: 16px;
-        border: 1px solid var(--line);
-        background: #fff;
-        font-family: Arial,sans-serif;
-        outline: none;
-    }
-
-    .field input, .field select {
-        height: 44px;
-    }
-
-    .field textarea {
-        min-height: 110px;
-        resize: none;
-    }
-
-    .field input:disabled {
-        background: #f3f3f3;
-        color: #666;
-        cursor: not-allowed;
-    }
-
-    .field input:focus, .field select:focus, .field textarea:focus {
-        border-color: rgba(191,29,26,.55);
-        box-shadow: 0 0 0 4px rgba(191,29,26,.10);
-    }
-
-    .highlight {
-        border: 2px dashed var(--amarillo);
-        background: #fffbe6;
-    }
-
-    .actions {
-        margin-top: 18px;
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        flex-wrap: wrap;
-    }
-
-    .btn {
-        padding: 10px 16px;
-        border-radius: 16px;
-        border: 1px solid rgba(0,0,0,.22);
-        font-size: 14px;
-        cursor: pointer;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-    }
-
-        .btn.cancel {
-            background: #fff;
-            color: #111;
-        }
-
-        .btn.save {
-            background: var(--rojo);
-            color: #fff;
-            border-color: transparent;
-        }
-
-        .btn.manage {
-            background: var(--naranja);
-            color: #fff;
-            border-color: transparent;
-        }
-
-        .btn.approve {
-            background: var(--verde);
-            color: #fff;
-            border-color: transparent;
-        }
-
-    .note {
-        font-size: 12px;
-        color: var(--muted);
-        margin-top: 10px;
-    }
-
-    .tutor-box {
-        display: none;
-    }
-
-    #gestionarToggle:checked ~ .tutor-box {
-        display: block;
-    }
-
-    #gestionarToggle:checked ~ .actions .btn.manage {
-        filter: saturate(1.1);
-        box-shadow: 0 0 0 4px rgba(203,96,33,.14);
-    }
+    :root { --rojo: #BF1D1A; --verde: #6A9A2C; --amarillo: #F2B705; --naranja: #CB6021; --line: #e5e5e5; --muted: #666; }
+    * { box-sizing: border-box; }
+    .page-wrap { max-width: 1000px; margin: 22px auto; padding: 0 8px; }
+    .content { padding: 26px; background: #fafafa; border-radius: 22px; box-shadow: 0 10px 30px rgba(0,0,0,.06); border: 1px solid rgba(0,0,0,.04); }
+    .header h2 { margin: 0; font-weight: normal; color: #222; }
+    .header p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
+    .card-form { margin-top: 18px; background: #fff; border-radius: 24px; box-shadow: 0 6px 20px rgba(0,0,0,.06); overflow: hidden; border: 1px solid rgba(0,0,0,.04); }
+    .card-top { background: var(--amarillo); color: #111; padding: 16px 18px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .mode { background: rgba(0,0,0,.08); border: 1px solid rgba(0,0,0,.15); padding: 6px 10px; border-radius: 999px; font-size: 12px; }
+    .form { padding: 20px; background: #fff; }
+    .section { margin-bottom: 18px; padding: 14px; border: 1px solid var(--line); border-radius: 18px; background: #fff; }
+    .section-title { margin: 0 0 12px 0; font-weight: normal; font-size: 14px; color: var(--naranja); }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .field label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+    .field input, .field select, .field textarea { width: 100%; padding: 11px 12px; border-radius: 16px; border: 1px solid var(--line); background: #fff; font-family: Arial,sans-serif; outline: none; }
+    .field input, .field select { height: 44px; }
+    .field textarea { min-height: 100px; resize: none; }
+    .field input:disabled { background: #f3f3f3; color: #666; cursor: not-allowed; }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: rgba(191,29,26,.55); box-shadow: 0 0 0 4px rgba(191,29,26,.10); }
+    .text-danger { font-size: 12px; color: #b00020; margin-top: 6px; display: block; }
+    .highlight { border: 2px dashed var(--amarillo); background: #fffbe6; }
+    .note { font-size: 12px; color: var(--muted); margin-top: 10px; }
+    .actions { margin-top: 18px; display: flex; justify-content: flex-end; gap: 12px; flex-wrap: wrap; }
+    .btnx { padding: 10px 16px; border-radius: 16px; border: 1px solid rgba(0,0,0,.22); font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; user-select: none; }
+    .btnx.cancel { background: #fff; color: #111; }
+    .btnx.save { background: var(--rojo); color: #fff; border-color: transparent; }
+    @@media (max-width: 900px) { .content { padding: 18px; } .grid { grid-template-columns: 1fr; } }
 </style>
 
 <div class="page-wrap">
     <div class="content">
-
         <div class="header">
-            <h2>Inscripción</h2>
-            <p>Estudiante crea — Coordinador/Admin asignan tutor (aprueba automáticamente).</p>
+            <h2>Editar inscripción</h2>
+            <p>Modifique los datos del proyecto o gestione la asignación de tutor.</p>
         </div>
 
-        <div class="card">
+        <div class="card-form">
             <div class="card-top">
-                <span>Formulario de inscripción</span>
-                <span class="mode" id="modoTxt">Modo: Crear</span>
+                <span>Formulario de inscripción — INS-@Model.InscripcionId</span>
+                <span class="mode">Modo: Editar</span>
             </div>
 
             <div class="form">
-                <form>
+                <form asp-action="Edit" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="InscripcionId" />
+                    <input type="hidden" asp-for="LiderUsuarioId" />
+                    <input type="hidden" asp-for="EstadoInscripcion" id="estadoHidden" />
+
                     <div class="section">
                         <h3 class="section-title">Evento</h3>
                         <div class="grid">
                             <div class="field" style="grid-column:1 / -1;">
-                                <label>Evento en proceso</label>
+                                <label>Evento</label>
                                 <select asp-for="EventoId" asp-items="listaEventos">
                                     <option value="">Seleccione</option>
                                 </select>
@@ -255,22 +79,42 @@
                         <div class="grid">
                             <div class="field">
                                 <label>Categoría</label>
-                                <select>
+                                <select id="categoriaSelect">
                                     <option value="">Seleccione</option>
                                     @if (listaCategorias != null)
                                     {
-                                        foreach (var c in listaCategorias)
+                                        @foreach (var c in listaCategorias)
                                         {
-                                            <option value="@c.Value">@c.Text</option>
+                                            if (c.Selected)
+                                            {
+                                                <option value="@c.Value" selected>@c.Text</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@c.Value">@c.Text</option>
+                                            }
                                         }
                                     }
                                 </select>
                             </div>
-
                             <div class="field">
                                 <label>Subcategoría</label>
-                                <select asp-for="SubcategoriaId" asp-items="listaSubcategorias">
+                                <select asp-for="SubcategoriaId" id="subcategoriaSelect">
                                     <option value="">Seleccione</option>
+                                    @if (listaSubcategorias != null)
+                                    {
+                                        @foreach (var s in listaSubcategorias)
+                                        {
+                                            if (s.Selected)
+                                            {
+                                                <option value="@s.Value" selected>@s.Text</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@s.Value">@s.Text</option>
+                                            }
+                                        }
+                                    }
                                 </select>
                             </div>
                         </div>
@@ -281,16 +125,21 @@
                         <div class="grid">
                             <div class="field">
                                 <label>Líder</label>
-                                <input disabled value="Autocompletado" />
+                                <input disabled value="@liderNombre" />
                             </div>
-                            <div class="field">
-                                <label>Integrante 1</label>
-                                <input />
-                            </div>
-                            <div class="field">
-                                <label>Integrante 2</label>
-                                <input />
-                            </div>
+                            @if (Model.InscripcionIntegrantes != null && Model.InscripcionIntegrantes.Any())
+                            {
+                                @foreach (var ii in Model.InscripcionIntegrantes)
+                                {
+                                    var pNombre = ii.EstudianteUsuario?.EstudianteNavigation?.Persona != null
+                                        ? $"{ii.EstudianteUsuario.EstudianteNavigation.Persona.Nombres} {ii.EstudianteUsuario.EstudianteNavigation.Persona.Apellidos}"
+                                        : $"ID: {ii.EstudianteUsuarioId}";
+                                    <div class="field">
+                                        <label>Integrante</label>
+                                        <input disabled value="@pNombre" />
+                                    </div>
+                                }
+                            }
                         </div>
                     </div>
 
@@ -298,8 +147,9 @@
                         <h3 class="section-title">Detalle del proyecto</h3>
                         <div class="grid">
                             <div class="field" style="grid-column:1 / -1;">
-                                <label>Título</label>
+                                <label>Título del proyecto</label>
                                 <input asp-for="TituloProyecto" />
+                                <span asp-validation-for="TituloProyecto" class="text-danger"></span>
                             </div>
                             <div class="field" style="grid-column:1 / -1;">
                                 <label>Descripción</label>
@@ -308,51 +158,65 @@
                         </div>
                     </div>
 
-                    <input id="gestionarToggle" type="checkbox" hidden />
+                    @if (esAdminOCoord)
+                    {
+                        <div class="section highlight">
+                            <h3 class="section-title">Asignar tutor</h3>
+                            <div class="grid">
+                                <div class="field">
+                                    <label>Tutor</label>
+                                    <select asp-for="TutorUsuarioId" asp-items="listaTutores">
+                                        <option value="">Seleccione tutor</option>
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label>Estado</label>
+                                    <input disabled value="@Model.EstadoInscripcion" />
+                                </div>
+                            </div>
+                            <div class="note">
+                                Al asignar un tutor, la inscripción se aprueba automáticamente.
+                            </div>
+                        </div>
+                    }
 
                     <div class="actions">
-                        <a class="btn cancel" asp-action="Index">Cancelar</a>
-                        <button class="btn save" type="button">Enviar</button>
-                        <label class="btn manage" for="gestionarToggle">Gestionar</label>
+                        <a class="btnx cancel" asp-action="Index">Cancelar</a>
+                        <button class="btnx save" type="submit">
+                            <i class="bi bi-check-circle"></i> Guardar cambios
+                        </button>
                     </div>
-
-                    <div class="section highlight tutor-box">
-                        <h3 class="section-title">Asignar tutor (aprueba inscripción)</h3>
-                        <div class="grid">
-                            <div class="field">
-                                <label>Tutor asignado</label>
-                                <select asp-for="TutorUsuarioId" asp-items="listaTutores">
-                                    <option value="">Seleccione tutor</option>
-                                </select>
-                            </div>
-                            <div class="field">
-                                <label>Buscar</label>
-                                <button class="btn" type="button">Buscar tutor</button>
-                            </div>
-                        </div>
-
-                        <div class="note">
-                            Al asignar tutor la inscripción se considera aprobada automáticamente.
-                        </div>
-
-                        <div class="actions" style="margin-top:12px;justify-content:flex-end;">
-                            <button class="btn approve" type="button">Asignar tutor</button>
-                        </div>
-                    </div>
-
                 </form>
             </div>
         </div>
-
     </div>
 </div>
 
 <script>
-    (function(){
-      const t=document.getElementById("gestionarToggle");
-      const m=document.getElementById("modoTxt");
-      const sync=()=>m.textContent=t.checked?"Modo: Gestionar":"Modo: Crear";
-      t.addEventListener("change",sync);
-      sync();
-    })();
+(function(){
+    var catSel = document.getElementById('categoriaSelect');
+    var subSel = document.getElementById('subcategoriaSelect');
+    var currentSubVal = '@Model.SubcategoriaId';
+
+    catSel.addEventListener('change', function(){
+        var catId = this.value;
+        subSel.innerHTML = '<option value="">Cargando...</option>';
+        if (!catId) { subSel.innerHTML = '<option value="">Seleccione categoría primero</option>'; return; }
+
+        fetch('/Inscripciones/GetSubcategorias?categoriaId=' + catId)
+            .then(function(r){ return r.json(); })
+            .then(function(data){
+                var html = '<option value="">Seleccione</option>';
+                data.forEach(function(s){
+                    var sel = s.subcategoriaId == currentSubVal ? ' selected' : '';
+                    html += '<option value="' + s.subcategoriaId + '"' + sel + '>' + s.nombre + '</option>';
+                });
+                subSel.innerHTML = html;
+            });
+    });
+})();
 </script>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

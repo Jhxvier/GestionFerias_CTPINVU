@@ -1,84 +1,107 @@
-﻿@model GestionFerias_CTPINVU.Models.Inscripcione
+@model GestionFerias_CTPINVU.Models.Inscripcione
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Detalle de inscripción";
+    var nombreLider = Model.LiderUsuario?.Persona != null
+        ? $"{Model.LiderUsuario.Persona.Nombres} {Model.LiderUsuario.Persona.Apellidos}" : $"ID: {Model.LiderUsuarioId}";
+    var clasificacion = Model.Subcategoria != null
+        ? $"{Model.Subcategoria.Categoria?.Nombre} / {Model.Subcategoria.Nombre}" : "—";
+    var nombreTutor = "— (sin asignar)";
+    if (Model.TutorUsuario?.Tutor?.Persona != null)
+    {
+        var p = Model.TutorUsuario.Tutor.Persona;
+        nombreTutor = $"{p.Nombres} {p.Apellidos}";
+    }
+    var estado = Model.EstadoInscripcion ?? "Pendiente";
+    var claseEstado = estado == "Aprobado" ? "estado-aprobado" : "estado-pendiente";
 }
 
-<h1>Details</h1>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 
-<div>
-    <h4>Inscripcione</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TituloProyecto)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TituloProyecto)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DescripcionProyecto)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DescripcionProyecto)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.EstadoInscripcion)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.EstadoInscripcion)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UsuarioCreacion)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UsuarioCreacion)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.FechaCreacion)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FechaCreacion)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UsuarioModificacion)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UsuarioModificacion)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.FechaModificacion)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FechaModificacion)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Evento)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Evento.EventoId)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.LiderUsuario)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.LiderUsuario.UsuarioId)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Subcategoria)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Subcategoria.SubcategoriaId)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TutorUsuario)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TutorUsuario.TutorId)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.InscripcionId">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+<style>
+    :root { --rojo: #BF1D1A; --amarillo: #F2B705; --naranja: #CB6021; --verde: #6A9A2C; --line: #e5e5e5; --muted: #666; }
+    .page-wrap { max-width: 800px; margin: 40px auto; padding: 0 12px; }
+    .card-detail { border-radius: 24px; border: 1px solid rgba(0,0,0,.06); box-shadow: 0 6px 20px rgba(0,0,0,.06); overflow: hidden; }
+    .card-detail-top { background: linear-gradient(90deg, var(--rojo), var(--naranja)); color: #fff; padding: 18px 22px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .card-detail-body { padding: 24px; background: #fff; }
+    .info-row { display: flex; flex-direction: column; border-bottom: 1px solid var(--line); padding: 12px 0; }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { font-size: 12px; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .5px; }
+    .info-value { font-size: 15px; color: #222; }
+    .badge-estado { border-radius: 999px; padding: 5px 12px; font-weight: 600; font-size: 12px; border: 1px solid rgba(255,255,255,.35); }
+    .estado-pendiente { background: #fff8d6; color: #7a5d00; }
+    .estado-aprobado { background: #eef8e6; color: var(--verde); }
+    .actions { margin-top: 20px; display: flex; justify-content: flex-end; gap: 12px; }
+    .btnx { padding: 10px 20px; border-radius: 16px; border: 1px solid rgba(0,0,0,.22); font-size: 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
+    .btnx.back { background: #fff; color: #111; }
+    .btnx.edit { background: var(--amarillo); color: #111; border-color: transparent; }
+</style>
+
+<div class="page-wrap">
+    <div class="card-detail">
+        <div class="card-detail-top">
+            <div>
+                <div class="fw-semibold fs-5">INS-@Model.InscripcionId</div>
+                <div class="opacity-75 small">@(Model.TituloProyecto ?? "—")</div>
+            </div>
+            <span class="badge-estado @claseEstado">@estado</span>
+        </div>
+
+        <div class="card-detail-body">
+            <div class="info-row">
+                <div class="info-label">Evento</div>
+                <div class="info-value">@(Model.Evento?.NombreEvento ?? "—")</div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-label">Clasificación</div>
+                <div class="info-value">@clasificacion</div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-label">Líder</div>
+                <div class="info-value">@nombreLider</div>
+            </div>
+
+            @if (Model.InscripcionIntegrantes != null && Model.InscripcionIntegrantes.Any())
+            {
+                <div class="info-row">
+                    <div class="info-label">Integrantes</div>
+                    <div class="info-value">
+                        @foreach (var ii in Model.InscripcionIntegrantes)
+                        {
+                            var pNombre = ii.EstudianteUsuario?.EstudianteNavigation?.Persona != null
+                                ? $"{ii.EstudianteUsuario.EstudianteNavigation.Persona.Nombres} {ii.EstudianteUsuario.EstudianteNavigation.Persona.Apellidos}"
+                                : $"ID: {ii.EstudianteUsuarioId}";
+                            <div>@pNombre</div>
+                        }
+                    </div>
+                </div>
+            }
+
+            <div class="info-row">
+                <div class="info-label">Tutor asignado</div>
+                <div class="info-value">@nombreTutor</div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-label">Descripción del proyecto</div>
+                <div class="info-value">@(Model.DescripcionProyecto ?? "—")</div>
+            </div>
+
+            <div class="info-row">
+                <div class="info-label">Título del proyecto</div>
+                <div class="info-value">@(Model.TituloProyecto ?? "—")</div>
+            </div>
+
+            <div class="actions">
+                <a class="btnx back" asp-action="Index">
+                    <i class="bi bi-arrow-left"></i> Volver
+                </a>
+                <a class="btnx edit" asp-action="Edit" asp-route-id="@Model.InscripcionId">
+                    <i class="bi bi-pencil"></i> Editar
+                </a>
+            </div>
+        </div>
+    </div>
 </div>

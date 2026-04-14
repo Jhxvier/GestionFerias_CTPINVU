@@ -1,309 +1,114 @@
-﻿@model IEnumerable<GestionFerias_CTPINVU.Models.Inscripcione>
+@model IEnumerable<GestionFerias_CTPINVU.Models.Inscripcione>
 
 @{
     ViewData["Title"] = "Inscripciones";
+    var esAdminOCoord = (bool)(ViewData["EsAdminOCoord"] ?? false);
+    var esEstudiante = (bool)(ViewData["EsEstudiante"] ?? false);
 }
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+
 <style>
-    :root {
-        --rojo: #BF1D1A;
-        --verde: #6A9A2C;
-        --amarillo: #F2B705;
-        --naranja: #CB6021;
-        --bg: #f4f4f4;
-        --card: #ffffff;
-        --line: #e5e5e5;
-        --muted: #666;
-    }
-
-    .marco-ui {
-        background: #fff;
-        border-radius: 22px;
-        box-shadow: 0 10px 30px rgba(0,0,0,.08);
-        overflow: hidden;
-    }
-
-    .contenido-ui {
-        padding: 28px;
-        background: #fafafa;
-        min-height: 520px;
-        border-radius: 22px;
-    }
-
-    .tarjeta-ui {
-        background: var(--card);
-        border-radius: 24px;
-        box-shadow: 0 6px 20px rgba(0,0,0,.06);
-        overflow: hidden;
-        border: 0;
-    }
-
-    .zona-filtros {
-        border-bottom: 1px solid var(--line);
-    }
-
-    .form-control, .form-select {
-        border-radius: 16px;
-    }
-
-    .btn-principal {
-        background: var(--verde);
-        border-color: #000;
-        border-radius: 16px;
-        color: #fff;
-    }
-
-    .btn-filtrar {
-        background: var(--naranja);
-        border-color: #000;
-        border-radius: 16px;
-        color: #fff;
-    }
-
-    .tabla-ui {
-        border-collapse: separate;
-        border-spacing: 0 10px;
-    }
-
-        .tabla-ui thead th {
-            font-size: 13px;
-            color: var(--muted);
-            font-weight: 400;
-            border: 0 !important;
-            white-space: nowrap;
-        }
-
-        .tabla-ui tbody tr {
-            background: #fff;
-            box-shadow: 0 3px 10px rgba(0,0,0,.05);
-        }
-
-        .tabla-ui tbody td {
-            font-size: 13px;
-            border-top: 1px solid var(--line);
-            border-bottom: 1px solid var(--line);
-            vertical-align: middle;
-        }
-
-            .tabla-ui tbody td:first-child {
-                border-left: 1px solid var(--line);
-                border-top-left-radius: 16px;
-                border-bottom-left-radius: 16px;
-            }
-
-            .tabla-ui tbody td:last-child {
-                border-right: 1px solid var(--line);
-                border-top-right-radius: 16px;
-                border-bottom-right-radius: 16px;
-            }
-
-    .badge-estado {
-        border-radius: 999px;
-        padding: 6px 10px;
-        font-weight: 700;
-        font-size: 12px;
-        border: 1px solid var(--line);
-        background: #fafafa;
-        display: inline-block;
-        white-space: nowrap;
-    }
-
-    .estado-pendiente {
-        background: #fff8d6;
-        border-color: #f0d36b;
-        color: #7a5d00;
-    }
-
-    .estado-aprobado {
-        background: #eef8e6;
-        border-color: #cfe9b6;
-        color: var(--verde);
-    }
-
-    .estado-rechazado {
-        background: #ffe9e9;
-        border-color: #ffc3c3;
-        color: var(--rojo);
-    }
-
-    .btn-accion {
-        border-radius: 14px;
-        border: 1px solid #000;
-        font-size: 13px;
-        padding: 8px 12px;
-        text-decoration: none;
-        display: inline-block;
-        white-space: nowrap;
-    }
-
-    .btn-ver {
-        background: var(--amarillo);
-        color: #111;
-    }
-
-    .btn-gestionar {
-        background: var(--naranja);
-        color: #fff;
-    }
-
-    .nota-ui {
-        margin-top: 10px;
-        font-size: 12px;
-        color: var(--muted);
-    }
-
-    .tarjeta-estudiante {
-        border: 1px solid var(--line);
-        border-radius: 22px;
-        background: #fff;
-        box-shadow: 0 6px 20px rgba(0,0,0,.06);
-        overflow: hidden;
-    }
-
-    .estudiante-top {
-        background: var(--verde);
-        color: #fff;
-        padding: 14px 16px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-
-    .estudiante-body {
-        padding: 16px;
-    }
-
-    .kv {
-        display: grid;
-        grid-template-columns: 220px 1fr;
-        gap: 10px;
-        font-size: 13px;
-        margin-bottom: 10px;
-    }
-
-        .kv .k {
-            color: var(--muted);
-        }
+    :root { --rojo: #BF1D1A; --verde: #6A9A2C; --amarillo: #F2B705; --naranja: #CB6021; --line: #e5e5e5; --muted: #666; }
+    .header-ferias { background: linear-gradient(90deg,var(--rojo),var(--naranja)); border-radius: 18px; color: #fff; padding: 18px 22px; box-shadow: 0 10px 30px rgba(0,0,0,.08); }
+    .btn-verde { background: var(--verde); color: #fff; border: none; }
+    .btn-amarillo { background: var(--amarillo); color: #111; border: none; }
+    .btn-naranja { background: var(--naranja); color: #fff; border: none; }
+    .btn-rojo { background: var(--rojo); color: #fff; border: none; }
+    .card-ferias { border-radius: 20px; border: 1px solid rgba(0,0,0,.06); box-shadow: 0 6px 20px rgba(0,0,0,.06); }
+    .badge-estado { border-radius: 999px; padding: 5px 12px; font-weight: 600; font-size: 12px; border: 1px solid rgba(0,0,0,.08); }
+    .estado-pendiente { background: #fff8d6; border-color: #f0d36b; color: #7a5d00; }
+    .estado-aprobado { background: #eef8e6; border-color: #cfe9b6; color: var(--verde); }
+    .tarjeta-est { border: 1px solid var(--line); border-radius: 22px; background: #fff; box-shadow: 0 6px 20px rgba(0,0,0,.06); overflow: hidden; }
+    .est-top { background: var(--verde); color: #fff; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .est-body { padding: 16px; }
+    .kv { display: grid; grid-template-columns: 200px 1fr; gap: 10px; font-size: 13px; margin-bottom: 10px; }
+    .kv .k { color: var(--muted); }
 </style>
 
-<div class="marco-ui">
-    <div class="contenido-ui">
+<div class="container-xxl py-4">
 
-        <!-- Encabezado -->
-        <div class="d-flex align-items-start justify-content-between flex-wrap gap-3">
+    <div class="header-ferias mb-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
             <div>
-                <h2 class="mb-1">Gestión de inscripciones</h2>
-                <p class="mb-0 text-secondary">
-                    Admin/Coordinador/Tutor: ven todas las inscripciones por evento.<br />
-                    Estudiante: ve solo su inscripción y su estado.
-                </p>
-            </div>
-
-            <a asp-action="Create" class="btn btn-principal">
-                + Nueva inscripción
-            </a>
-        </div>
-
-        <div class="card tarjeta-ui mt-3">
-
-            <!-- Filtros -->
-            <div class="p-3 zona-filtros">
-                <div class="row g-2 align-items-end">
-
-                    <div class="col-12 col-md-4 col-lg-3">
-                        <label class="form-label text-secondary mb-1">Evento</label>
-                        <select id="filtroEvento" class="form-select">
-                            <option value="">Seleccione evento</option>
-                            <option value="1">Feria de Ciencias 2026</option>
-                            <option value="2">Feria Tecnológica 2026</option>
-                        </select>
-                    </div>
-
-                    <div class="col-12 col-md-4 col-lg-3">
-                        <label class="form-label text-secondary mb-1">Estado</label>
-                        <select id="filtroEstado" class="form-select">
-                            <option value="">Todos</option>
-                            <option value="Pendiente">Pendiente</option>
-                            <option value="Aprobado">Aprobado</option>
-                            <option value="Rechazado">Rechazado</option>
-                        </select>
-                    </div>
-
-                    <div class="col-12 col-md-6 col-lg-4">
-                        <label class="form-label text-secondary mb-1">Buscar grupo / líder</label>
-                        <input id="textoBuscar" type="text" class="form-control" placeholder="Nombre o documento..." />
-                    </div>
-
-                    <div class="col-12 col-md-4 col-lg-2">
-                        <button type="button" class="btn btn-filtrar w-100">Filtrar</button>
-                    </div>
-
+                <h3 class="mb-1">Gestión de inscripciones</h3>
+                <div class="opacity-75 small">
+                    @if (esAdminOCoord)
+                    {
+                        <span>Vista completa de todas las inscripciones</span>
+                    }
+                    else
+                    {
+                        <span>Mis inscripciones</span>
+                    }
                 </div>
             </div>
+            <div class="d-flex gap-2 flex-wrap">
+                <a asp-action="Create" class="btn btn-verde rounded-pill px-4">
+                    <i class="bi bi-plus-circle me-1"></i> Nueva inscripción
+                </a>
+            </div>
+        </div>
+    </div>
 
-            <!-- Tabla -->
-            <div class="p-3">
+    @if (esAdminOCoord)
+    {
+        <div class="card card-ferias mb-4">
+            <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table tabla-ui align-middle mb-0">
+                    <table class="table table-hover align-middle mb-0">
                         <thead>
                             <tr>
                                 <th>ID</th>
                                 <th>Evento</th>
-                                <th>Grupo (Líder)</th>
-                                <th>Subcategoría</th>
-                                <th>Tutor asignado</th>
-                                <th>Estado</th>
+                                <th>Proyecto (Líder)</th>
+                                <th>Categoría / Subcategoría</th>
+                                <th>Tutor</th>
+                                <th class="text-center">Estado</th>
                                 <th class="text-end">Acciones</th>
                             </tr>
                         </thead>
-
                         <tbody>
                             @foreach (var item in Model)
                             {
-                                var idInscripcion = item.InscripcionId;
-                                var nombreEvento = item.Evento?.NombreEvento ?? $"Evento #{item.EventoId}";
-                                var tituloProyecto = item.TituloProyecto ?? "—";
-                                var idLider = item.LiderUsuarioId;
-                                var textoLider = item.LiderUsuario != null
-                                ? $"Líder ID: {item.LiderUsuario.UsuarioId}"
-                                : $"Líder ID: {idLider}";
-                                var textoSubcategoria = item.Subcategoria != null
-                                ? $"Subcat #{item.Subcategoria.SubcategoriaId}"
-                                : $"Subcat #{item.SubcategoriaId}";
+                                var nombreLider = item.LiderUsuario?.Persona != null
+                                    ? $"{item.LiderUsuario.Persona.Nombres} {item.LiderUsuario.Persona.Apellidos}"
+                                    : $"ID: {item.LiderUsuarioId}";
 
-                                var textoTutor = item.TutorUsuarioId == null
-                                ? "— (sin asignar)"
-                                : (item.TutorUsuario != null
-                                ? $"Tutor ID: {item.TutorUsuario.TutorId}"
-                                : $"Tutor ID: {item.TutorUsuarioId}");
+                                var clasificacion = item.Subcategoria != null
+                                    ? $"{item.Subcategoria.Categoria?.Nombre} / {item.Subcategoria.Nombre}"
+                                    : "—";
 
-                                var estado = item.EstadoInscripcion?.ToString() ?? "Pendiente";
-                                var claseEstado = estado == "Aprobado"
-                                ? "estado-aprobado"
-                                : (estado == "Rechazado" ? "estado-rechazado" : "estado-pendiente");
+                                var nombreTutor = "— (sin asignar)";
+                                if (item.TutorUsuario?.Tutor?.Persona != null)
+                                {
+                                    var p = item.TutorUsuario.Tutor.Persona;
+                                    nombreTutor = $"{p.Nombres} {p.Apellidos}";
+                                }
+
+                                var estado = item.EstadoInscripcion ?? "Pendiente";
+                                var claseEstado = estado == "Aprobado" ? "estado-aprobado" : "estado-pendiente";
 
                                 <tr>
-                                    <td>INS-@idInscripcion</td>
-                                    <td>@nombreEvento</td>
-
+                                    <td>INS-@item.InscripcionId</td>
+                                    <td>@(item.Evento?.NombreEvento ?? "—")</td>
                                     <td>
-                                        <div class="fw-semibold">@tituloProyecto</div>
-                                        <div class="text-secondary" style="font-size:12px;">@textoLider</div>
+                                        <div class="fw-semibold">@(item.TituloProyecto ?? "—")</div>
+                                        <div class="text-secondary" style="font-size:12px;">@nombreLider</div>
                                     </td>
-
-                                    <td>@textoSubcategoria</td>
-                                    <td>@textoTutor</td>
-
-                                    <td>
+                                    <td>@clasificacion</td>
+                                    <td>@nombreTutor</td>
+                                    <td class="text-center">
                                         <span class="badge-estado @claseEstado">@estado</span>
                                     </td>
-
                                     <td class="text-end">
                                         <div class="d-inline-flex gap-2 flex-wrap justify-content-end">
-                                            <a asp-action="Details" asp-route-id="@item.InscripcionId" class="btn-accion btn-ver">Ver</a>
-                                            <a asp-action="Edit" asp-route-id="@item.InscripcionId" class="btn-accion btn-gestionar">Gestionar</a>
+                                            <a asp-action="Details" asp-route-id="@item.InscripcionId"
+                                               class="btn btn-sm btn-amarillo rounded-pill px-3">Ver</a>
+                                            <a asp-action="Edit" asp-route-id="@item.InscripcionId"
+                                               class="btn btn-sm btn-naranja rounded-pill px-3">Gestionar</a>
+                                            <a asp-action="Delete" asp-route-id="@item.InscripcionId"
+                                               class="btn btn-sm btn-rojo rounded-pill px-3">Eliminar</a>
                                         </div>
                                     </td>
                                 </tr>
@@ -313,7 +118,7 @@
                             {
                                 <tr>
                                     <td colspan="7" class="text-center py-4 text-secondary">
-                                        No hay inscripciones para mostrar.
+                                        No hay inscripciones registradas.
                                     </td>
                                 </tr>
                             }
@@ -321,59 +126,65 @@
                     </table>
                 </div>
 
-                <div class="nota-ui">
-                    * “Gestionar” (Admin/Coordinador/Tutor) puede permitir: asignar tutor y cambiar estado.
+                <div class="text-end small text-muted mt-2">
+                    Total: @Model.Count() inscripción(es)
                 </div>
             </div>
         </div>
+    }
+    else
+    {
+        @foreach (var item in Model)
+        {
+            var nombreLider = item.LiderUsuario?.Persona != null
+                ? $"{item.LiderUsuario.Persona.Nombres} {item.LiderUsuario.Persona.Apellidos}" : "—";
 
-        <!-- ===== Vista del estudiante  ===== -->
-        <div class="card tarjeta-ui mt-3">
-            <div class="p-3">
+            var clasificacion = item.Subcategoria != null
+                ? $"{item.Subcategoria.Categoria?.Nombre} / {item.Subcategoria.Nombre}" : "—";
 
-                <div class="tarjeta-estudiante">
-                    <div class="estudiante-top">
-                        <div class="fw-semibold">Mi inscripción</div>
+            var nombreTutor = "— (sin asignar)";
+            if (item.TutorUsuario?.Tutor?.Persona != null)
+            {
+                var p = item.TutorUsuario.Tutor.Persona;
+                nombreTutor = $"{p.Nombres} {p.Apellidos}";
+            }
 
-                        @{
-                            var primera = Model.FirstOrDefault();
-                            var estadoEst = primera?.EstadoInscripcion?.ToString() ?? "Pendiente";
-                            var claseEst = estadoEst == "Aprobado"
-                            ? "estado-aprobado"
-                            : (estadoEst == "Rechazado" ? "estado-rechazado" : "estado-pendiente");
-                        }
+            var estado = item.EstadoInscripcion ?? "Pendiente";
+            var claseEstado = estado == "Aprobado" ? "estado-aprobado" : "estado-pendiente";
 
-                        <div>
-                            <span class="badge-estado @claseEst" style="border-color:rgba(255,255,255,.35);">
-                                Estado: @estadoEst
-                            </span>
-                        </div>
-                    </div>
+            var integrantes = item.InscripcionIntegrantes?.Select(ii =>
+            {
+                var p = ii.EstudianteUsuario?.EstudianteNavigation?.Persona;
+                return p != null ? $"{p.Nombres} {p.Apellidos}" : $"ID: {ii.EstudianteUsuarioId}";
+            }).ToList() ?? new List<string>();
 
-                    <div class="estudiante-body">
-                        @{
-                            var ins = Model.FirstOrDefault();
-                            var eventoEst = ins?.Evento?.NombreEvento ?? "—";
-                            var subEst = ins?.Subcategoria != null ? $"Subcat #{ins.Subcategoria.SubcategoriaId}" : "—";
-                            var tutorEst = ins?.TutorUsuarioId == null ? "— (sin asignar)" : $"Tutor ID: {ins.TutorUsuarioId}";
-                            var integrantesEst = "Líder + integrante 1 + integrante 2";
-                            var detalleEst = ins?.DescripcionProyecto ?? "Descripción breve del proyecto…";
-                        }
-
-                        <div class="kv"><div class="k">Evento</div><div>@eventoEst</div></div>
-                        <div class="kv"><div class="k">Subcategoría</div><div>@subEst</div></div>
-                        <div class="kv"><div class="k">Tutor asignado</div><div>@tutorEst</div></div>
-                        <div class="kv"><div class="k">Integrantes del grupo</div><div>@integrantesEst</div></div>
-                        <div class="kv"><div class="k">Detalle</div><div>@detalleEst</div></div>
-
-                        <div class="nota-ui">
-                            * El estudiante solo consulta su estado y tutor asignado.
-                        </div>
-                    </div>
+            <div class="tarjeta-est mb-3">
+                <div class="est-top">
+                    <div class="fw-semibold">@(item.TituloProyecto ?? "Mi inscripción")</div>
+                    <span class="badge-estado @claseEstado" style="border-color:rgba(255,255,255,.35);">@estado</span>
                 </div>
-
+                <div class="est-body">
+                    <div class="kv"><div class="k">Evento</div><div>@(item.Evento?.NombreEvento ?? "—")</div></div>
+                    <div class="kv"><div class="k">Clasificación</div><div>@clasificacion</div></div>
+                    <div class="kv"><div class="k">Tutor asignado</div><div>@nombreTutor</div></div>
+                    <div class="kv"><div class="k">Líder</div><div>@nombreLider</div></div>
+                    @if (integrantes.Any())
+                    {
+                        <div class="kv"><div class="k">Integrantes</div><div>@string.Join(", ", integrantes)</div></div>
+                    }
+                    <div class="kv"><div class="k">Descripción</div><div>@(item.DescripcionProyecto ?? "—")</div></div>
+                </div>
             </div>
-        </div>
+        }
 
-    </div>
+        @if (!Model.Any())
+        {
+            <div class="card card-ferias">
+                <div class="card-body text-center py-4 text-secondary">
+                    No tenés inscripciones registradas. Creá una nueva para participar.
+                </div>
+            </div>
+        }
+    }
+
 </div>
