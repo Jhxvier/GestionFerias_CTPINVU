@@ -1,0 +1,160 @@
+@model GestionFerias_CTPINVU.ViewModels.MiPerfilViewModel
+
+@{
+    ViewData["Title"] = "Perfil";
+    bool esAdmin = ViewData["EsAdmin"] as bool? ?? false;
+    bool editMode = ViewData["EditMode"] as bool? ?? false;
+}
+
+<div class="container-fluid px-0">
+    <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-3">
+        <div>
+            <h2 class="mb-1">Perfil</h2>
+            <p class="text-secondary mb-0">Gestione su información personal y credenciales de acceso.</p>
+        </div>
+    </div>
+
+    @if (TempData["MensajeMiPerfil"] != null)
+    {
+        <div class="alert alert-success border-success shadow-sm d-flex align-items-center" role="alert">
+            <i class="bi bi-check-circle-fill fs-4 me-3 text-success"></i>
+            <div>
+                <strong>Aviso:</strong> @TempData["MensajeMiPerfil"]
+            </div>
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row justify-content-center g-4">
+        <div class="col-12 col-md-8 col-xl-6">
+            @if (!editMode)
+            {
+                <div class="card shadow-sm border-0 border-top border-4 rounded-3 p-4 p-md-5" style="border-color: var(--naranja) !important;">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4 class="fw-bold mb-0" style="color: var(--text);">Información Personal</h4>
+                        <a href="@Url.Action("MiPerfil", "Usuarios", new { edit = true })" class="btn btn-outline-dark rounded-pill btn-sm px-3">
+                            <i class="bi bi-pencil-square me-1"></i> Editar
+                        </a>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-12 col-lg-6">
+                            <label class="form-label small text-muted mb-0">Nombres</label>
+                            <div class="fw-semibold fs-5">@Model.Nombres</div>
+                        </div>
+
+                        <div class="col-12 col-lg-6">
+                            <label class="form-label small text-muted mb-0">Apellidos</label>
+                            <div class="fw-semibold fs-5">@Model.Apellidos</div>
+                        </div>
+
+                        <div class="col-12 col-lg-6">
+                            <label class="form-label small text-muted mb-0">Documento De Identidad</label>
+                            <div class="fw-semibold fs-5">@(string.IsNullOrEmpty(Model.Documento) ? "—" : Model.Documento)</div>
+                        </div>
+
+                        <div class="col-12 col-lg-6">
+                            <label class="form-label small text-muted mb-0">Teléfono</label>
+                            <div class="fw-semibold fs-5">@(string.IsNullOrEmpty(Model.Telefono) ? "—" : Model.Telefono)</div>
+                        </div>
+                    </div>
+
+                    <h4 class="fw-bold mb-3 mt-4" style="color: var(--text);">Credenciales</h4>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label small text-muted mb-0">Correo Electrónico</label>
+                            <div class="fw-semibold fs-5">@Model.Correo</div>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <form asp-action="GuardarMiPerfil" method="post" class="card shadow-sm border-0 border-top border-4 rounded-3 p-4 p-md-5" style="border-color: var(--naranja) !important;">
+                    <input type="hidden" asp-for="UsuarioId" />
+
+                    <h4 class="fw-bold mb-4" style="color: var(--text);">Editar Información Personal</h4>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-12 col-lg-6">
+                            <label class="form-label small text-muted">Nombres *</label>
+                            <input class="form-control rounded-pill" type="text" asp-for="Nombres" required />
+                            <span asp-validation-for="Nombres" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12 col-lg-6">
+                            <label class="form-label small text-muted">Apellidos *</label>
+                            <input class="form-control rounded-pill" type="text" asp-for="Apellidos" required />
+                            <span asp-validation-for="Apellidos" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12 col-lg-6">
+                            <label class="form-label small text-muted">Documento De Identidad (Opcional)</label>
+                            <input class="form-control rounded-pill" type="text" asp-for="Documento" />
+                            <span asp-validation-for="Documento" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12 col-lg-6">
+                            <label class="form-label small text-muted">Teléfono</label>
+                            <input class="form-control rounded-pill" type="text" asp-for="Telefono" />
+                            <span asp-validation-for="Telefono" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <h4 class="fw-bold mb-4 mt-2" style="color: var(--text);">Credenciales</h4>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-12">
+                            <label class="form-label small text-muted">Correo Electrónico (Solo el Administrador puede cambiar esto)</label>
+                            @if (esAdmin)
+                            {
+                                <input class="form-control rounded-pill" type="email" asp-for="Correo" required />
+                            }
+                            else
+                            {
+                                <input class="form-control rounded-pill bg-light" type="email" asp-for="Correo" required readonly />
+                            }
+                            <span asp-validation-for="Correo" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12 mt-4">
+                            <h6 class="fw-bold"><i class="bi bi-key-fill text-secondary me-2"></i>Cambiar Contraseña</h6>
+                            <p class="small text-muted mb-3">Deje estos campos en blanco si no desea cambiar su contraseña.</p>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label small text-muted">Contraseña Actual</label>
+                            <input class="form-control rounded-pill" type="password" asp-for="ClaveActual" />
+                            <span asp-validation-for="ClaveActual" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12 col-lg-6">
+                            <label class="form-label small text-muted">Nueva Contraseña</label>
+                            <input class="form-control rounded-pill" type="password" asp-for="NuevaClave" />
+                            <span asp-validation-for="NuevaClave" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12 col-lg-6">
+                            <label class="form-label small text-muted">Confirmar Nueva Contraseña</label>
+                            <input class="form-control rounded-pill" type="password" asp-for="ConfirmarNuevaClave" />
+                            <span asp-validation-for="ConfirmarNuevaClave" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end align-items-center mt-3 gap-2">
+                        <a asp-action="MiPerfil" class="btn btn-light rounded-pill">Cancelar</a>
+                        <button type="submit" class="btn text-white rounded-pill px-4" style="background-color: var(--rojo);">
+                            <i class="bi bi-save me-1"></i> Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

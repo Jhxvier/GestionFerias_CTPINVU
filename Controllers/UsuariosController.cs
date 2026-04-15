@@ -413,6 +413,119 @@ namespace GestionFerias_CTPINVU.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpGet]
+        public async Task<IActionResult> MiPerfil(bool edit = false)
+        {
+            ViewData["EditMode"] = edit;
+            var usuarioIdStr = HttpContext.Session.GetString("UsuarioId");
+            if (string.IsNullOrEmpty(usuarioIdStr) || !long.TryParse(usuarioIdStr, out var uid)) return RedirectToAction("Login", "Login");
+
+            var usr = await _context.Usuarios.Include(u => u.Persona).FirstOrDefaultAsync(u => u.UsuarioId == uid);
+            if (usr == null) return NotFound();
+
+            var vm = new MiPerfilViewModel
+            {
+                UsuarioId = usr.UsuarioId,
+                Correo = usr.Correo,
+                Documento = usr.Persona?.Documento,
+                Nombres = usr.Persona?.Nombres ?? "",
+                Apellidos = usr.Persona?.Apellidos ?? "",
+                Telefono = usr.Persona?.Telefono
+            };
+
+            ViewData["EsAdmin"] = EsAdmin();
+            return View(vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GuardarMiPerfil(MiPerfilViewModel model)
+        {
+            var usuarioIdStr = HttpContext.Session.GetString("UsuarioId");
+            if (string.IsNullOrEmpty(usuarioIdStr) || !long.TryParse(usuarioIdStr, out var uid) || uid != model.UsuarioId) return StatusCode(403);
+
+            var usr = await _context.Usuarios.Include(u => u.Persona).FirstOrDefaultAsync(u => u.UsuarioId == uid);
+            if (usr == null) return NotFound();
+
+            ViewData["EsAdmin"] = EsAdmin();
+
+            if (!ModelState.IsValid)
+            {
+                return View("MiPerfil", model);
+            }
+
+            // Validar cambio de contraseña si se proporcionó NuevaClave, ConfirmarNueva o ClaveActual
+            if (!string.IsNullOrEmpty(model.NuevaClave) || !string.IsNullOrEmpty(model.ConfirmarNuevaClave) || !string.IsNullOrEmpty(model.ClaveActual))
+            {
+                if (string.IsNullOrEmpty(model.ClaveActual))
+                {
+                    ModelState.AddModelError("ClaveActual", "Debe ingresar la contraseña actual para cambiar su contraseña.");
+                    return View("MiPerfil", model);
+                }
+
+                string hashActual;
+                using (var sha256 = System.Security.Cryptography.SHA256.Create())
+                {
+                    var bytes = System.Text.Encoding.UTF8.GetBytes(model.ClaveActual);
+                    var hashBytes = sha256.ComputeHash(bytes);
+                    hashActual = BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
+                }
+
+                if (usr.PasswordHash != hashActual)
+                {
+                    ModelState.AddModelError("ClaveActual", "Contraseña actual incorrecta.");
+                    return View("MiPerfil", model);
+                }
+
+                if (model.NuevaClave != model.ConfirmarNuevaClave)
+                {
+                    ModelState.AddModelError("ConfirmarNuevaClave", "Las contraseñas no coinciden.");
+                    return View("MiPerfil", model);
+                }
+
+                if (string.IsNullOrEmpty(model.NuevaClave))
+                {
+                    ModelState.AddModelError("NuevaClave", "La nueva contraseña es obligatoria si intenta cambiarla.");
+                    return View("MiPerfil", model);
+                }
+
+                // Aplicar nueva clave
+                using (var sha256 = System.Security.Cryptography.SHA256.Create())
+                {
+                    var bytes = System.Text.Encoding.UTF8.GetBytes(model.NuevaClave);
+                    var hashBytes = sha256.ComputeHash(bytes);
+                    usr.PasswordHash = BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
+                }
+            }
+
+            if (EsAdmin())
+            {
+                // Administrador puede editar todo incluyendo correo
+                usr.Correo = model.Correo ?? usr.Correo;
+            }
+            else
+            {
+                // Forzar correo viejo por si intentan enviarlo desde front end
+                model.Correo = usr.Correo;
+            }
+
+            // Actualizar Persona
+            if (usr.Persona != null)
+            {
+                usr.Persona.Nombres = model.Nombres;
+                usr.Persona.Apellidos = model.Apellidos;
+                usr.Persona.Telefono = model.Telefono;
+                _context.Personas.Update(usr.Persona);
+            }
+
+            usr.FechaModificacion = DateTime.Now;
+            _context.Usuarios.Update(usr);
+            await _context.SaveChangesAsync();
+
+            TempData["MensajeMiPerfil"] = "Su perfil ha sido actualizado correctamente.";
+            return RedirectToAction("MiPerfil");
+        }
+
         private bool UsuarioExists(long id)
         {
             return _context.Usuarios.Any(e => e.UsuarioId == id);
