@@ -1,225 +1,202 @@
-﻿@{
-    ViewData["Title"] = "Colocar calificaciones / resultados";
+@model GestionFerias_CTPINVU.Models.ResultadoEventoViewModel
+
+@{
+    ViewData["Title"] = "Editar Resultados";
+    var juezNombre = ViewData["JuezNombre"] as string ?? "Juez Actual";
+    var listaEventos = ViewData["EventoId"] as SelectList;
 }
 
 <style>
-    :root {
-        --rojo: #BF1D1A;
-        --verde: #6A9A2C;
-        --amarillo: #F2B705;
-        --naranja: #CB6021;
-        --line: #e5e5e5;
-        --muted: #666;
-        --card: #ffffff;
-        --bg: #fafafa;
-    }
-
-    .resultados-contenedor {
-        padding: 22px 0 10px;
-    }
-
-    .resultados-encabezado h2 {
-        margin: 0;
-        font-weight: 700;
-    }
-
-    .resultados-encabezado p {
-        margin: .35rem 0 0;
-        color: var(--muted);
-    }
-
-    .resultados-tarjeta {
-        margin-top: 14px;
-        background: var(--card);
-        border-radius: 22px;
-        box-shadow: 0 10px 30px rgba(0,0,0,.08);
-        overflow: hidden;
-        border: 1px solid rgba(0,0,0,.03);
-    }
-
-    .resultados-tarjeta-top {
-        background: linear-gradient(90deg,var(--verde), #4c7e1e);
-        color: #fff;
-        padding: 14px 18px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        flex-wrap: wrap;
-    }
-
-    .tag {
-        font-size: .85rem;
-        opacity: .95;
-        padding: .35rem .7rem;
-        border: 1px solid rgba(255,255,255,.35);
-        border-radius: 999px;
-        background: rgba(255,255,255,.12);
-    }
-
-    .resultados-form {
-        padding: 16px;
-        background: var(--bg);
-    }
-
-    .bloque {
-        background: #fff;
-        border: 1px solid var(--line);
-        border-radius: 18px;
-        padding: 14px;
-    }
-
-        .bloque + .bloque {
-            margin-top: 12px;
-        }
-
-    .bloque-titulo {
-        margin: 0 0 12px 0;
-        font-size: .95rem;
-        font-weight: 800;
-        color: var(--naranja);
-    }
-
-    .bloque-ganadores {
-        border: 2px dashed var(--amarillo);
-        background: #fffbe6;
-    }
-
-    .control-label {
-        font-size: .9rem;
-        color: var(--muted);
-        margin-bottom: 6px;
-    }
-
-    .nota-ayuda {
-        font-size: .85rem;
-        color: var(--muted);
-        margin-top: 10px;
-    }
-
-    .acciones {
-        display: flex;
-        justify-content: flex-end;
-        gap: 10px;
-        flex-wrap: wrap;
-        margin-top: 14px;
-    }
-
-    .btn-redondeado {
-        border-radius: 14px !important;
-        padding: .6rem 1rem !important;
-        font-weight: 700;
-    }
-
-    .btn-publicar {
-        background: var(--verde) !important;
-        border: 1px solid rgba(0,0,0,.10) !important;
-        color: #fff !important;
-    }
-
-    .btn-cancelar {
-        background: #fff !important;
-        border: 1px solid rgba(0,0,0,.15) !important;
-    }
-
-    .btn-publicar:hover {
-        filter: brightness(.97);
-    }
+    :root { --rojo: #BF1D1A; --verde: #6A9A2C; --amarillo: #F2B705; --naranja: #CB6021; --line: #e5e5e5; --muted: #666; --bg: #fafafa; }
+    .page-wrap { max-width: 1000px; margin: 22px auto; padding: 0 8px; }
+    .content { padding: 26px; background: #fafafa; border-radius: 22px; box-shadow: 0 10px 30px rgba(0,0,0,.06); border: 1px solid rgba(0,0,0,.04); }
+    .header h2 { margin: 0; font-weight: normal; color: #222; }
+    .header p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
+    .card-form { margin-top: 18px; background: #fff; border-radius: 24px; box-shadow: 0 6px 20px rgba(0,0,0,.06); overflow: hidden; border: 1px solid rgba(0,0,0,.04); }
+    .card-top { background: var(--amarillo); color: #111; padding: 16px 18px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .tag { font-size: 12px; padding: 4px 10px; border: 1px solid rgba(0,0,0,.15); border-radius: 999px; background: rgba(0,0,0,.05); }
+    .form { padding: 20px; background: #fff; }
+    .section { margin-bottom: 18px; padding: 14px; border: 1px solid var(--line); border-radius: 18px; background: #fff; }
+    .section-title { margin: 0 0 12px 0; font-weight: normal; font-size: 14px; color: var(--naranja); }
+    .section-ganadores { border: 2px dashed var(--amarillo); background: #fffbe6; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .field label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+    .field input, .field select, .field textarea { width: 100%; padding: 11px 12px; border-radius: 16px; border: 1px solid var(--line); background: #fff; font-family: Arial,sans-serif; outline: none; }
+    .field input, .field select { height: 44px; }
+    .field textarea { min-height: 100px; resize: none; }
+    .field input:disabled { background: #f3f3f3; color: #666; cursor: not-allowed; }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: rgba(191,29,26,.55); box-shadow: 0 0 0 4px rgba(191,29,26,.10); }
+    .text-danger { font-size: 12px; color: #b00020; margin-top: 6px; display: block; }
+    .nota-ayuda { font-size: 12px; color: var(--muted); margin-top: 10px; }
+    .actions { margin-top: 18px; display: flex; justify-content: flex-end; gap: 12px; flex-wrap: wrap; }
+    .btnx { padding: 10px 16px; border-radius: 16px; border: 1px solid rgba(0,0,0,.22); font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; user-select: none; }
+    .btnx.cancel { background: #fff; color: #111; }
+    .btnx.save { background: var(--verde); color: #fff; border-color: transparent; font-weight: bold; }
+    @@media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
 </style>
 
-<div class="container-fluid resultados-contenedor">
-
-    <div class="resultados-encabezado">
-        <h2>Colocar calificaciones / resultados</h2>
-        <p>Selecciona el evento, define los ganadores y publica los resultados.</p>
-    </div>
-
-    <div class="resultados-tarjeta">
-
-        <div class="resultados-tarjeta-top">
-            <div class="d-flex align-items-center gap-2">
-                <i class="bi bi-trophy-fill"></i>
-                <span class="fw-semibold">Resultados del evento</span>
-            </div>
-            <span class="tag">Juez / Coordinador / Administrador</span>
+<div class="page-wrap">
+    <div class="content">
+        <div class="header">
+            <h2>Modificar calificaciones / resultados</h2>
+            <p>Edita los ganadores o la resolución del evento seleccionado.</p>
         </div>
 
-        <div class="resultados-form">
-            <form>
+        <div class="card-form">
+            <div class="card-top">
+                <span class="fw-semibold">Resultados del evento (RES-@Model.ResultadoEventoId)</span>
+                <span class="tag">Modo: Editar</span>
+            </div>
 
-                <div class="bloque">
-                    <h3 class="bloque-titulo">Evento</h3>
+            <div class="form">
+                <form asp-action="Edit" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="ResultadoEventoId" />
+                    <input type="hidden" asp-for="EstadoResultados" />
 
-                    <div class="row g-3">
-                        <div class="col-12 col-lg-6">
-                            <label class="form-label control-label">Evento a calificar</label>
-                            <select class="form-select">
-                                <option>Seleccione</option>
-                            </select>
-                        </div>
-
-                        <div class="col-12 col-lg-6">
-                            <label class="form-label control-label">Juez responsable</label>
-                            <input class="form-control" type="text" value="(Autocompletado)" disabled />
+                    <div class="section">
+                        <h3 class="section-title">Evento</h3>
+                        <div class="grid">
+                            <div class="field">
+                                <label>Evento a calificar</label>
+                                <select asp-for="EventoId" asp-items="listaEventos" id="eventoSelect">
+                                    <option value="">Seleccione un evento</option>
+                                </select>
+                                <span asp-validation-for="EventoId" class="text-danger"></span>
+                            </div>
+                            <div class="field">
+                                <label>Juez / Responsable</label>
+                                <input disabled value="@juezNombre" />
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="bloque bloque-ganadores">
-                    <h3 class="bloque-titulo">Ganadores (Top 3)</h3>
+                    <div class="section section-ganadores">
+                        <h3 class="section-title">Ganadores (Top 3)</h3>
+                        <div class="grid">
+                            <!-- 1er Lugar -->
+                            <div class="field">
+                                <label>Proyecto 1er Lugar</label>
+                                <select asp-for="Inscripcion1erLugarId" class="proyecto-select" data-selected="@Model.Inscripcion1erLugarId">
+                                    <option value="">Cargando...</option>
+                                </select>
+                                <span asp-validation-for="Inscripcion1erLugarId" class="text-danger"></span>
+                            </div>
+                            <div class="field">
+                                <label>Nota 1er lugar (0 - 100)</label>
+                                <input asp-for="Nota1erLugar" type="number" min="0" max="100" />
+                                <span asp-validation-for="Nota1erLugar" class="text-danger"></span>
+                            </div>
 
-                    <div class="row g-3">
+                            <!-- 2do Lugar -->
+                            <div class="field">
+                                <label>Proyecto 2do Lugar</label>
+                                <select asp-for="Inscripcion2doLugarId" class="proyecto-select" data-selected="@Model.Inscripcion2doLugarId">
+                                    <option value="">Cargando...</option>
+                                </select>
+                                <span asp-validation-for="Inscripcion2doLugarId" class="text-danger"></span>
+                            </div>
+                            <div class="field">
+                                <label>Nota 2do lugar (0 - 100)</label>
+                                <input asp-for="Nota2doLugar" type="number" min="0" max="100" />
+                                <span asp-validation-for="Nota2doLugar" class="text-danger"></span>
+                            </div>
 
-                        <div class="col-12 col-lg-6">
-                            <label class="form-label control-label">1er lugar</label>
-                            <select class="form-select"></select>
+                            <!-- 3er Lugar -->
+                            <div class="field">
+                                <label>Proyecto 3er Lugar</label>
+                                <select asp-for="Inscripcion3erLugarId" class="proyecto-select" data-selected="@Model.Inscripcion3erLugarId">
+                                    <option value="">Cargando...</option>
+                                </select>
+                                <span asp-validation-for="Inscripcion3erLugarId" class="text-danger"></span>
+                            </div>
+                            <div class="field">
+                                <label>Nota 3er lugar (0 - 100)</label>
+                                <input asp-for="Nota3erLugar" type="number" min="0" max="100" />
+                                <span asp-validation-for="Nota3erLugar" class="text-danger"></span>
+                            </div>
                         </div>
-                        <div class="col-12 col-lg-6">
-                            <label class="form-label control-label">Nota 1er lugar</label>
-                            <input class="form-control" type="number" min="0" max="100">
+                        <div class="nota-ayuda">
+                            No puede seleccionar el mismo proyecto en múltiples lugares (empates deben resolverse mediante notas decimales si es necesario).
                         </div>
-
-                        <div class="col-12 col-lg-6">
-                            <label class="form-label control-label">2do lugar</label>
-                            <select class="form-select"></select>
-                        </div>
-                        <div class="col-12 col-lg-6">
-                            <label class="form-label control-label">Nota 2do lugar</label>
-                            <input class="form-control" type="number" min="0" max="100">
-                        </div>
-
-                        <div class="col-12 col-lg-6">
-                            <label class="form-label control-label">3er lugar</label>
-                            <select class="form-select"></select>
-                        </div>
-                        <div class="col-12 col-lg-6">
-                            <label class="form-label control-label">Nota 3er lugar</label>
-                            <input class="form-control" type="number" min="0" max="100">
-                        </div>
-
                     </div>
 
-                    <div class="nota-ayuda">
-                        Validar que no se repita la misma inscripción en las posiciones.
+                    <div class="section">
+                        <h3 class="section-title">Resolución final</h3>
+                        <div class="field" style="grid-column: 1 / -1;">
+                            <label>Comentarios adicionales o acta de resolución (Opcional)</label>
+                            <textarea asp-for="ResolucionFinal"></textarea>
+                        </div>
                     </div>
-                </div>
 
-                <div class="bloque">
-                    <h3 class="bloque-titulo">Resolución final</h3>
-                    <textarea class="form-control" rows="5"></textarea>
-                </div>
+                    <div class="actions">
+                        <a class="btnx cancel" asp-action="Index">Cancelar</a>
+                        <button class="btnx save" type="submit">Actualizar Resultados</button>
+                    </div>
 
-                <div class="acciones">
-                    <button type="button" class="btn btn-cancelar btn-redondeado">
-                        <i class="bi bi-x-circle"></i> Cancelar
-                    </button>
-
-                    <button type="button" class="btn btn-publicar btn-redondeado">
-                        <i class="bi bi-megaphone-fill"></i> Publicar resultados
-                    </button>
-                </div>
-
-            </form>
+                </form>
+            </div>
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var eventSelect = document.getElementById('eventoSelect');
+        var projectSelects = document.querySelectorAll('.proyecto-select');
+
+        function loadInscripciones(eventId) {
+            if (!eventId) {
+                projectSelects.forEach(function(select) {
+                    select.innerHTML = '<option value="">Seleccione evento primero</option>';
+                });
+                return;
+            }
+
+            fetch('/Resultados/GetInscripcionesPorEvento?eventoId=' + eventId)
+                .then(r => r.json())
+                .then(data => {
+                    projectSelects.forEach(function(select) {
+                        var preSelectedId = select.getAttribute('data-selected');
+                        var html = '<option value="">Seleccione proyecto ganador</option>';
+                        
+                        if (data.length === 0) {
+                            html = '<option value="">No hay proyectos aprobados para este evento</option>';
+                        } else {
+                            data.forEach(p => {
+                                var isSelected = (p.id.toString() === preSelectedId) ? 'selected' : '';
+                                html += '<option value="' + p.id + '" ' + isSelected + '>' + p.titulo + ' (' + p.lider + ')</option>';
+                            });
+                        }
+                        select.innerHTML = html;
+                    });
+                })
+                .catch(err => {
+                    projectSelects.forEach(function(select) {
+                        select.innerHTML = '<option value="">Error obteniendo datos</option>';
+                    });
+                });
+        }
+
+        // On load, fetch if there is an event already selected
+        var initEventId = eventSelect.value;
+        if (initEventId) {
+            loadInscripciones(initEventId);
+        }
+
+        // On change
+        eventSelect.addEventListener('change', function() {
+            var eventId = this.value;
+            // Clear current selected dataset when event changes
+            projectSelects.forEach(function(select) {
+                select.setAttribute('data-selected', '');
+                select.innerHTML = '<option value="">Cargando...</option>';
+            });
+            loadInscripciones(eventId);
+        });
+    });
+</script>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

@@ -10,7 +10,6 @@ using GestionFerias_CTPINVU.Models;
 
 namespace GestionFerias_CTPINVU.Controllers
 {
-
     public class ResultadosController : Controller
     {
         private readonly AppDbContext _context;
@@ -20,12 +19,31 @@ namespace GestionFerias_CTPINVU.Controllers
             _context = context;
         }
 
-        // GET: ResultadosEventos
+        private long? GetUsuarioId()
+        {
+            return long.TryParse(HttpContext.Session.GetString("UsuarioId"), out var uid) ? uid : null;
+        }
+
+        private string GetRol()
+        {
+            return HttpContext.Session.GetString("Rol") ?? "";
+        }
+
+        private bool EsAdminOCoord()
+        {
+            var rol = GetRol();
+            return rol.Contains("Administrador", StringComparison.OrdinalIgnoreCase) ||
+                   rol.Contains("Coordinador", StringComparison.OrdinalIgnoreCase) ||
+                   rol.Contains("Juez", StringComparison.OrdinalIgnoreCase);
+        }
+
+        // GET: Resultados
         public async Task<IActionResult> Index(string? textoBuscar, string? filtroEvento, string? filtroEstado)
         {
             var query = _context.ResultadosEventos
                 .Include(r => r.Evento)
-                .Include(r => r.JuezResponsableUsuario)
+                .Include(r => r.ResultadosGanadores).ThenInclude(g => g.Inscripcion).ThenInclude(i => i.LiderUsuario).ThenInclude(u => u.Persona)
+                .Include(r => r.JuezResponsableUsuario).ThenInclude(u => u.Juez).ThenInclude(u => u.Persona)
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(textoBuscar))
@@ -46,153 +64,239 @@ namespace GestionFerias_CTPINVU.Controllers
             }
 
             ViewData["EventosList"] = new SelectList(await _context.Eventos.ToListAsync(), "EventoId", "NombreEvento", filtroEvento);
-            
             ViewData["CurrentBuscar"] = textoBuscar;
             ViewData["CurrentEvento"] = filtroEvento;
             ViewData["CurrentEstado"] = filtroEstado;
+            ViewData["EsAdminOCoord"] = EsAdminOCoord();
 
             return View(await query.ToListAsync());
         }
 
-        // GET: ResultadosEventos/Details/5
+        // GET: Resultados/Details/5
         public async Task<IActionResult> Details(long? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var resultadosEvento = await _context.ResultadosEventos
                 .Include(r => r.Evento)
-                .Include(r => r.JuezResponsableUsuario)
+                .Include(r => r.ResultadosGanadores).ThenInclude(g => g.Inscripcion).ThenInclude(i => i.LiderUsuario).ThenInclude(u => u.Persona)
+                .Include(r => r.ResultadosGanadores).ThenInclude(g => g.Inscripcion).ThenInclude(i => i.Evento)
+                .Include(r => r.JuezResponsableUsuario).ThenInclude(u => u.Juez).ThenInclude(u => u.Persona)
                 .FirstOrDefaultAsync(m => m.ResultadoEventoId == id);
-            if (resultadosEvento == null)
-            {
-                return NotFound();
-            }
 
+            if (resultadosEvento == null) return NotFound();
+
+            ViewData["EsAdminOCoord"] = EsAdminOCoord();
             return View(resultadosEvento);
         }
 
-        // GET: ResultadosEventos/Create
+        // GET: Resultados/Create
         public IActionResult Create()
         {
-            ViewData["EventoId"] = new SelectList(_context.Eventos, "EventoId", "EventoId");
-            ViewData["JuezResponsableUsuarioId"] = new SelectList(_context.Usuarios, "UsuarioId", "UsuarioId");
-            return View();
+            if (!EsAdminOCoord()) return Unauthorized();
+
+            var uid = GetUsuarioId();
+            var juezActual = _context.Usuarios.Include(u => u.Persona).FirstOrDefault(u => u.UsuarioId == uid);
+            ViewData["JuezNombre"] = juezActual?.Persona != null ? $"{juezActual.Persona.Nombres} {juezActual.Persona.Apellidos}" : "Juez Actual";
+            
+            ViewData["EventoId"] = new SelectList(_context.Eventos, "EventoId", "NombreEvento");
+            return View(new ResultadoEventoViewModel());
         }
 
-        // POST: ResultadosEventos/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: Resultados/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ResultadoEventoId,EventoId,EstadoResultados,JuezResponsableUsuarioId,ResolucionFinal,FechaPublicacion,UsuarioCreacion,FechaCreacion,UsuarioModificacion,FechaModificacion")] ResultadosEvento resultadosEvento)
+        public async Task<IActionResult> Create(ResultadoEventoViewModel viewModel)
         {
+            if (!EsAdminOCoord()) return Unauthorized();
+
+            // Validar que no se repitan las inscripciones
+            if (viewModel.Inscripcion1erLugarId == viewModel.Inscripcion2doLugarId ||
+                viewModel.Inscripcion1erLugarId == viewModel.Inscripcion3erLugarId ||
+                viewModel.Inscripcion2doLugarId == viewModel.Inscripcion3erLugarId)
+            {
+                ModelState.AddModelError("", "No se puede asignar el mismo proyecto a múltipes lugares.");
+            }
+
             if (ModelState.IsValid)
             {
-                _context.Add(resultadosEvento);
+                var usuarioId = GetUsuarioId();
+                var nuevoResultado = new ResultadosEvento
+                {
+                    EventoId = viewModel.EventoId,
+                    EstadoResultados = "Publicado", // Se publica directamente al crear en la nueva vista
+                    ResolucionFinal = viewModel.ResolucionFinal,
+                    JuezResponsableUsuarioId = usuarioId,
+                    UsuarioCreacion = usuarioId,
+                    UsuarioModificacion = usuarioId,
+                    FechaPublicacion = DateTime.Now
+                };
+
+                _context.ResultadosEventos.Add(nuevoResultado);
+                await _context.SaveChangesAsync(); // Para obtener el ID
+
+                var ganadores = new List<ResultadosGanadore>
+                {
+                    new ResultadosGanadore { ResultadoEventoId = nuevoResultado.ResultadoEventoId, Posicion = 1, InscripcionId = viewModel.Inscripcion1erLugarId, Nota = viewModel.Nota1erLugar, UsuarioCreacion = usuarioId },
+                    new ResultadosGanadore { ResultadoEventoId = nuevoResultado.ResultadoEventoId, Posicion = 2, InscripcionId = viewModel.Inscripcion2doLugarId, Nota = viewModel.Nota2doLugar, UsuarioCreacion = usuarioId },
+                    new ResultadosGanadore { ResultadoEventoId = nuevoResultado.ResultadoEventoId, Posicion = 3, InscripcionId = viewModel.Inscripcion3erLugarId, Nota = viewModel.Nota3erLugar, UsuarioCreacion = usuarioId }
+                };
+
+                _context.ResultadosGanadores.AddRange(ganadores);
                 await _context.SaveChangesAsync();
+
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["EventoId"] = new SelectList(_context.Eventos, "EventoId", "EventoId", resultadosEvento.EventoId);
-            ViewData["JuezResponsableUsuarioId"] = new SelectList(_context.Usuarios, "UsuarioId", "UsuarioId", resultadosEvento.JuezResponsableUsuarioId);
-            return View(resultadosEvento);
+
+            var uid = GetUsuarioId();
+            var juezActual = _context.Usuarios.Include(u => u.Persona).FirstOrDefault(u => u.UsuarioId == uid);
+            ViewData["JuezNombre"] = juezActual?.Persona != null ? $"{juezActual.Persona.Nombres} {juezActual.Persona.Apellidos}" : "Juez Actual";
+            ViewData["EventoId"] = new SelectList(_context.Eventos, "EventoId", "NombreEvento", viewModel.EventoId);
+            return View(viewModel);
         }
 
-        // GET: ResultadosEventos/Edit/5
+        // GET: Resultados/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null || !EsAdminOCoord()) return NotFound();
 
-            var resultadosEvento = await _context.ResultadosEventos.FindAsync(id);
-            if (resultadosEvento == null)
+            var resultadosEvento = await _context.ResultadosEventos
+                .Include(r => r.ResultadosGanadores)
+                .FirstOrDefaultAsync(r => r.ResultadoEventoId == id);
+
+            if (resultadosEvento == null) return NotFound();
+
+            var vm = new ResultadoEventoViewModel
             {
-                return NotFound();
-            }
-            ViewData["EventoId"] = new SelectList(_context.Eventos, "EventoId", "EventoId", resultadosEvento.EventoId);
-            ViewData["JuezResponsableUsuarioId"] = new SelectList(_context.Usuarios, "UsuarioId", "UsuarioId", resultadosEvento.JuezResponsableUsuarioId);
-            return View(resultadosEvento);
+                ResultadoEventoId = resultadosEvento.ResultadoEventoId,
+                EventoId = resultadosEvento.EventoId,
+                ResolucionFinal = resultadosEvento.ResolucionFinal,
+                EstadoResultados = resultadosEvento.EstadoResultados
+            };
+
+            var primerLugar = resultadosEvento.ResultadosGanadores.FirstOrDefault(g => g.Posicion == 1);
+            if (primerLugar != null) { vm.Inscripcion1erLugarId = primerLugar.InscripcionId; vm.Nota1erLugar = primerLugar.Nota; }
+
+            var segundoLugar = resultadosEvento.ResultadosGanadores.FirstOrDefault(g => g.Posicion == 2);
+            if (segundoLugar != null) { vm.Inscripcion2doLugarId = segundoLugar.InscripcionId; vm.Nota2doLugar = segundoLugar.Nota; }
+
+            var tercerLugar = resultadosEvento.ResultadosGanadores.FirstOrDefault(g => g.Posicion == 3);
+            if (tercerLugar != null) { vm.Inscripcion3erLugarId = tercerLugar.InscripcionId; vm.Nota3erLugar = tercerLugar.Nota; }
+
+            var uid = resultadosEvento.JuezResponsableUsuarioId;
+            var juezOriginal = _context.Usuarios.Include(u => u.Persona).FirstOrDefault(u => u.UsuarioId == uid);
+            ViewData["JuezNombre"] = juezOriginal?.Persona != null ? $"{juezOriginal.Persona.Nombres} {juezOriginal.Persona.Apellidos}" : "Juez Actual";
+            
+            ViewData["EventoId"] = new SelectList(_context.Eventos, "EventoId", "NombreEvento", vm.EventoId);
+            return View(vm);
         }
 
-        // POST: ResultadosEventos/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: Resultados/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long id, [Bind("ResultadoEventoId,EventoId,EstadoResultados,JuezResponsableUsuarioId,ResolucionFinal,FechaPublicacion,UsuarioCreacion,FechaCreacion,UsuarioModificacion,FechaModificacion")] ResultadosEvento resultadosEvento)
+        public async Task<IActionResult> Edit(long id, ResultadoEventoViewModel viewModel)
         {
-            if (id != resultadosEvento.ResultadoEventoId)
+            if (id != viewModel.ResultadoEventoId || !EsAdminOCoord()) return NotFound();
+
+            if (viewModel.Inscripcion1erLugarId == viewModel.Inscripcion2doLugarId ||
+                viewModel.Inscripcion1erLugarId == viewModel.Inscripcion3erLugarId ||
+                viewModel.Inscripcion2doLugarId == viewModel.Inscripcion3erLugarId)
             {
-                return NotFound();
+                ModelState.AddModelError("", "No se puede asignar el mismo proyecto a múltipes lugares.");
             }
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(resultadosEvento);
+                    var usuarioId = GetUsuarioId();
+                    var resultadoDB = await _context.ResultadosEventos
+                        .Include(r => r.ResultadosGanadores)
+                        .FirstOrDefaultAsync(r => r.ResultadoEventoId == id);
+
+                    if (resultadoDB == null) return NotFound();
+
+                    resultadoDB.EventoId = viewModel.EventoId;
+                    resultadoDB.ResolucionFinal = viewModel.ResolucionFinal;
+                    resultadoDB.UsuarioModificacion = usuarioId;
+
+                    // Remover ganadores anteriores y asignar nuevos
+                    _context.ResultadosGanadores.RemoveRange(resultadoDB.ResultadosGanadores);
+                    
+                    resultadoDB.ResultadosGanadores.Add(new ResultadosGanadore { ResultadoEventoId = id, Posicion = 1, InscripcionId = viewModel.Inscripcion1erLugarId, Nota = viewModel.Nota1erLugar, UsuarioCreacion = usuarioId });
+                    resultadoDB.ResultadosGanadores.Add(new ResultadosGanadore { ResultadoEventoId = id, Posicion = 2, InscripcionId = viewModel.Inscripcion2doLugarId, Nota = viewModel.Nota2doLugar, UsuarioCreacion = usuarioId });
+                    resultadoDB.ResultadosGanadores.Add(new ResultadosGanadore { ResultadoEventoId = id, Posicion = 3, InscripcionId = viewModel.Inscripcion3erLugarId, Nota = viewModel.Nota3erLugar, UsuarioCreacion = usuarioId });
+
+                    _context.Update(resultadoDB);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ResultadosEventoExists(resultadosEvento.ResultadoEventoId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    if (!_context.ResultadosEventos.Any(e => e.ResultadoEventoId == id)) return NotFound();
+                    else throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["EventoId"] = new SelectList(_context.Eventos, "EventoId", "EventoId", resultadosEvento.EventoId);
-            ViewData["JuezResponsableUsuarioId"] = new SelectList(_context.Usuarios, "UsuarioId", "UsuarioId", resultadosEvento.JuezResponsableUsuarioId);
-            return View(resultadosEvento);
+
+            var uid = GetUsuarioId();
+            var juezActual = _context.Usuarios.Include(u => u.Persona).FirstOrDefault(u => u.UsuarioId == uid);
+            ViewData["JuezNombre"] = juezActual?.Persona != null ? $"{juezActual.Persona.Nombres} {juezActual.Persona.Apellidos}" : "Juez Actual";
+            ViewData["EventoId"] = new SelectList(_context.Eventos, "EventoId", "NombreEvento", viewModel.EventoId);
+            return View(viewModel);
         }
 
-        // GET: ResultadosEventos/Delete/5
+        // GET: Resultados/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null || !EsAdminOCoord()) return NotFound();
 
             var resultadosEvento = await _context.ResultadosEventos
                 .Include(r => r.Evento)
-                .Include(r => r.JuezResponsableUsuario)
+                .Include(r => r.JuezResponsableUsuario).ThenInclude(u => u.Juez).ThenInclude(u => u.Persona)
                 .FirstOrDefaultAsync(m => m.ResultadoEventoId == id);
-            if (resultadosEvento == null)
-            {
-                return NotFound();
-            }
+
+            if (resultadosEvento == null) return NotFound();
 
             return View(resultadosEvento);
         }
 
-        // POST: ResultadosEventos/Delete/5
+        // POST: Resultados/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
-            var resultadosEvento = await _context.ResultadosEventos.FindAsync(id);
+            if (!EsAdminOCoord()) return Unauthorized();
+
+            var resultadosEvento = await _context.ResultadosEventos
+                .Include(r => r.ResultadosGanadores)
+                .FirstOrDefaultAsync(m => m.ResultadoEventoId == id);
+
             if (resultadosEvento != null)
             {
+                _context.ResultadosGanadores.RemoveRange(resultadosEvento.ResultadosGanadores);
                 _context.ResultadosEventos.Remove(resultadosEvento);
+                await _context.SaveChangesAsync();
             }
-
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ResultadosEventoExists(long id)
+        [HttpGet]
+        public async Task<JsonResult> GetInscripcionesPorEvento(long eventoId)
         {
-            return _context.ResultadosEventos.Any(e => e.ResultadoEventoId == id);
+            var inscripciones = await _context.Inscripciones
+                .Include(i => i.LiderUsuario).ThenInclude(u => u.Persona)
+                .Where(i => i.EventoId == eventoId && i.EstadoInscripcion == "Aprobado")
+                .Select(i => new
+                {
+                    id = i.InscripcionId,
+                    titulo = i.TituloProyecto ?? "Sin título",
+                    lider = i.LiderUsuario.Persona != null ? 
+                            i.LiderUsuario.Persona.Nombres + " " + i.LiderUsuario.Persona.Apellidos : 
+                            "ID: " + i.LiderUsuarioId
+                })
+                .ToListAsync();
+
+            return Json(inscripciones);
         }
     }
 }

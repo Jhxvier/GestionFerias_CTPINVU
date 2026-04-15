@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Resultados";
+    var esAdminOCoord = (bool)(ViewData["EsAdminOCoord"] ?? false);
 }
 
 <style>
@@ -62,39 +63,39 @@
         border-spacing: 0 10px;
     }
 
-        .tabla-ui thead th {
-            text-align: left;
-            font-size: 13px;
-            color: var(--muted);
-            font-weight: 400;
-            border: 0 !important;
-            white-space: nowrap;
-        }
+    .tabla-ui thead th {
+        text-align: left;
+        font-size: 13px;
+        color: var(--muted);
+        font-weight: 400;
+        border: 0 !important;
+        white-space: nowrap;
+    }
 
-        .tabla-ui tbody tr {
-            background: #fff;
-            box-shadow: 0 3px 10px rgba(0,0,0,.05);
-        }
+    .tabla-ui tbody tr {
+        background: #fff;
+        box-shadow: 0 3px 10px rgba(0,0,0,.05);
+    }
 
-        .tabla-ui tbody td {
-            padding: 12px;
-            font-size: 13px;
-            border-top: 1px solid var(--line);
-            border-bottom: 1px solid var(--line);
-            vertical-align: middle;
-        }
+    .tabla-ui tbody td {
+        padding: 12px;
+        font-size: 13px;
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+        vertical-align: middle;
+    }
 
-            .tabla-ui tbody td:first-child {
-                border-left: 1px solid var(--line);
-                border-top-left-radius: 16px;
-                border-bottom-left-radius: 16px;
-            }
+    .tabla-ui tbody td:first-child {
+        border-left: 1px solid var(--line);
+        border-top-left-radius: 16px;
+        border-bottom-left-radius: 16px;
+    }
 
-            .tabla-ui tbody td:last-child {
-                border-right: 1px solid var(--line);
-                border-top-right-radius: 16px;
-                border-bottom-right-radius: 16px;
-            }
+    .tabla-ui tbody td:last-child {
+        border-right: 1px solid var(--line);
+        border-top-right-radius: 16px;
+        border-bottom-right-radius: 16px;
+    }
 
     .badge-estado {
         display: inline-block;
@@ -107,17 +108,8 @@
         font-weight: 700;
     }
 
-    .estado-pendiente {
-        background: #fff8d6;
-        border-color: #f0d36b;
-        color: #7a5d00;
-    }
-
-    .estado-publicado {
-        background: #eef8e6;
-        border-color: #cfe9b6;
-        color: var(--verde);
-    }
+    .estado-pendiente { background: #fff8d6; border-color: #f0d36b; color: #7a5d00; }
+    .estado-publicado { background: #eef8e6; border-color: #cfe9b6; color: var(--verde); }
 
     .btn-accion {
         padding: 8px 12px;
@@ -130,20 +122,26 @@
         white-space: nowrap;
     }
 
-    .btn-ver {
-        background: var(--amarillo);
-        color: #111;
-    }
-
-    .btn-gestionar {
-        background: var(--verde);
-        color: #fff;
-    }
+    .btn-ver { background: var(--amarillo); color: #111; }
+    .btn-gestionar { background: var(--verde); color: #fff; }
+    .btn-eliminar { background: var(--rojo); color: #fff; border-color: transparent; }
 
     .nota-ui {
         margin-top: 10px;
         font-size: 12px;
         color: var(--muted);
+    }
+    
+    .lugar-box {
+        font-size: 12px;
+    }
+    .lugar-box .lider {
+        color: var(--muted);
+        font-size: 11px;
+    }
+    .lugar-box .nota {
+        font-weight: bold;
+        color: var(--naranja);
     }
 </style>
 
@@ -158,12 +156,18 @@
                     Todos pueden consultar resultados. Solo Juez/Admin/Coordinador pueden registrar calificación.
                 </p>
             </div>
+            @if (esAdminOCoord)
+            {
+                <div class="d-flex gap-2 flex-wrap">
+                    <a asp-action="Create" class="btn btn-filtrar d-inline-flex align-items-center gap-2 px-4 shadow-sm" style="background:var(--verde); font-weight:600; border-color:rgba(0,0,0,.2);">
+                        <i class="bi bi-plus-circle"></i> Nuevo Resultado
+                    </a>
+                </div>
+            }
         </div>
 
-        <!-- Card -->
         <div class="tarjeta-ui mt-3">
 
-            <!-- Filtros-->
             <!-- Filtros-->
             <form method="get" action="/Resultados/Index" class="zona-filtros">
                 <div class="row g-2 align-items-end">
@@ -182,7 +186,7 @@
                     </div>
 
                     <div class="col-12 col-md-4 col-lg-3">
-                        <label class="form-label text-secondary mb-1">Estado de calificación</label>
+                        <label class="form-label text-secondary mb-1">Estado</label>
                         <select name="filtroEstado" class="form-select">
                             <option value="" selected="@(ViewData["CurrentEstado"]?.ToString() == "" ? "selected" : null)">Todos</option>
                             <option value="Pendiente" selected="@(ViewData["CurrentEstado"]?.ToString() == "Pendiente" ? "selected" : null)">Pendiente</option>
@@ -215,40 +219,44 @@
                         <tbody>
                             @foreach (var item in Model)
                             {
-
-
                                 var evento = item.Evento?.NombreEvento ?? "—";
-
                                 var estado = item.EstadoResultados?.ToString() ?? "Pendiente";
                                 var claseEstado = (estado == "Publicado") ? "estado-publicado" : "estado-pendiente";
-                                var primerLugar = "—";
-                                var segundoLugar = "—";
-                                var tercerLugar = "—";
+
+                                var top1 = item.ResultadosGanadores.FirstOrDefault(g => g.Posicion == 1);
+                                var top2 = item.ResultadosGanadores.FirstOrDefault(g => g.Posicion == 2);
+                                var top3 = item.ResultadosGanadores.FirstOrDefault(g => g.Posicion == 3);
+
+                                string RenderTop(GestionFerias_CTPINVU.Models.ResultadosGanadore? top)
+                                {
+                                    if (top == null || top.Inscripcion == null) return "—";
+                                    var lider = top.Inscripcion.LiderUsuario?.Persona != null ? $"{top.Inscripcion.LiderUsuario.Persona.Nombres} {top.Inscripcion.LiderUsuario.Persona.Apellidos}" : "—";
+                                    return $"<div class='lugar-box'><strong>{top.Inscripcion.TituloProyecto}</strong><br><span class='lider'>{lider}</span><br><span class='nota'>Nota: {top.Nota}</span></div>";
+                                }
 
                                 <tr>
                                     <td>@evento</td>
                                     <td>
                                         <span class="badge-estado @claseEstado">@estado</span>
                                     </td>
-                                    <td>@primerLugar</td>
-                                    <td>@segundoLugar</td>
-                                    <td>@tercerLugar</td>
+                                    <td>@Html.Raw(RenderTop(top1))</td>
+                                    <td>@Html.Raw(RenderTop(top2))</td>
+                                    <td>@Html.Raw(RenderTop(top3))</td>
 
                                     <td class="text-end">
                                         <div class="d-inline-flex gap-2 flex-wrap justify-content-end">
-
-                                            <!-- Ver resultados -->
-                                            <a asp-action="Details"
-                                               asp-route-id="@item.ResultadoEventoId"
-                                               class="btn-accion btn-ver">
+                                            <a asp-action="Details" asp-route-id="@item.ResultadoEventoId" class="btn-accion btn-ver">
                                                 Ver
                                             </a>
-                                            <a asp-action="Edit"
-                                               asp-route-id="@item.ResultadoEventoId"
-                                               class="btn-accion btn-gestionar">
-                                                Gestionar / Calificar
-                                            </a>
-
+                                            @if (esAdminOCoord)
+                                            {
+                                                <a asp-action="Edit" asp-route-id="@item.ResultadoEventoId" class="btn-accion btn-gestionar">
+                                                    Editar
+                                                </a>
+                                                <a asp-action="Delete" asp-route-id="@item.ResultadoEventoId" class="btn-accion btn-eliminar">
+                                                    Eliminar
+                                                </a>
+                                            }
                                         </div>
                                     </td>
                                 </tr>
@@ -267,7 +275,7 @@
                 </div>
 
                 <div class="nota-ui">
-                    * El botón “Gestionar / Calificar” se muestra solo a Juez, Administrador y Coordinador.
+                    * El botón “Editar” y “Eliminar” se muestra solo a Juez, Administrador y Coordinador.
                 </div>
             </div>
         </div>
