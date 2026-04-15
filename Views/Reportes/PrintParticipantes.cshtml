@@ -1,0 +1,30 @@
+@model IEnumerable<GestionFerias_CTPINVU.Models.Inscripcione>
+@{
+    Layout = "_PrintLayout";
+}
+
+<table>
+    <thead>
+        <tr>
+            <th>Proyecto</th>
+            <th>Líder</th>
+            <th>Categoría</th>
+            <th>Subcategoría</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var p in Model)
+        {
+            <tr>
+                <td>@p.TituloProyecto</td>
+                <td>@(p.LiderUsuario?.Persona != null ? $"{p.LiderUsuario.Persona.Nombres} {p.LiderUsuario.Persona.Apellidos}" : "")</td>
+                <td>@p.Subcategoria?.Categoria?.Nombre</td>
+                <td>@p.Subcategoria?.Nombre</td>
+            </tr>
+        }
+        @if (!Model.Any())
+        {
+            <tr><td colspan="4" style="text-align:center;">No hay participantes registrados.</td></tr>
+        }
+    </tbody>
+</table>

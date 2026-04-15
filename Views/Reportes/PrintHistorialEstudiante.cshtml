@@ -1,0 +1,33 @@
+@model IEnumerable<GestionFerias_CTPINVU.Models.Inscripcione>
+@{
+    Layout = "_PrintLayout";
+}
+
+<table>
+    <thead>
+        <tr>
+            <th>Evento</th>
+            <th>Proyecto</th>
+            <th>Estado Inscripción</th>
+            <th>Premiaciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var i in Model)
+        {
+            var premiacion = i.ResultadosGanadores.FirstOrDefault();
+            string lugarStr = premiacion != null ? $"{premiacion.Posicion}° Lugar" : "Participante";
+
+            <tr>
+                <td>@i.Evento?.NombreEvento</td>
+                <td>@i.TituloProyecto</td>
+                <td>@i.EstadoInscripcion</td>
+                <td>@lugarStr</td>
+            </tr>
+        }
+        @if (!Model.Any())
+        {
+            <tr><td colspan="4" style="text-align:center;">Este estudiante no registra participaciones en ferias.</td></tr>
+        }
+    </tbody>
+</table>

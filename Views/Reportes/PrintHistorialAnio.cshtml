@@ -1,0 +1,30 @@
+@model IEnumerable<GestionFerias_CTPINVU.Models.Evento>
+@{
+    Layout = "_PrintLayout";
+}
+
+<table>
+    <thead>
+        <tr>
+            <th>ID Evento</th>
+            <th>Nombre del Evento</th>
+            <th>Fecha Inicio</th>
+            <th>Estado</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var e in Model)
+        {
+            <tr>
+                <td>EVT-@e.EventoId</td>
+                <td>@e.NombreEvento</td>
+                <td>@e.FechaInicio.ToString("dd/MM/yyyy")</td>
+                <td>@e.EstadoEvento</td>
+            </tr>
+        }
+        @if (!Model.Any())
+        {
+            <tr><td colspan="4" style="text-align:center;">No hay eventos registrados en este año.</td></tr>
+        }
+    </tbody>
+</table>

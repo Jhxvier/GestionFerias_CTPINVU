@@ -1,0 +1,30 @@
+@model IEnumerable<GestionFerias_CTPINVU.Models.ResultadosGanadore>
+@{
+    Layout = "_PrintLayout";
+}
+
+<table>
+    <thead>
+        <tr>
+            <th>Lugar</th>
+            <th>Nota</th>
+            <th>Proyecto</th>
+            <th>Líder</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var r in Model)
+        {
+            <tr>
+                <td>@r.Posicion° Lugar</td>
+                <td>@r.Nota pts</td>
+                <td>@r.Inscripcion?.TituloProyecto</td>
+                <td>@(r.Inscripcion?.LiderUsuario?.Persona != null ? $"{r.Inscripcion.LiderUsuario.Persona.Nombres} {r.Inscripcion.LiderUsuario.Persona.Apellidos}" : "")</td>
+            </tr>
+        }
+        @if (!Model.Any())
+        {
+            <tr><td colspan="4" style="text-align:center;">No hay resultados registrados.</td></tr>
+        }
+    </tbody>
+</table>
