@@ -1,0 +1,16 @@
+@{
+    ViewData["Title"] = "Error del Sistema";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-5 text-center">
+    <div class="py-5">
+        <i class="bi bi-exclamation-triangle" style="font-size:5rem; color:var(--rojo);"></i>
+        <h1 class="mt-3 fw-bold" style="color:var(--rojo);">Error del Sistema</h1>
+        <p class="text-secondary fs-5 mt-2">Ocurrió un error inesperado. Por favor intente de nuevo más tarde.</p>
+        <p class="text-muted small">Si el problema persiste, contacte al administrador del sistema.</p>
+        <a href="@Url.Action("Inicio", "Inicio")" class="btn btn-outline-dark rounded-pill mt-3">
+            <i class="bi bi-house me-1"></i> Volver al Inicio
+        </a>
+    </div>
+</div>

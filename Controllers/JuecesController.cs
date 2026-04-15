@@ -27,7 +27,7 @@ namespace GestionFerias_CTPINVU.Controllers
 
         public async Task<IActionResult> Index(string? textoBuscar, string? filtroEstado)
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
 
             var query = _context.Jueces
                 .Include(j => j.Juez)
@@ -58,7 +58,7 @@ namespace GestionFerias_CTPINVU.Controllers
         // GET: Jueces/Create
         public IActionResult Create()
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
             return RedirectToAction("Perfil", "Usuarios", new { modo = "create", rol = "juez" });
         }
 
@@ -67,14 +67,14 @@ namespace GestionFerias_CTPINVU.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create([Bind("JuezId,UsuarioCreacion,FechaCreacion,UsuarioModificacion,FechaModificacion")] Juece juece)
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
             return RedirectToAction("Perfil", "Usuarios", new { modo = "create", rol = "juez" });
         }
 
         // GET: Jueces/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
 
             if (id == null)
             {
@@ -89,13 +89,13 @@ namespace GestionFerias_CTPINVU.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("JuezId,UsuarioCreacion,FechaCreacion,UsuarioModificacion,FechaModificacion")] Juece juece)
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
             return RedirectToAction("Perfil", "Usuarios", new { id, modo = "edit", rol = "juez" });
         }
 
         public async Task<IActionResult> Details(long? id)
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
             if (id == null)
             {
                 return NotFound();
@@ -115,7 +115,7 @@ namespace GestionFerias_CTPINVU.Controllers
 
         public async Task<IActionResult> Delete(long? id)
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
             if (id == null)
             {
                 return NotFound();
@@ -138,7 +138,7 @@ namespace GestionFerias_CTPINVU.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
             var juece = await _context.Jueces
                 .Include(j => j.Juez)
                 .FirstOrDefaultAsync(j => j.JuezId == id);

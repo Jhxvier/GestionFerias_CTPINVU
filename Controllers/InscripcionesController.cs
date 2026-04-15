@@ -41,6 +41,11 @@ namespace GestionFerias_CTPINVU.Controllers
             return GetRol().Contains("Estudiante", StringComparison.OrdinalIgnoreCase);
         }
 
+        private bool EsTutor()
+        {
+            return GetRol().Contains("Tutor", StringComparison.OrdinalIgnoreCase);
+        }
+
         private bool EsJuez()
         {
             return GetRol().Contains("Juez", StringComparison.OrdinalIgnoreCase);
@@ -61,8 +66,16 @@ namespace GestionFerias_CTPINVU.Controllers
             // Admin, Coord y Juez ven TODAS las inscripciones. Estudiantes y Tutores solo ven las suyas.
             if (!esAdminOCoord && !EsJuez())
             {
-                query = query.Where(i => i.LiderUsuarioId == usuarioId
-                    || i.InscripcionIntegrantes.Any(ii => ii.EstudianteUsuarioId == usuarioId));
+                if (EsTutor())
+                {
+                    query = query.Where(i => i.TutorUsuarioId == usuarioId);
+                }
+                else
+                {
+                    // Comportamiento para estudiantes: lider + integrantes
+                    query = query.Where(i => i.LiderUsuarioId == usuarioId
+                        || i.InscripcionIntegrantes.Any(ii => ii.EstudianteUsuarioId == usuarioId));
+                }
             }
 
             var inscripciones = await query.ToListAsync();
@@ -94,7 +107,7 @@ namespace GestionFerias_CTPINVU.Controllers
         public IActionResult Create()
         {
             // Solo Estudiantes y Admin/Coord pueden crear inscripciones. Jueces no.
-            if (EsJuez()) return Unauthorized();
+            if (EsJuez()) return StatusCode(403);
             var usuarioId = GetUsuarioId();
             var lider = _context.Usuarios.Include(u => u.Persona).FirstOrDefault(u => u.UsuarioId == usuarioId);
 
@@ -121,38 +134,65 @@ namespace GestionFerias_CTPINVU.Controllers
             ModelState.Remove("ResultadosGanadores");
             ModelState.Remove("EstadoInscripcion");
 
+            var usuarioId = GetUsuarioId() ?? 0;
+
+            // Validar que el evento no esté finalizado
+            var evento = await _context.Eventos.FindAsync(inscripcion.EventoId);
+            if (evento != null && evento.EstadoEvento == "Finalizado")
+            {
+                ModelState.AddModelError("EventoId", "No se puede inscribir a un evento que ya está finalizado.");
+            }
+
+            // Validar de no permitir duplicados: El estudiante ya tiene un proyecto en este evento
+            bool existeInscripcion = await _context.Inscripciones
+                .AnyAsync(i => i.EventoId == inscripcion.EventoId && i.LiderUsuarioId == usuarioId);
+            
+            if (existeInscripcion)
+            {
+                ModelState.AddModelError("", "Usted ya tiene un proyecto inscrito en este evento.");
+            }
+
             if (ModelState.IsValid)
             {
-                var usuarioId = GetUsuarioId();
-                inscripcion.LiderUsuarioId = usuarioId ?? 0;
-                inscripcion.EstadoInscripcion = "Pendiente";
-                inscripcion.UsuarioCreacion = usuarioId;
-                inscripcion.UsuarioModificacion = usuarioId;
-
-                _context.Add(inscripcion);
-                await _context.SaveChangesAsync();
-
-                if (Integrante1Id.HasValue)
+                using var transaction = await _context.Database.BeginTransactionAsync();
+                try
                 {
-                    _context.InscripcionIntegrantes.Add(new InscripcionIntegrante
-                    {
-                        InscripcionId = inscripcion.InscripcionId,
-                        EstudianteUsuarioId = Integrante1Id.Value,
-                        UsuarioCreacion = usuarioId
-                    });
-                }
-                if (Integrante2Id.HasValue)
-                {
-                    _context.InscripcionIntegrantes.Add(new InscripcionIntegrante
-                    {
-                        InscripcionId = inscripcion.InscripcionId,
-                        EstudianteUsuarioId = Integrante2Id.Value,
-                        UsuarioCreacion = usuarioId
-                    });
-                }
-                await _context.SaveChangesAsync();
+                    inscripcion.LiderUsuarioId = usuarioId;
+                    inscripcion.EstadoInscripcion = "Pendiente";
+                    inscripcion.UsuarioCreacion = usuarioId;
+                    inscripcion.UsuarioModificacion = usuarioId;
 
-                return RedirectToAction(nameof(Index));
+                    _context.Add(inscripcion);
+                    await _context.SaveChangesAsync();
+
+                    if (Integrante1Id.HasValue)
+                    {
+                        _context.InscripcionIntegrantes.Add(new InscripcionIntegrante
+                        {
+                            InscripcionId = inscripcion.InscripcionId,
+                            EstudianteUsuarioId = Integrante1Id.Value,
+                            UsuarioCreacion = usuarioId
+                        });
+                    }
+                    if (Integrante2Id.HasValue)
+                    {
+                        _context.InscripcionIntegrantes.Add(new InscripcionIntegrante
+                        {
+                            InscripcionId = inscripcion.InscripcionId,
+                            EstudianteUsuarioId = Integrante2Id.Value,
+                            UsuarioCreacion = usuarioId
+                        });
+                    }
+                    await _context.SaveChangesAsync();
+
+                    await transaction.CommitAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception)
+                {
+                    await transaction.RollbackAsync();
+                    ModelState.AddModelError("", "Ocurrió un error al guardar la inscripción. Inténtelo nuevamente.");
+                }
             }
 
             var uid = GetUsuarioId();
@@ -168,7 +208,7 @@ namespace GestionFerias_CTPINVU.Controllers
         public async Task<IActionResult> Edit(long? id)
         {
             // Solo Admin/Coord puede editar (asignar tutor, aprobar). Juez y Estudiante no.
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
             if (id == null) return NotFound();
 
             var inscripcion = await _context.Inscripciones
@@ -206,6 +246,12 @@ namespace GestionFerias_CTPINVU.Controllers
             ModelState.Remove("InscripcionIntegrantes");
             ModelState.Remove("ResultadosGanadores");
 
+            // Validar que no se puede aprobar sin tutor
+            if (inscripcion.EstadoInscripcion == "Aprobado" && !inscripcion.TutorUsuarioId.HasValue)
+            {
+                ModelState.AddModelError("TutorUsuarioId", "No se puede aprobar la inscripción sin asignar un tutor.");
+            }
+
             if (ModelState.IsValid)
             {
                 try
@@ -239,7 +285,7 @@ namespace GestionFerias_CTPINVU.Controllers
 
         public async Task<IActionResult> Delete(long? id)
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
             if (id == null) return NotFound();
 
             var inscripcion = await _context.Inscripciones
@@ -256,7 +302,7 @@ namespace GestionFerias_CTPINVU.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
             var inscripcion = await _context.Inscripciones
                 .Include(i => i.InscripcionIntegrantes)
                 .FirstOrDefaultAsync(i => i.InscripcionId == id);

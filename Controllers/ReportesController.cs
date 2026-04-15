@@ -28,7 +28,7 @@ namespace GestionFerias_CTPINVU.Controllers
         public IActionResult Index()
         {
             if (!EsAdminOCoord())
-                return Unauthorized();
+                return StatusCode(403);
 
             return View();
         }
@@ -66,8 +66,13 @@ namespace GestionFerias_CTPINVU.Controllers
 
         public async Task<IActionResult> ParticipantesPdf(long eventoId)
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
             var participantes = await QueryParticipantes(eventoId).ToListAsync();
+            if (!participantes.Any())
+            {
+                TempData["ErrorReporte"] = "No se encontraron registros para la exportación solicitada.";
+                return RedirectToAction(nameof(Index));
+            }
             var evento = await _context.Eventos.FindAsync(eventoId);
             ViewBag.ReporteTitulo = $"Participantes Aprobados - {evento?.NombreEvento}";
             return View("PrintParticipantes", participantes);
@@ -75,8 +80,13 @@ namespace GestionFerias_CTPINVU.Controllers
 
         public async Task<IActionResult> ParticipantesExcel(long eventoId)
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
             var participantes = await QueryParticipantes(eventoId).ToListAsync();
+            if (!participantes.Any())
+            {
+                TempData["ErrorReporte"] = "No se encontraron registros para la exportación solicitada.";
+                return RedirectToAction(nameof(Index));
+            }
             var evento = await _context.Eventos.FindAsync(eventoId);
 
             using var workbook = new XLWorkbook();
@@ -120,8 +130,13 @@ namespace GestionFerias_CTPINVU.Controllers
 
         public async Task<IActionResult> ResultadosPdf(long eventoId)
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
             var resultados = await QueryResultados(eventoId).ToListAsync();
+            if (!resultados.Any())
+            {
+                TempData["ErrorReporte"] = "No se encontraron registros para la exportación solicitada.";
+                return RedirectToAction(nameof(Index));
+            }
             var evento = await _context.Eventos.FindAsync(eventoId);
             ViewBag.ReporteTitulo = $"Resultados Oficiales - {evento?.NombreEvento}";
             return View("PrintResultados", resultados);
@@ -129,8 +144,13 @@ namespace GestionFerias_CTPINVU.Controllers
 
         public async Task<IActionResult> ResultadosExcel(long eventoId)
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
             var resultados = await QueryResultados(eventoId).ToListAsync();
+            if (!resultados.Any())
+            {
+                TempData["ErrorReporte"] = "No se encontraron registros para la exportación solicitada.";
+                return RedirectToAction(nameof(Index));
+            }
             var evento = await _context.Eventos.FindAsync(eventoId);
 
             using var workbook = new XLWorkbook();
@@ -171,16 +191,26 @@ namespace GestionFerias_CTPINVU.Controllers
 
         public async Task<IActionResult> HistorialAnioPdf(int anio)
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
             var eventos = await QueryHistorialAnio(anio).ToListAsync();
+            if (!eventos.Any())
+            {
+                TempData["ErrorReporte"] = "No se encontraron registros para la exportación solicitada.";
+                return RedirectToAction(nameof(Index));
+            }
             ViewBag.ReporteTitulo = $"Historial de Eventos - Año {anio}";
             return View("PrintHistorialAnio", eventos);
         }
 
         public async Task<IActionResult> HistorialAnioExcel(int anio)
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
             var eventos = await QueryHistorialAnio(anio).ToListAsync();
+            if (!eventos.Any())
+            {
+                TempData["ErrorReporte"] = "No se encontraron registros para la exportación solicitada.";
+                return RedirectToAction(nameof(Index));
+            }
 
             using var workbook = new XLWorkbook();
             var worksheet = workbook.Worksheets.Add($"Eventos {anio}");
@@ -223,8 +253,13 @@ namespace GestionFerias_CTPINVU.Controllers
 
         public async Task<IActionResult> HistorialEstudiantePdf(long estudianteId)
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
             var inscripciones = await QueryHistorialEstudiante(estudianteId).ToListAsync();
+            if (!inscripciones.Any())
+            {
+                TempData["ErrorReporte"] = "No se encontraron registros para la exportación solicitada.";
+                return RedirectToAction(nameof(Index));
+            }
             var user = await _context.Usuarios.Include(u => u.Persona).FirstOrDefaultAsync(u => u.UsuarioId == estudianteId);
             ViewBag.ReporteTitulo = $"Historial de Participación - {(user?.Persona != null ? user.Persona.Nombres + " " + user.Persona.Apellidos : "ID " + estudianteId)}";
             return View("PrintHistorialEstudiante", inscripciones);
@@ -232,8 +267,13 @@ namespace GestionFerias_CTPINVU.Controllers
 
         public async Task<IActionResult> HistorialEstudianteExcel(long estudianteId)
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
             var inscripciones = await QueryHistorialEstudiante(estudianteId).ToListAsync();
+            if (!inscripciones.Any())
+            {
+                TempData["ErrorReporte"] = "No se encontraron registros para la exportación solicitada.";
+                return RedirectToAction(nameof(Index));
+            }
             var user = await _context.Usuarios.Include(u => u.Persona).FirstOrDefaultAsync(u => u.UsuarioId == estudianteId);
             string studentName = user?.Persona != null ? $"{user.Persona.Nombres} {user.Persona.Apellidos}" : $"ID {estudianteId}";
 

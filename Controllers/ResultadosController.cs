@@ -99,7 +99,7 @@ namespace GestionFerias_CTPINVU.Controllers
         // GET: Resultados/Create
         public IActionResult Create()
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
 
             var uid = GetUsuarioId();
             var juezActual = _context.Usuarios.Include(u => u.Persona).FirstOrDefault(u => u.UsuarioId == uid);
@@ -114,7 +114,7 @@ namespace GestionFerias_CTPINVU.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ResultadoEventoViewModel viewModel)
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
 
             // Validar que no se repitan las inscripciones
             if (viewModel.Inscripcion1erLugarId == viewModel.Inscripcion2doLugarId ||
@@ -126,32 +126,42 @@ namespace GestionFerias_CTPINVU.Controllers
 
             if (ModelState.IsValid)
             {
-                var usuarioId = GetUsuarioId();
-                var nuevoResultado = new ResultadosEvento
+                using var transaction = await _context.Database.BeginTransactionAsync();
+                try
                 {
-                    EventoId = viewModel.EventoId,
-                    EstadoResultados = "Publicado", // Se publica directamente al crear en la nueva vista
-                    ResolucionFinal = viewModel.ResolucionFinal,
-                    JuezResponsableUsuarioId = usuarioId,
-                    UsuarioCreacion = usuarioId,
-                    UsuarioModificacion = usuarioId,
-                    FechaPublicacion = DateTime.Now
-                };
+                    var usuarioId = GetUsuarioId();
+                    var nuevoResultado = new ResultadosEvento
+                    {
+                        EventoId = viewModel.EventoId,
+                        EstadoResultados = "Publicado", // Se publica directamente al crear en la nueva vista
+                        ResolucionFinal = viewModel.ResolucionFinal,
+                        JuezResponsableUsuarioId = usuarioId,
+                        UsuarioCreacion = usuarioId,
+                        UsuarioModificacion = usuarioId,
+                        FechaPublicacion = DateTime.Now
+                    };
 
-                _context.ResultadosEventos.Add(nuevoResultado);
-                await _context.SaveChangesAsync(); // Para obtener el ID
+                    _context.ResultadosEventos.Add(nuevoResultado);
+                    await _context.SaveChangesAsync(); // Para obtener el ID
 
-                var ganadores = new List<ResultadosGanadore>
+                    var ganadores = new List<ResultadosGanadore>
+                    {
+                        new ResultadosGanadore { ResultadoEventoId = nuevoResultado.ResultadoEventoId, Posicion = 1, InscripcionId = viewModel.Inscripcion1erLugarId, Nota = viewModel.Nota1erLugar, UsuarioCreacion = usuarioId },
+                        new ResultadosGanadore { ResultadoEventoId = nuevoResultado.ResultadoEventoId, Posicion = 2, InscripcionId = viewModel.Inscripcion2doLugarId, Nota = viewModel.Nota2doLugar, UsuarioCreacion = usuarioId },
+                        new ResultadosGanadore { ResultadoEventoId = nuevoResultado.ResultadoEventoId, Posicion = 3, InscripcionId = viewModel.Inscripcion3erLugarId, Nota = viewModel.Nota3erLugar, UsuarioCreacion = usuarioId }
+                    };
+
+                    _context.ResultadosGanadores.AddRange(ganadores);
+                    await _context.SaveChangesAsync();
+
+                    await transaction.CommitAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception)
                 {
-                    new ResultadosGanadore { ResultadoEventoId = nuevoResultado.ResultadoEventoId, Posicion = 1, InscripcionId = viewModel.Inscripcion1erLugarId, Nota = viewModel.Nota1erLugar, UsuarioCreacion = usuarioId },
-                    new ResultadosGanadore { ResultadoEventoId = nuevoResultado.ResultadoEventoId, Posicion = 2, InscripcionId = viewModel.Inscripcion2doLugarId, Nota = viewModel.Nota2doLugar, UsuarioCreacion = usuarioId },
-                    new ResultadosGanadore { ResultadoEventoId = nuevoResultado.ResultadoEventoId, Posicion = 3, InscripcionId = viewModel.Inscripcion3erLugarId, Nota = viewModel.Nota3erLugar, UsuarioCreacion = usuarioId }
-                };
-
-                _context.ResultadosGanadores.AddRange(ganadores);
-                await _context.SaveChangesAsync();
-
-                return RedirectToAction(nameof(Index));
+                    await transaction.RollbackAsync();
+                    ModelState.AddModelError("", "Ocurrió un error al guardar los resultados. Intente nuevamente.");
+                }
             }
 
             var uid = GetUsuarioId();
@@ -271,7 +281,7 @@ namespace GestionFerias_CTPINVU.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
 
             var resultadosEvento = await _context.ResultadosEventos
                 .Include(r => r.ResultadosGanadores)

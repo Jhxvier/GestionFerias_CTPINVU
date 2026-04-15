@@ -41,6 +41,13 @@ using (var scope = app.Services.CreateScope())
 
 app.UseStaticFiles();
 
+// Manejo de excepciones: no exponer stack traces al usuario
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Error/Index");
+}
+app.UseStatusCodePagesWithReExecute("/Error/Status/{0}");
+
 app.UseRouting();
 
 app.UseSession();

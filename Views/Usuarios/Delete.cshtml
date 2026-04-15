@@ -109,9 +109,20 @@
 
         <div class="tarjeta-eliminar">
             <div class="encabezado">
-                <h4>⚠ ¿Está seguro de que desea eliminar este usuario?</h4>
+                <h4><i class="bi bi-exclamation-triangle-fill mt-1"></i> Confirmar Eliminación</h4>
             </div>
             <div class="cuerpo">
+                @if (ViewData["ErrorDelete"] != null)
+                {
+                    <div class="alert alert-danger" role="alert">
+                        <i class="bi bi-exclamation-circle-fill me-2"></i>
+                        @ViewData["ErrorDelete"]
+                    </div>
+                }
+                
+                <p class="text-center mb-4">
+                    ¿Está seguro que desea eliminar a este usuario de forma permanente? Esta acción no se puede deshacer.
+                </p>
                 <div class="detalle-fila">
                     <span class="detalle-etiqueta">Nombre</span>
                     <span class="detalle-valor">@nombre</span>

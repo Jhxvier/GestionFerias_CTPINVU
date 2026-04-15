@@ -33,7 +33,7 @@ namespace GestionFerias_CTPINVU.Controllers
 
         public async Task<IActionResult> Index(string? textoBuscar, string? filtroEstado)
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
             var query = _context.Usuarios
                 .Include(u => u.UsuarioCreacionNavigation)
                 .Include(u => u.UsuarioModificacionNavigation)
@@ -75,9 +75,9 @@ namespace GestionFerias_CTPINVU.Controllers
         public async Task<IActionResult> Perfil(long? id, string modo = "create", string rol = "")
         {
             // Si es modo create, solo el Admin puede crear usuarios nuevos
-            if (modo == "create" && !EsAdmin()) return Unauthorized();
+            if (modo == "create" && !EsAdmin()) return StatusCode(403);
             // Si es modo edit, Admin y Coordinador pueden editar
-            if (modo == "edit" && !EsAdminOCoord()) return Unauthorized();
+            if (modo == "edit" && !EsAdminOCoord()) return StatusCode(403);
 
             var vm = new PerfilViewModel
             {
@@ -132,6 +132,7 @@ namespace GestionFerias_CTPINVU.Controllers
                 }
             }
             
+            ViewData["EsAdmin"] = EsAdmin();
             return View(vm);
         }
 
@@ -140,9 +141,9 @@ namespace GestionFerias_CTPINVU.Controllers
         public async Task<IActionResult> GuardarPerfil(PerfilViewModel model)
         {
             // Si es modo create, solo el Admin puede crear usuarios nuevos
-            if (model.Modo == "create" && !EsAdmin()) return Unauthorized();
+            if (model.Modo == "create" && !EsAdmin()) return StatusCode(403);
             // Si es modo edit, Admin y Coordinador pueden editar
-            if (model.Modo == "edit" && !EsAdminOCoord()) return Unauthorized();
+            if (model.Modo == "edit" && !EsAdminOCoord()) return StatusCode(403);
 
             // si edita no se requiere validar la clave, ya que no siempre se va a cambiar, pero si es creación si se requiere
             if (model.Modo == "edit")
@@ -325,21 +326,21 @@ namespace GestionFerias_CTPINVU.Controllers
         // GET: Usuarios/Create
         public IActionResult Create()
         {
-            if (!EsAdmin()) return Unauthorized();
+            if (!EsAdmin()) return StatusCode(403);
             return RedirectToAction("Perfil", new { modo = "create" });
         }
 
         // GET: Usuarios/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
             if (id == null) return NotFound();
             return RedirectToAction("Perfil", new { id, modo = "edit" });
         }
 
         public async Task<IActionResult> Details(long? id)
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
             if (id == null)
             {
                 return NotFound();
@@ -360,7 +361,7 @@ namespace GestionFerias_CTPINVU.Controllers
 
         public async Task<IActionResult> Delete(long? id)
         {
-            if (!EsAdmin()) return Unauthorized();
+            if (!EsAdmin()) return StatusCode(403);
             if (id == null)
             {
                 return NotFound();
@@ -384,13 +385,30 @@ namespace GestionFerias_CTPINVU.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
-            if (!EsAdmin()) return Unauthorized();
-            var usuario = await _context.Usuarios.FindAsync(id);
-            if (usuario != null)
+            if (!EsAdmin()) return StatusCode(403);
+            
+            var usuario = await _context.Usuarios
+                .Include(u => u.Persona)
+                .FirstOrDefaultAsync(u => u.UsuarioId == id);
+                
+            if (usuario == null) return NotFound();
+
+            // Verificar integridad referencial: ¿Tiene inscripciones activas?
+            bool tieneInscripciones = await _context.Inscripciones.AnyAsync(i => i.LiderUsuarioId == id || i.TutorUsuarioId == id) ||
+                                      await _context.InscripcionIntegrantes.AnyAsync(ii => ii.EstudianteUsuarioId == id);
+
+            if (tieneInscripciones)
             {
-                _context.Usuarios.Remove(usuario);
-                await _context.SaveChangesAsync();
+                ViewData["ErrorDelete"] = "No se puede eliminar este usuario porque tiene inscripciones activas vinculadas. Puede cambiar su estado a 'Inactivo' en Editar.";
+                return View("Delete", await _context.Usuarios
+                    .Include(u => u.Persona)
+                    .Include(u => u.UsuarioCreacionNavigation)
+                    .Include(u => u.UsuarioModificacionNavigation)
+                    .FirstOrDefaultAsync(m => m.UsuarioId == id));
             }
+
+            _context.Usuarios.Remove(usuario);
+            await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
         }

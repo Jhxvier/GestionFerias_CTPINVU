@@ -1,0 +1,15 @@
+@{
+    ViewData["Title"] = "No Encontrado";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-5 text-center">
+    <div class="py-5">
+        <i class="bi bi-search" style="font-size:5rem; color:var(--amarillo);"></i>
+        <h1 class="mt-3 fw-bold" style="color:var(--naranja);">404 — Página No Encontrada</h1>
+        <p class="text-secondary fs-5 mt-2">La página que busca no existe o fue movida.</p>
+        <a href="@Url.Action("Inicio", "Inicio")" class="btn btn-outline-dark rounded-pill mt-3">
+            <i class="bi bi-house me-1"></i> Volver al Inicio
+        </a>
+    </div>
+</div>

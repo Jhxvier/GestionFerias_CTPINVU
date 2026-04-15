@@ -38,13 +38,20 @@ public class AccountController : Controller
             .Include(u => u.Estudiante)
             .Include(u => u.Tutore)
             .Include(u => u.Juece)
-            .Include(u => u.UsuarioRoles).ThenInclude(ur => ur.Rol) // Include para obtener el rol del usuario
+            .Include(u => u.UsuarioRoles).ThenInclude(ur => ur.Rol)
             .FirstOrDefaultAsync(u => u.Correo == correo
-                                   && u.PasswordHash == hashClave
-                                   && u.Estado == "Activo");
+                                   && u.PasswordHash == hashClave);
 
         if (usuario != null)
         {
+            // Verificar si el usuario está inactivo
+            if (usuario.Estado != "Activo")
+            {
+                TempData["ErrorLogin"] = "Su cuenta se encuentra inactiva. Contacte al administrador.";
+                TempData["CorreoLogin"] = correo;
+                return View();
+            }
+
             string rolNombre = "Usuario";
             if (usuario.Estudiante != null) rolNombre = "Estudiante";
             else if (usuario.Tutore != null) rolNombre = "Tutor";

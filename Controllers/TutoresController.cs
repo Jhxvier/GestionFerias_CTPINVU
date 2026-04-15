@@ -27,7 +27,7 @@ namespace GestionFerias_CTPINVU.Controllers
 
         public async Task<IActionResult> Index(string? textoBuscar, string? filtroEspecialidad)
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
 
             var query = _context.Tutores
                 .Include(t => t.Tutor)
@@ -58,7 +58,7 @@ namespace GestionFerias_CTPINVU.Controllers
         // GET: Tutores/Create
         public IActionResult Create()
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
             return RedirectToAction("Perfil", "Usuarios", new { modo = "create", rol = "tutor" });
         }
 
@@ -67,14 +67,14 @@ namespace GestionFerias_CTPINVU.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create([Bind("TutorId,Especialidad,UsuarioCreacion,FechaCreacion,UsuarioModificacion,FechaModificacion")] Tutore tutore)
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
             return RedirectToAction("Perfil", "Usuarios", new { modo = "create", rol = "tutor" });
         }
 
         // GET: Tutores/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
 
             if (id == null)
             {
@@ -89,13 +89,13 @@ namespace GestionFerias_CTPINVU.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("TutorId,Especialidad,UsuarioCreacion,FechaCreacion,UsuarioModificacion,FechaModificacion")] Tutore tutore)
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
             return RedirectToAction("Perfil", "Usuarios", new { id, modo = "edit", rol = "tutor" });
         }
 
         public async Task<IActionResult> Details(long? id)
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
             if (id == null)
             {
                 return NotFound();
@@ -115,7 +115,7 @@ namespace GestionFerias_CTPINVU.Controllers
 
         public async Task<IActionResult> Delete(long? id)
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
             if (id == null)
             {
                 return NotFound();
@@ -138,7 +138,7 @@ namespace GestionFerias_CTPINVU.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
             var tutore = await _context.Tutores
                 .Include(t => t.Tutor)
                 .FirstOrDefaultAsync(t => t.TutorId == id);

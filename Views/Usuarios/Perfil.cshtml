@@ -235,7 +235,17 @@
 
                         <div class="col-12 col-lg-6">
                             <label class="form-label small text-muted">Correo / Usuario de Sesión *</label>
-                            <input class="form-control rounded-pill" type="email" asp-for="Correo" placeholder="usuario@colegio.edu" required />
+                            @{
+                                bool esAdmin = ViewData["EsAdmin"] as bool? ?? false;
+                            }
+                            @if (esAdmin)
+                            {
+                                <input class="form-control rounded-pill" type="email" asp-for="Correo" placeholder="usuario@colegio.edu" required />
+                            }
+                            else
+                            {
+                                <input class="form-control rounded-pill" type="email" asp-for="Correo" placeholder="usuario@colegio.edu" required readonly />
+                            }
                             <span asp-validation-for="Correo" class="text-danger small"></span>
                         </div>
 

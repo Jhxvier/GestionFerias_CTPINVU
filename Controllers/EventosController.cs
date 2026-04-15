@@ -29,7 +29,7 @@ namespace GestionFerias_CTPINVU.Controllers
 
         public async Task<IActionResult> Index()
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
 
             var appDbContext = _context.Eventos.Include(e => e.Centro);
             return View(await appDbContext.ToListAsync());
@@ -37,7 +37,7 @@ namespace GestionFerias_CTPINVU.Controllers
 
         public async Task<IActionResult> Details(long? id)
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
             if (id == null) return NotFound();
 
             var evento = await _context.Eventos
@@ -50,7 +50,7 @@ namespace GestionFerias_CTPINVU.Controllers
 
         public IActionResult Create()
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
 
             ViewData["CentroId"] = new SelectList(_context.CentrosEducativos, "CentroId", "NombreCentro");
             return View();
@@ -60,10 +60,15 @@ namespace GestionFerias_CTPINVU.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("EventoId,CodigoEvento,CentroId,NombreEvento,TipoFeria,Descripcion,FechaInicio,FechaFin,EstadoEvento")] Evento evento)
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
 
             ModelState.Remove("Centro");
             ModelState.Remove("CodigoEvento");
+            if (evento.FechaInicio > evento.FechaFin)
+            {
+                ModelState.AddModelError("FechaFin", "La Fecha de Fin no puede ser anterior a la Fecha de Inicio.");
+            }
+
             if (ModelState.IsValid)
             {
                 var usuarioId = long.TryParse(HttpContext.Session.GetString("UsuarioId"), out var uid) ? uid : (long?)null;
@@ -79,7 +84,7 @@ namespace GestionFerias_CTPINVU.Controllers
 
         public async Task<IActionResult> Edit(long? id)
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
             if (id == null) return NotFound();
 
             var evento = await _context.Eventos.FindAsync(id);
@@ -93,11 +98,16 @@ namespace GestionFerias_CTPINVU.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("EventoId,CodigoEvento,CentroId,NombreEvento,TipoFeria,Descripcion,FechaInicio,FechaFin,EstadoEvento")] Evento evento)
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
             if (id != evento.EventoId) return NotFound();
 
             ModelState.Remove("Centro");
             ModelState.Remove("CodigoEvento");
+            if (evento.FechaInicio > evento.FechaFin)
+            {
+                ModelState.AddModelError("FechaFin", "La Fecha de Fin no puede ser anterior a la Fecha de Inicio.");
+            }
+
             if (ModelState.IsValid)
             {
                 try
@@ -120,7 +130,7 @@ namespace GestionFerias_CTPINVU.Controllers
 
         public async Task<IActionResult> Delete(long? id)
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
             if (id == null) return NotFound();
 
             var evento = await _context.Eventos
@@ -135,7 +145,7 @@ namespace GestionFerias_CTPINVU.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
-            if (!EsAdminOCoord()) return Unauthorized();
+            if (!EsAdminOCoord()) return StatusCode(403);
 
             var evento = await _context.Eventos.FindAsync(id);
             if (evento != null)
