@@ -20,14 +20,24 @@ namespace GestionFerias_CTPINVU.Controllers
             _context = context;
         }
 
+        private bool EsAdminOCoord()
+        {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            return rol.Contains("Administrador", StringComparison.OrdinalIgnoreCase) ||
+                   rol.Contains("Coordinador", StringComparison.OrdinalIgnoreCase);
+        }
+
         public async Task<IActionResult> Index()
         {
+            if (!EsAdminOCoord()) return Unauthorized();
+
             var appDbContext = _context.Eventos.Include(e => e.Centro);
             return View(await appDbContext.ToListAsync());
         }
 
         public async Task<IActionResult> Details(long? id)
         {
+            if (!EsAdminOCoord()) return Unauthorized();
             if (id == null) return NotFound();
 
             var evento = await _context.Eventos
@@ -40,6 +50,8 @@ namespace GestionFerias_CTPINVU.Controllers
 
         public IActionResult Create()
         {
+            if (!EsAdminOCoord()) return Unauthorized();
+
             ViewData["CentroId"] = new SelectList(_context.CentrosEducativos, "CentroId", "NombreCentro");
             return View();
         }
@@ -48,6 +60,8 @@ namespace GestionFerias_CTPINVU.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("EventoId,CodigoEvento,CentroId,NombreEvento,TipoFeria,Descripcion,FechaInicio,FechaFin,EstadoEvento")] Evento evento)
         {
+            if (!EsAdminOCoord()) return Unauthorized();
+
             ModelState.Remove("Centro");
             ModelState.Remove("CodigoEvento");
             if (ModelState.IsValid)
@@ -65,6 +79,7 @@ namespace GestionFerias_CTPINVU.Controllers
 
         public async Task<IActionResult> Edit(long? id)
         {
+            if (!EsAdminOCoord()) return Unauthorized();
             if (id == null) return NotFound();
 
             var evento = await _context.Eventos.FindAsync(id);
@@ -78,6 +93,7 @@ namespace GestionFerias_CTPINVU.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("EventoId,CodigoEvento,CentroId,NombreEvento,TipoFeria,Descripcion,FechaInicio,FechaFin,EstadoEvento")] Evento evento)
         {
+            if (!EsAdminOCoord()) return Unauthorized();
             if (id != evento.EventoId) return NotFound();
 
             ModelState.Remove("Centro");
@@ -104,6 +120,7 @@ namespace GestionFerias_CTPINVU.Controllers
 
         public async Task<IActionResult> Delete(long? id)
         {
+            if (!EsAdminOCoord()) return Unauthorized();
             if (id == null) return NotFound();
 
             var evento = await _context.Eventos
@@ -118,6 +135,8 @@ namespace GestionFerias_CTPINVU.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            if (!EsAdminOCoord()) return Unauthorized();
+
             var evento = await _context.Eventos.FindAsync(id);
             if (evento != null)
             {

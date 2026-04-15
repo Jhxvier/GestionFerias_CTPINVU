@@ -41,6 +41,11 @@ namespace GestionFerias_CTPINVU.Controllers
             return GetRol().Contains("Estudiante", StringComparison.OrdinalIgnoreCase);
         }
 
+        private bool EsJuez()
+        {
+            return GetRol().Contains("Juez", StringComparison.OrdinalIgnoreCase);
+        }
+
         public async Task<IActionResult> Index()
         {
             var usuarioId = GetUsuarioId();
@@ -53,7 +58,8 @@ namespace GestionFerias_CTPINVU.Controllers
                 .Include(i => i.TutorUsuario).ThenInclude(t => t.Tutor).ThenInclude(u => u.Persona)
                 .Include(i => i.InscripcionIntegrantes).ThenInclude(ii => ii.EstudianteUsuario).ThenInclude(e => e.EstudianteNavigation).ThenInclude(u => u.Persona);
 
-            if (!esAdminOCoord)
+            // Admin, Coord y Juez ven TODAS las inscripciones. Estudiantes y Tutores solo ven las suyas.
+            if (!esAdminOCoord && !EsJuez())
             {
                 query = query.Where(i => i.LiderUsuarioId == usuarioId
                     || i.InscripcionIntegrantes.Any(ii => ii.EstudianteUsuarioId == usuarioId));
@@ -63,6 +69,7 @@ namespace GestionFerias_CTPINVU.Controllers
 
             ViewData["EsAdminOCoord"] = esAdminOCoord;
             ViewData["EsEstudiante"] = EsEstudiante();
+            ViewData["EsJuez"] = EsJuez();
             ViewData["UsuarioId"] = usuarioId;
 
             return View(inscripciones);
@@ -86,6 +93,8 @@ namespace GestionFerias_CTPINVU.Controllers
 
         public IActionResult Create()
         {
+            // Solo Estudiantes y Admin/Coord pueden crear inscripciones. Jueces no.
+            if (EsJuez()) return Unauthorized();
             var usuarioId = GetUsuarioId();
             var lider = _context.Usuarios.Include(u => u.Persona).FirstOrDefault(u => u.UsuarioId == usuarioId);
 
@@ -158,6 +167,8 @@ namespace GestionFerias_CTPINVU.Controllers
 
         public async Task<IActionResult> Edit(long? id)
         {
+            // Solo Admin/Coord puede editar (asignar tutor, aprobar). Juez y Estudiante no.
+            if (!EsAdminOCoord()) return Unauthorized();
             if (id == null) return NotFound();
 
             var inscripcion = await _context.Inscripciones
@@ -228,6 +239,7 @@ namespace GestionFerias_CTPINVU.Controllers
 
         public async Task<IActionResult> Delete(long? id)
         {
+            if (!EsAdminOCoord()) return Unauthorized();
             if (id == null) return NotFound();
 
             var inscripcion = await _context.Inscripciones
@@ -244,6 +256,7 @@ namespace GestionFerias_CTPINVU.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            if (!EsAdminOCoord()) return Unauthorized();
             var inscripcion = await _context.Inscripciones
                 .Include(i => i.InscripcionIntegrantes)
                 .FirstOrDefaultAsync(i => i.InscripcionId == id);

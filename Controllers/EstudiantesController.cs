@@ -16,8 +16,17 @@ namespace GestionFerias_CTPINVU.Controllers
             _context = context;
         }
 
+        private bool EsAdminOCoord()
+        {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            return rol.Contains("Administrador", StringComparison.OrdinalIgnoreCase) ||
+                   rol.Contains("Coordinador", StringComparison.OrdinalIgnoreCase);
+        }
+
         public async Task<IActionResult> Index(string? textoBuscar, string? filtroGrado)
         {
+            if (!EsAdminOCoord()) return Unauthorized();
+
             var query = _context.Estudiantes
                 .Include(e => e.EstudianteNavigation)
                     .ThenInclude(u => u.Persona)
@@ -47,6 +56,7 @@ namespace GestionFerias_CTPINVU.Controllers
         // GET: Estudiantes/Create
         public IActionResult Create()
         {
+            if (!EsAdminOCoord()) return Unauthorized();
             return RedirectToAction("Perfil", "Usuarios", new { modo = "create", rol = "estudiante" });
         }
 
@@ -55,12 +65,15 @@ namespace GestionFerias_CTPINVU.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create([Bind("EstudianteId,Grado,UsuarioCreacion,FechaCreacion,UsuarioModificacion,FechaModificacion")] Estudiante estudiante)
         {
+            if (!EsAdminOCoord()) return Unauthorized();
             return RedirectToAction("Perfil", "Usuarios", new { modo = "create", rol = "estudiante" });
         }
 
         // GET: Estudiantes/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            if (!EsAdminOCoord()) return Unauthorized();
+
             if (id == null)
             {
                 return NotFound();
@@ -74,11 +87,13 @@ namespace GestionFerias_CTPINVU.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("EstudianteId,Grado,UsuarioCreacion,FechaCreacion,UsuarioModificacion,FechaModificacion")] Estudiante estudiante)
         {
+            if (!EsAdminOCoord()) return Unauthorized();
             return RedirectToAction("Perfil", "Usuarios", new { id, modo = "edit", rol = "estudiante" });
         }
 
         public async Task<IActionResult> Details(long? id)
         {
+            if (!EsAdminOCoord()) return Unauthorized();
             if (id == null)
             {
                 return NotFound();
@@ -98,6 +113,7 @@ namespace GestionFerias_CTPINVU.Controllers
 
         public async Task<IActionResult> Delete(long? id)
         {
+            if (!EsAdminOCoord()) return Unauthorized();
             if (id == null)
             {
                 return NotFound();
@@ -120,6 +136,7 @@ namespace GestionFerias_CTPINVU.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            if (!EsAdminOCoord()) return Unauthorized();
             var estudiante = await _context.Estudiantes
                 .Include(e => e.EstudianteNavigation)
                 .FirstOrDefaultAsync(e => e.EstudianteId == id);

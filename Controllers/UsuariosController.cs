@@ -18,8 +18,22 @@ namespace GestionFerias_CTPINVU.Controllers
             _context = context;
         }
 
+        private bool EsAdminOCoord()
+        {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            return rol.Contains("Administrador", StringComparison.OrdinalIgnoreCase) ||
+                   rol.Contains("Coordinador", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private bool EsAdmin()
+        {
+            var rol = HttpContext.Session.GetString("Rol") ?? "";
+            return rol.Contains("Administrador", StringComparison.OrdinalIgnoreCase);
+        }
+
         public async Task<IActionResult> Index(string? textoBuscar, string? filtroEstado)
         {
+            if (!EsAdminOCoord()) return Unauthorized();
             var query = _context.Usuarios
                 .Include(u => u.UsuarioCreacionNavigation)
                 .Include(u => u.UsuarioModificacionNavigation)
@@ -60,6 +74,11 @@ namespace GestionFerias_CTPINVU.Controllers
         [HttpGet]
         public async Task<IActionResult> Perfil(long? id, string modo = "create", string rol = "")
         {
+            // Si es modo create, solo el Admin puede crear usuarios nuevos
+            if (modo == "create" && !EsAdmin()) return Unauthorized();
+            // Si es modo edit, Admin y Coordinador pueden editar
+            if (modo == "edit" && !EsAdminOCoord()) return Unauthorized();
+
             var vm = new PerfilViewModel
             {
                 Modo = modo,
@@ -120,6 +139,11 @@ namespace GestionFerias_CTPINVU.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> GuardarPerfil(PerfilViewModel model)
         {
+            // Si es modo create, solo el Admin puede crear usuarios nuevos
+            if (model.Modo == "create" && !EsAdmin()) return Unauthorized();
+            // Si es modo edit, Admin y Coordinador pueden editar
+            if (model.Modo == "edit" && !EsAdminOCoord()) return Unauthorized();
+
             // si edita no se requiere validar la clave, ya que no siempre se va a cambiar, pero si es creación si se requiere
             if (model.Modo == "edit")
             {
@@ -172,6 +196,13 @@ namespace GestionFerias_CTPINVU.Controllers
                         per.Nacionalidad = model.Nacionalidad;
                         per.FechaModificacion = DateTime.Now;
                         _context.Personas.Update(per);
+                    }
+
+                    // Solo el Admin puede modificar el correo electrónico
+                    if (!EsAdmin())
+                    {
+                        // Si no es admin, mantener el correo original sin cambios
+                        model.Correo = usr.Correo;
                     }
 
                     usr.Correo = model.Correo;
@@ -294,18 +325,21 @@ namespace GestionFerias_CTPINVU.Controllers
         // GET: Usuarios/Create
         public IActionResult Create()
         {
+            if (!EsAdmin()) return Unauthorized();
             return RedirectToAction("Perfil", new { modo = "create" });
         }
 
         // GET: Usuarios/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
+            if (!EsAdminOCoord()) return Unauthorized();
             if (id == null) return NotFound();
             return RedirectToAction("Perfil", new { id, modo = "edit" });
         }
 
         public async Task<IActionResult> Details(long? id)
         {
+            if (!EsAdminOCoord()) return Unauthorized();
             if (id == null)
             {
                 return NotFound();
@@ -326,6 +360,7 @@ namespace GestionFerias_CTPINVU.Controllers
 
         public async Task<IActionResult> Delete(long? id)
         {
+            if (!EsAdmin()) return Unauthorized();
             if (id == null)
             {
                 return NotFound();
@@ -349,6 +384,7 @@ namespace GestionFerias_CTPINVU.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            if (!EsAdmin()) return Unauthorized();
             var usuario = await _context.Usuarios.FindAsync(id);
             if (usuario != null)
             {

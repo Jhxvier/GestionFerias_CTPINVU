@@ -63,6 +63,12 @@ namespace GestionFerias_CTPINVU.Controllers
                 query = query.Where(r => r.EstadoResultados == filtroEstado);
             }
 
+            // Si no es Admin/Coord/Juez (es decir, es Estudiante o Tutor), solo mostrar resultados publicados
+            if (!EsAdminOCoord())
+            {
+                query = query.Where(r => r.EstadoResultados == "Publicado");
+            }
+
             ViewData["EventosList"] = new SelectList(await _context.Eventos.ToListAsync(), "EventoId", "NombreEvento", filtroEvento);
             ViewData["CurrentBuscar"] = textoBuscar;
             ViewData["CurrentEvento"] = filtroEvento;
