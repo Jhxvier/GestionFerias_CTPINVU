@@ -303,6 +303,7 @@
                                 <option value="10">10°</option>
                                 <option value="11">11°</option>
                             </select>
+                            <span asp-validation-for="Grado" class="text-danger small"></span>
                         </div>
                     </div>
                 </div>
@@ -320,6 +321,7 @@
                                 <option value="Español">Español</option>
                                 <option value="Sociales">Sociales</option>
                             </select>
+                            <span asp-validation-for="Especialidad" class="text-danger small"></span>
                         </div>
                     </div>
                 </div>
@@ -339,11 +341,7 @@
                                 var isRequired = Model.Modo == "create" ? "required" : null;
                             }
                             <input class="form-control rounded-pill" type="text" asp-for="Clave" placeholder="@passPlaceholder" required="@isRequired" />
-
-                            @if (Model.Modo == "create")
-                            {
-                                <div class="invalid-feedback">Debe asignar una contraseña inicial al crear.</div>
-                            }
+                            <span asp-validation-for="Clave" class="text-danger small"></span>
                         </div>
                     </div>
 
@@ -368,6 +366,9 @@
 </div>
 
 @section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
     <script>
         (function(){
             // Configurar el tipo de usuario por default para el CSS (Admin temporalmente o quemado arriba)
