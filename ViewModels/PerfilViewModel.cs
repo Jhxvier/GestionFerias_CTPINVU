@@ -24,13 +24,18 @@ namespace GestionFerias_CTPINVU.ViewModels
         [Required(ErrorMessage = "Los apellidos son obligatorios.")]
         public string Apellidos { get; set; }
 
-        public string? Telefono { get; set; }
+        [Required(ErrorMessage = "El teléfono es obligatorio.")]
+        [RegularExpression(@"^(\+506\s?)?([24678]\d{3}[\s-]?\d{4})$", ErrorMessage = "Formato inválido. Debe ser un número de Costa Rica (ej. 8888-8888).")]
+        public string Telefono { get; set; }
 
+        [Required(ErrorMessage = "La fecha de nacimiento es obligatoria.")]
         public DateOnly? FechaNacimiento { get; set; }
 
-        public string? Sexo { get; set; } // Masculino, Femenino, Otro, Prefiero no decir
+        [Required(ErrorMessage = "El sexo es obligatorio.")]
+        public string Sexo { get; set; } // Masculino, Femenino, Otro, Prefiero no decir
         
-        public string? Nacionalidad { get; set; }
+        [Required(ErrorMessage = "La nacionalidad es obligatoria.")]
+        public string Nacionalidad { get; set; }
 
         // Application Data
         [Required(ErrorMessage = "El correo es obligatorio.")]
