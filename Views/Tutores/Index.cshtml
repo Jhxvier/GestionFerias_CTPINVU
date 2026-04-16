@@ -125,6 +125,11 @@
         color: #111;
     }
 
+    .btn-ver {
+        background: #e9ecef;
+        color: #111;
+    }
+
     .btn-eliminar {
         background: var(--rojo);
         color: #fff;
@@ -224,6 +229,12 @@
 
                                     <td class="text-end">
                                         <div class="d-inline-flex gap-2 flex-wrap justify-content-end">
+                                            <a asp-action="Details"
+                                               asp-route-id="@item.TutorId"
+                                               class="btn-accion btn-ver">
+                                                Ver
+                                            </a>
+
                                             <a asp-action="Edit"
                                                asp-route-id="@item.TutorId"
                                                class="btn-accion btn-editar">

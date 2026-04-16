@@ -347,6 +347,10 @@ namespace GestionFerias_CTPINVU.Controllers
             }
 
             var usuario = await _context.Usuarios
+                .Include(u => u.Persona)
+                .Include(u => u.Estudiante)
+                .Include(u => u.Tutore)
+                .Include(u => u.Juece)
                 .Include(u => u.UsuarioCreacionNavigation)
                 .Include(u => u.UsuarioModificacionNavigation)
                 .FirstOrDefaultAsync(m => m.UsuarioId == id);

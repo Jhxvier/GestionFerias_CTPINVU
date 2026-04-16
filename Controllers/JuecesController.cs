@@ -93,7 +93,7 @@ namespace GestionFerias_CTPINVU.Controllers
             return RedirectToAction("Perfil", "Usuarios", new { id, modo = "edit", rol = "juez" });
         }
 
-        public async Task<IActionResult> Details(long? id)
+        public IActionResult Details(long? id)
         {
             if (!EsAdminOCoord()) return StatusCode(403);
             if (id == null)
@@ -101,16 +101,7 @@ namespace GestionFerias_CTPINVU.Controllers
                 return NotFound();
             }
 
-            var juece = await _context.Jueces
-                .Include(j => j.Juez)
-                .FirstOrDefaultAsync(m => m.JuezId == id);
-
-            if (juece == null)
-            {
-                return NotFound();
-            }
-
-            return View(juece);
+            return RedirectToAction("Details", "Usuarios", new { id });
         }
 
         public async Task<IActionResult> Delete(long? id)

@@ -93,7 +93,7 @@ namespace GestionFerias_CTPINVU.Controllers
             return RedirectToAction("Perfil", "Usuarios", new { id, modo = "edit", rol = "tutor" });
         }
 
-        public async Task<IActionResult> Details(long? id)
+        public IActionResult Details(long? id)
         {
             if (!EsAdminOCoord()) return StatusCode(403);
             if (id == null)
@@ -101,16 +101,7 @@ namespace GestionFerias_CTPINVU.Controllers
                 return NotFound();
             }
 
-            var tutore = await _context.Tutores
-                .Include(t => t.Tutor)
-                .FirstOrDefaultAsync(m => m.TutorId == id);
-
-            if (tutore == null)
-            {
-                return NotFound();
-            }
-
-            return View(tutore);
+            return RedirectToAction("Details", "Usuarios", new { id });
         }
 
         public async Task<IActionResult> Delete(long? id)
