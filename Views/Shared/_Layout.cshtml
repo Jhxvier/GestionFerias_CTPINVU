@@ -148,22 +148,27 @@
                     <span>Ferias CTP Invu</span>
                 </a>
 
-                <!-- Pantallas pequeñas -->
-                <button class="navbar-toggler" type="button"
-                        data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu"
-                        aria-controls="offcanvasMenu" aria-label="Abrir menú">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+                <!-- Pantallas pequeñas (solo si está logueado) -->
+                @if (!string.IsNullOrEmpty(rol))
+                {
+                    <button class="navbar-toggler" type="button"
+                            data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu"
+                            aria-controls="offcanvasMenu" aria-label="Abrir menú">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                }
 
                 <!-- Para el escritorio -->
                 <div class="collapse navbar-collapse d-none d-lg-flex">
 
                     <ul class="navbar-nav me-auto gap-2">
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Inicio" asp-action="Inicio">
-                                <i class="bi bi-house"></i> Inicio
-                            </a>
-                        </li>
+                        @if (!string.IsNullOrEmpty(rol))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Inicio" asp-action="Inicio">
+                                    <i class="bi bi-house"></i> Inicio
+                                </a>
+                            </li>
 
                         @if (esAdminOCoord)
                         {
@@ -216,38 +221,44 @@
                             </ul>
                         </li>
 
-                        <!-- Perfil (todos los roles) -->
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Usuarios" asp-action="MiPerfil">
-                                <i class="bi bi-person-circle"></i> Perfil
-                            </a>
-                        </li>
+                            <!-- Perfil (todos los roles) -->
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Usuarios" asp-action="MiPerfil">
+                                    <i class="bi bi-person-circle"></i> Perfil
+                                </a>
+                            </li>
+                        }
                     </ul>
 
-                    <!-- Zona derecha -->
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="chip-navbar">
-                            <i class="bi bi-person-badge"></i> Rol: @(rol != "" ? rol : "Usuario")
-                        </span>
-                        <a class="btn-logout" asp-controller="Account" asp-action="Logout">
-                            <i class="bi bi-box-arrow-right"></i> Cerrar sesión
-                        </a>
-                    </div>
+                    @if (!string.IsNullOrEmpty(rol))
+                    {
+                        <!-- Zona derecha -->
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="chip-navbar">
+                                <i class="bi bi-person-badge"></i> Rol: @(rol != "" ? rol : "Usuario")
+                            </span>
+                            <a class="btn-logout" asp-controller="Account" asp-action="Logout">
+                                <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+                            </a>
+                        </div>
+                    }
                 </div>
             </div>
         </nav>
 
         <!-- dispositivos moviles -->
-        <div class="offcanvas offcanvas-start offcanvas-ferias" tabindex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel">
-            <div class="offcanvas-header">
-                <div class="d-flex align-items-center gap-2">
-                    <img src="~/images/logo-invu.png" alt="Logo" style="height:34px;width:auto;border-radius:10px;background:#fff;padding:4px;">
-                    <div class="lh-sm">
-                        <div class="fw-bold" id="offcanvasMenuLabel">Sistema de Ferias</div>
-                        <div class="small opacity-75">CTP Invu Las Cañas</div>
+        @if (!string.IsNullOrEmpty(rol))
+        {
+            <div class="offcanvas offcanvas-start offcanvas-ferias" tabindex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel">
+                <div class="offcanvas-header">
+                    <div class="d-flex align-items-center gap-2">
+                        <img src="~/images/logo-invu.png" alt="Logo" style="height:34px;width:auto;border-radius:10px;background:#fff;padding:4px;">
+                        <div class="lh-sm">
+                            <div class="fw-bold" id="offcanvasMenuLabel">Sistema de Ferias</div>
+                            <div class="small opacity-75">CTP Invu Las Cañas</div>
+                        </div>
                     </div>
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
             </div>
 
             <div class="offcanvas-body">
@@ -341,6 +352,7 @@
                 </div>
             </div>
         </div>
+        }
     </header>
 
     <div class="container-fluid px-3 px-md-4">

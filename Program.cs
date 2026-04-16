@@ -1,10 +1,14 @@
 using GestionFerias_CTPINVU.Data;
 using GestionFerias_CTPINVU.Services;
 using Microsoft.EntityFrameworkCore;
+using GestionFerias_CTPINVU.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add<ValidarSesionAttribute>();
+});
 
 builder.Services.AddTransient<IEmailService, EmailService>();
 
