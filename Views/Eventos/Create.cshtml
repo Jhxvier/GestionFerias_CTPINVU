@@ -228,8 +228,8 @@
                         <div class="grid">
                             <div class="field">
                                 <label>Código del evento</label>
-                                <input asp-for="CodigoEvento" />
-                                <span asp-validation-for="CodigoEvento" class="text-danger"></span>
+                                <input type="text" value="[Generado automáticamente por el sistema]" disabled style="background-color: var(--line); cursor: not-allowed; color: var(--muted);" />
+                                <span class="text-muted" style="font-size: 13px; margin-top: 4px; display: block;">Esta clasificación se asigna al guardar.</span>
                             </div>
 
                             <div class="field">
@@ -248,16 +248,7 @@
                                 <span asp-validation-for="TipoFeria" class="text-danger"></span>
                             </div>
 
-                            <div class="field">
-                                <label>Estado</label>
-                                <select asp-for="EstadoEvento">
-                                    <option value="">Seleccione</option>
-                                    <option value="En proceso">En proceso</option>
-                                    <option value="Finalizado">Finalizado</option>
-                                    <option value="Cancelado">Cancelado</option>
-                                </select>
-                                <span asp-validation-for="EstadoEvento" class="text-danger"></span>
-                            </div>
+
 
                             <div class="field">
                                 <label>Fecha de inicio</label>

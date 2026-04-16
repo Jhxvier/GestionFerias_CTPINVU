@@ -31,8 +31,21 @@ namespace GestionFerias_CTPINVU.Controllers
         {
             if (!EsAdminOCoord()) return StatusCode(403);
 
-            var appDbContext = _context.Eventos.Include(e => e.Centro);
-            return View(await appDbContext.ToListAsync());
+            var eventos = await _context.Eventos.Include(e => e.Centro).ToListAsync();
+            
+            var today = DateOnly.FromDateTime(DateTime.Now);
+            bool updated = false;
+            foreach (var evt in eventos)
+            {
+                if (evt.EstadoEvento != "Cancelado" && evt.EstadoEvento != "Finalizado" && today > evt.FechaFin)
+                {
+                    evt.EstadoEvento = "Finalizado";
+                    updated = true;
+                }
+            }
+            if (updated) await _context.SaveChangesAsync();
+
+            return View(eventos);
         }
 
         public async Task<IActionResult> Details(long? id)
@@ -64,6 +77,9 @@ namespace GestionFerias_CTPINVU.Controllers
 
             ModelState.Remove("Centro");
             ModelState.Remove("CodigoEvento");
+            ModelState.Remove("EstadoEvento");
+            
+            evento.EstadoEvento = "En proceso";
             if (evento.FechaInicio > evento.FechaFin)
             {
                 ModelState.AddModelError("FechaFin", "La Fecha de Fin no puede ser anterior a la Fecha de Inicio.");
@@ -71,6 +87,9 @@ namespace GestionFerias_CTPINVU.Controllers
 
             if (ModelState.IsValid)
             {
+                var maxId = await _context.Eventos.MaxAsync(e => (long?)e.EventoId) ?? 0;
+                evento.CodigoEvento = $"EVT-{(maxId + 1):D3}";
+                
                 var usuarioId = long.TryParse(HttpContext.Session.GetString("UsuarioId"), out var uid) ? uid : (long?)null;
                 evento.UsuarioCreacion = usuarioId;
                 evento.UsuarioModificacion = usuarioId;

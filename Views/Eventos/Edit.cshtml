@@ -215,7 +215,7 @@
                         <div class="grid">
                             <div class="field">
                                 <label>Código del evento</label>
-                                <input asp-for="CodigoEvento" />
+                                <input asp-for="CodigoEvento" readonly style="background-color: var(--line); cursor: not-allowed;" />
                                 <span asp-validation-for="CodigoEvento" class="text-danger"></span>
                             </div>
 
@@ -238,10 +238,12 @@
                             <div class="field">
                                 <label>Estado</label>
                                 <select asp-for="EstadoEvento">
-                                    <option value="">Seleccione</option>
                                     <option value="En proceso">En proceso</option>
-                                    <option value="Finalizado">Finalizado</option>
                                     <option value="Cancelado">Cancelado</option>
+                                    @if (Model != null && Model.EstadoEvento == "Finalizado")
+                                    {
+                                        <option value="Finalizado">Finalizado</option>
+                                    }
                                 </select>
                                 <span asp-validation-for="EstadoEvento" class="text-danger"></span>
                             </div>

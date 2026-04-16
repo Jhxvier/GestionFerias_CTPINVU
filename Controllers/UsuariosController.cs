@@ -155,6 +155,7 @@ namespace GestionFerias_CTPINVU.Controllers
             {
                 var errores = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
                 ViewData["ErroresModelState"] = string.Join(" | ", errores);
+                ViewData["EsAdmin"] = EsAdmin();
                 return View("Perfil", model);
             }
 
@@ -305,6 +306,7 @@ namespace GestionFerias_CTPINVU.Controllers
                 }
 
                 ViewData["ErroresModelState"] = errorUsuario;
+                ViewData["EsAdmin"] = EsAdmin();
                 return View("Perfil", model);
             }
         }
