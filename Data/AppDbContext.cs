@@ -287,8 +287,11 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("descripcion_proyecto");
             entity.Property(e => e.EstadoInscripcion)
                 .HasDefaultValueSql("'Pendiente'")
-                .HasColumnType("enum('Pendiente','Aprobado')")
+                .HasColumnType("enum('Pendiente','Aprobado','Rechazado')")
                 .HasColumnName("estado_inscripcion");
+            entity.Property(e => e.Justificacion)
+                .HasColumnType("text")
+                .HasColumnName("justificacion");
             entity.Property(e => e.EventoId).HasColumnName("evento_id");
             entity.Property(e => e.FechaCreacion)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")

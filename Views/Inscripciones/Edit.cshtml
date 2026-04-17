@@ -39,6 +39,10 @@
     .btnx { padding: 10px 16px; border-radius: 16px; border: 1px solid rgba(0,0,0,.22); font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; user-select: none; }
     .btnx.cancel { background: #fff; color: #111; }
     .btnx.save { background: var(--rojo); color: #fff; border-color: transparent; }
+    .req { color: var(--rojo); font-weight: bold; }
+    .estado-pendiente { border-color: var(--amarillo) !important; color: #7a5c00; background: #fffbe6 !important; }
+    .estado-aprobado { border-color: var(--verde) !important; color: #2e4f13; background: #f0f7e6 !important; }
+    .estado-rechazado { border-color: var(--rojo) !important; color: #7a0000; background: #fff0f0 !important; }
     @@media (max-width: 900px) { .content { padding: 18px; } .grid { grid-template-columns: 1fr; } }
 </style>
 
@@ -60,7 +64,6 @@
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <input type="hidden" asp-for="InscripcionId" />
                     <input type="hidden" asp-for="LiderUsuarioId" />
-                    <input type="hidden" asp-for="EstadoInscripcion" id="estadoHidden" />
 
                     <div class="section">
                         <h3 class="section-title">Evento</h3>
@@ -161,21 +164,28 @@
                     @if (esAdminOCoord)
                     {
                         <div class="section highlight">
-                            <h3 class="section-title">Asignar tutor</h3>
+                            <h3 class="section-title">Gestión de inscripción</h3>
                             <div class="grid">
                                 <div class="field">
-                                    <label>Tutor</label>
+                                    <label>Tutor asignado</label>
                                     <select asp-for="TutorUsuarioId" asp-items="listaTutores">
                                         <option value="">Seleccione tutor</option>
                                     </select>
                                 </div>
                                 <div class="field">
-                                    <label>Estado</label>
-                                    <input disabled value="@Model.EstadoInscripcion" />
+                                    <label>Estado <span class="req">*</span></label>
+                                    <select asp-for="EstadoInscripcion" id="estadoSelect" required>
+                                        <option value="Pendiente">Pendiente</option>
+                                        <option value="Aprobado">Aprobado</option>
+                                        <option value="Rechazado">Rechazado</option>
+                                    </select>
+                                    <span asp-validation-for="EstadoInscripcion" class="text-danger"></span>
                                 </div>
-                            </div>
-                            <div class="note">
-                                Al asignar un tutor, la inscripción se aprueba automáticamente.
+                                <div class="field" style="grid-column:1 / -1;" id="justificacionWrap">
+                                    <label>Justificación <span class="req">*</span> <small style="color:var(--muted);font-weight:normal;">(requerida al aprobar o rechazar)</small></label>
+                                    <textarea asp-for="Justificacion" id="justificacionText" placeholder="Ingrese la justificación de la decisión tomada..."></textarea>
+                                    <span asp-validation-for="Justificacion" class="text-danger"></span>
+                                </div>
                             </div>
                         </div>
                     }
@@ -214,6 +224,36 @@
                 subSel.innerHTML = html;
             });
     });
+
+    // Gestión del campo de Estado y Justificación
+    var estadoSel = document.getElementById('estadoSelect');
+    var justWrap = document.getElementById('justificacionWrap');
+    var justText = document.getElementById('justificacionText');
+
+    function actualizarEstado() {
+        if (!estadoSel) return;
+        var val = estadoSel.value;
+        // Limpiar clases de color
+        estadoSel.classList.remove('estado-pendiente', 'estado-aprobado', 'estado-rechazado');
+        if (val === 'Pendiente') {
+            estadoSel.classList.add('estado-pendiente');
+            if (justWrap) justWrap.style.display = 'none';
+            if (justText) justText.removeAttribute('required');
+        } else if (val === 'Aprobado') {
+            estadoSel.classList.add('estado-aprobado');
+            if (justWrap) justWrap.style.display = '';
+            if (justText) justText.setAttribute('required', 'required');
+        } else if (val === 'Rechazado') {
+            estadoSel.classList.add('estado-rechazado');
+            if (justWrap) justWrap.style.display = '';
+            if (justText) justText.setAttribute('required', 'required');
+        }
+    }
+
+    if (estadoSel) {
+        estadoSel.addEventListener('change', actualizarEstado);
+        actualizarEstado(); // Ejecutar al cargar
+    }
 })();
 </script>
 

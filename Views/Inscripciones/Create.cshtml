@@ -6,6 +6,7 @@
     var listaCategorias = ViewData["CategoriaId"] as SelectList;
     var listaSubcategorias = ViewData["SubcategoriaId"] as SelectList;
     var liderNombre = ViewData["LiderNombre"] as string ?? "Usuario actual";
+    var usuarioId = Context.Session.GetString("UsuarioId") ?? "0";
 }
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
@@ -42,6 +43,7 @@
     .integrante-wrap { position: relative; }
     .selected-tag { display: inline-flex; align-items: center; gap: 6px; background: rgba(106,154,44,.12); border: 1px solid rgba(106,154,44,.3); border-radius: 10px; padding: 4px 10px; font-size: 12px; margin-top: 6px; color: #2e4f13; }
     .selected-tag button { background: none; border: none; cursor: pointer; font-size: 14px; color: #b00020; padding: 0; line-height: 1; }
+    .req { color: var(--rojo); font-weight: bold; }
     @@media (max-width: 900px) { .content { padding: 18px; } .grid { grid-template-columns: 1fr; } }
 </style>
 
@@ -63,11 +65,11 @@
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
                     <div class="section">
-                        <h3 class="section-title">Evento</h3>
+                        <h3 class="section-title">Evento <span class="req">*</span></h3>
                         <div class="grid">
                             <div class="field" style="grid-column:1 / -1;">
-                                <label>Evento</label>
-                                <select asp-for="EventoId" asp-items="listaEventos">
+                                <label>Evento <span class="req">*</span></label>
+                                <select asp-for="EventoId" asp-items="listaEventos" required>
                                     <option value="">Seleccione un evento</option>
                                 </select>
                                 <span asp-validation-for="EventoId" class="text-danger"></span>
@@ -76,11 +78,11 @@
                     </div>
 
                     <div class="section">
-                        <h3 class="section-title">Clasificación</h3>
+                        <h3 class="section-title">Clasificación <span class="req">*</span></h3>
                         <div class="grid">
                             <div class="field">
-                                <label>Categoría</label>
-                                <select id="categoriaSelect">
+                                <label>Categoría <span class="req">*</span></label>
+                                <select id="categoriaSelect" required>
                                     <option value="">Seleccione</option>
                                     @if (listaCategorias != null)
                                     {
@@ -90,10 +92,11 @@
                                         }
                                     }
                                 </select>
+                                <span id="errCategoria" class="text-danger" style="display:none;">Seleccione una categoría.</span>
                             </div>
                             <div class="field">
-                                <label>Subcategoría</label>
-                                <select asp-for="SubcategoriaId" id="subcategoriaSelect">
+                                <label>Subcategoría <span class="req">*</span></label>
+                                <select asp-for="SubcategoriaId" id="subcategoriaSelect" required>
                                     <option value="">Seleccione categoría primero</option>
                                     @if (listaSubcategorias != null)
                                     {
@@ -133,16 +136,17 @@
                     </div>
 
                     <div class="section">
-                        <h3 class="section-title">Detalle del proyecto</h3>
+                        <h3 class="section-title">Detalle del proyecto <span class="req">*</span></h3>
                         <div class="grid">
                             <div class="field" style="grid-column:1 / -1;">
-                                <label>Título del proyecto</label>
-                                <input asp-for="TituloProyecto" />
+                                <label>Título del proyecto <span class="req">*</span></label>
+                                <input asp-for="TituloProyecto" required placeholder="Ingrese el título del proyecto" />
                                 <span asp-validation-for="TituloProyecto" class="text-danger"></span>
                             </div>
                             <div class="field" style="grid-column:1 / -1;">
-                                <label>Descripción</label>
-                                <textarea asp-for="DescripcionProyecto"></textarea>
+                                <label>Descripción <span class="req">*</span></label>
+                                <textarea asp-for="DescripcionProyecto" required placeholder="Describa brevemente el proyecto..."></textarea>
+                                <span asp-validation-for="DescripcionProyecto" class="text-danger"></span>
                             </div>
                         </div>
                     </div>

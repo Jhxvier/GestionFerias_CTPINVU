@@ -136,11 +136,27 @@ namespace GestionFerias_CTPINVU.Controllers
 
             var usuarioId = GetUsuarioId() ?? 0;
 
+            // Validar campos obligatorios
+            if (string.IsNullOrWhiteSpace(inscripcion.DescripcionProyecto))
+            {
+                ModelState.AddModelError("DescripcionProyecto", "La descripción del proyecto es obligatoria.");
+            }
+
             // Validar que el evento no esté finalizado
             var evento = await _context.Eventos.FindAsync(inscripcion.EventoId);
             if (evento != null && evento.EstadoEvento == "Finalizado")
             {
                 ModelState.AddModelError("EventoId", "No se puede inscribir a un evento que ya está finalizado.");
+            }
+
+            // Validar que los integrantes no sean el mismo usuario (el líder)
+            if (Integrante1Id.HasValue && Integrante1Id.Value == usuarioId)
+            {
+                ModelState.AddModelError("", "No puede agregarse a usted mismo como integrante 1.");
+            }
+            if (Integrante2Id.HasValue && Integrante2Id.Value == usuarioId)
+            {
+                ModelState.AddModelError("", "No puede agregarse a usted mismo como integrante 2.");
             }
 
             // Validar de no permitir duplicados: El estudiante ya tiene un proyecto en este evento
@@ -235,7 +251,7 @@ namespace GestionFerias_CTPINVU.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id,
-            [Bind("InscripcionId,EventoId,SubcategoriaId,TituloProyecto,DescripcionProyecto,TutorUsuarioId,EstadoInscripcion,LiderUsuarioId")] Inscripcione inscripcion)
+            [Bind("InscripcionId,EventoId,SubcategoriaId,TituloProyecto,DescripcionProyecto,TutorUsuarioId,EstadoInscripcion,LiderUsuarioId,Justificacion")] Inscripcione inscripcion)
         {
             if (id != inscripcion.InscripcionId) return NotFound();
 
@@ -252,17 +268,19 @@ namespace GestionFerias_CTPINVU.Controllers
                 ModelState.AddModelError("TutorUsuarioId", "No se puede aprobar la inscripción sin asignar un tutor.");
             }
 
+            // Validar justificación obligatoria al aprobar o rechazar
+            if ((inscripcion.EstadoInscripcion == "Aprobado" || inscripcion.EstadoInscripcion == "Rechazado")
+                && string.IsNullOrWhiteSpace(inscripcion.Justificacion))
+            {
+                ModelState.AddModelError("Justificacion", "La justificación es obligatoria al aprobar o rechazar una inscripción.");
+            }
+
             if (ModelState.IsValid)
             {
                 try
                 {
                     var usuarioId = GetUsuarioId();
                     inscripcion.UsuarioModificacion = usuarioId;
-
-                    if (inscripcion.TutorUsuarioId.HasValue && inscripcion.EstadoInscripcion == "Pendiente")
-                    {
-                        inscripcion.EstadoInscripcion = "Aprobado";
-                    }
 
                     _context.Update(inscripcion);
                     await _context.SaveChangesAsync();
@@ -330,9 +348,12 @@ namespace GestionFerias_CTPINVU.Controllers
         {
             if (string.IsNullOrWhiteSpace(term)) return Json(new List<object>());
 
+            var usuarioId = GetUsuarioId();
+
             var estudiantes = _context.Estudiantes
                 .Include(e => e.EstudianteNavigation).ThenInclude(u => u.Persona)
                 .Where(e => e.EstudianteNavigation.Persona != null &&
+                    e.EstudianteId != usuarioId &&
                     (e.EstudianteNavigation.Persona.Nombres.Contains(term) ||
                      e.EstudianteNavigation.Persona.Apellidos.Contains(term) ||
                      e.EstudianteNavigation.Persona.Documento.Contains(term)))

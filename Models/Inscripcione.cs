@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace GestionFerias_CTPINVU.Models;
@@ -20,6 +20,8 @@ public partial class Inscripcione
     public long? TutorUsuarioId { get; set; }
 
     public string EstadoInscripcion { get; set; } = null!;
+
+    public string? Justificacion { get; set; }
 
     public long? UsuarioCreacion { get; set; }
 
