@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -57,6 +57,7 @@ namespace GestionFerias_CTPINVU.Controllers
             var esAdminOCoord = EsAdminOCoord();
 
             IQueryable<Inscripcione> query = _context.Inscripciones
+                .Where(i => i.EsActivo)
                 .Include(i => i.Evento)
                 .Include(i => i.LiderUsuario).ThenInclude(u => u.Persona)
                 .Include(i => i.Subcategoria).ThenInclude(s => s.Categoria)
@@ -112,9 +113,9 @@ namespace GestionFerias_CTPINVU.Controllers
             var lider = _context.Usuarios.Include(u => u.Persona).FirstOrDefault(u => u.UsuarioId == usuarioId);
 
             ViewData["LiderNombre"] = lider?.Persona != null ? $"{lider.Persona.Nombres} {lider.Persona.Apellidos}" : "Usuario actual";
-            ViewData["EventoId"] = new SelectList(_context.Eventos, "EventoId", "NombreEvento");
-            ViewData["CategoriaId"] = new SelectList(_context.Categorias, "CategoriaId", "Nombre");
-            ViewData["SubcategoriaId"] = new SelectList(_context.Subcategorias, "SubcategoriaId", "Nombre");
+            ViewData["EventoId"] = new SelectList(_context.Eventos.Where(e => e.EsActivo), "EventoId", "NombreEvento");
+            ViewData["CategoriaId"] = new SelectList(_context.Categorias.Where(c => c.EsActivo), "CategoriaId", "Nombre");
+            ViewData["SubcategoriaId"] = new SelectList(_context.Subcategorias.Where(s => s.EsActivo), "SubcategoriaId", "Nombre");
             CargarTutores();
 
             return View();
@@ -214,9 +215,9 @@ namespace GestionFerias_CTPINVU.Controllers
             var uid = GetUsuarioId();
             var lider = _context.Usuarios.Include(u => u.Persona).FirstOrDefault(u => u.UsuarioId == uid);
             ViewData["LiderNombre"] = lider?.Persona != null ? $"{lider.Persona.Nombres} {lider.Persona.Apellidos}" : "Usuario actual";
-            ViewData["EventoId"] = new SelectList(_context.Eventos, "EventoId", "NombreEvento", inscripcion.EventoId);
-            ViewData["CategoriaId"] = new SelectList(_context.Categorias, "CategoriaId", "Nombre");
-            ViewData["SubcategoriaId"] = new SelectList(_context.Subcategorias, "SubcategoriaId", "Nombre", inscripcion.SubcategoriaId);
+            ViewData["EventoId"] = new SelectList(_context.Eventos.Where(e => e.EsActivo), "EventoId", "NombreEvento", inscripcion.EventoId);
+            ViewData["CategoriaId"] = new SelectList(_context.Categorias.Where(c => c.EsActivo), "CategoriaId", "Nombre");
+            ViewData["SubcategoriaId"] = new SelectList(_context.Subcategorias.Where(s => s.EsActivo), "SubcategoriaId", "Nombre", inscripcion.SubcategoriaId);
             CargarTutores();
             return View(inscripcion);
         }
@@ -237,11 +238,11 @@ namespace GestionFerias_CTPINVU.Controllers
             ViewData["LiderNombre"] = inscripcion.LiderUsuario?.Persona != null
                 ? $"{inscripcion.LiderUsuario.Persona.Nombres} {inscripcion.LiderUsuario.Persona.Apellidos}" : "—";
             ViewData["EsAdminOCoord"] = EsAdminOCoord();
-            ViewData["EventoId"] = new SelectList(_context.Eventos, "EventoId", "NombreEvento", inscripcion.EventoId);
+            ViewData["EventoId"] = new SelectList(_context.Eventos.Where(e => e.EsActivo), "EventoId", "NombreEvento", inscripcion.EventoId);
             ViewData["CategoriaId"] = new SelectList(_context.Categorias, "CategoriaId", "Nombre",
                 inscripcion.Subcategoria?.CategoriaId);
             ViewData["SubcategoriaId"] = new SelectList(
-                _context.Subcategorias.Where(s => s.CategoriaId == (inscripcion.Subcategoria != null ? inscripcion.Subcategoria.CategoriaId : 0)),
+                _context.Subcategorias.Where(s => s.EsActivo && s.CategoriaId == (inscripcion.Subcategoria != null ? inscripcion.Subcategoria.CategoriaId : 0)),
                 "SubcategoriaId", "Nombre", inscripcion.SubcategoriaId);
             CargarTutores(inscripcion.TutorUsuarioId);
 
@@ -294,9 +295,9 @@ namespace GestionFerias_CTPINVU.Controllers
             }
 
             ViewData["EsAdminOCoord"] = EsAdminOCoord();
-            ViewData["EventoId"] = new SelectList(_context.Eventos, "EventoId", "NombreEvento", inscripcion.EventoId);
-            ViewData["CategoriaId"] = new SelectList(_context.Categorias, "CategoriaId", "Nombre");
-            ViewData["SubcategoriaId"] = new SelectList(_context.Subcategorias, "SubcategoriaId", "Nombre", inscripcion.SubcategoriaId);
+            ViewData["EventoId"] = new SelectList(_context.Eventos.Where(e => e.EsActivo), "EventoId", "NombreEvento", inscripcion.EventoId);
+            ViewData["CategoriaId"] = new SelectList(_context.Categorias.Where(c => c.EsActivo), "CategoriaId", "Nombre");
+            ViewData["SubcategoriaId"] = new SelectList(_context.Subcategorias.Where(s => s.EsActivo), "SubcategoriaId", "Nombre", inscripcion.SubcategoriaId);
             CargarTutores(inscripcion.TutorUsuarioId);
             return View(inscripcion);
         }
@@ -326,10 +327,12 @@ namespace GestionFerias_CTPINVU.Controllers
                 .FirstOrDefaultAsync(i => i.InscripcionId == id);
             if (inscripcion != null)
             {
-                _context.InscripcionIntegrantes.RemoveRange(inscripcion.InscripcionIntegrantes);
-                _context.Inscripciones.Remove(inscripcion);
+                // Borrado lógico: se mantiene el historial en la BD
+                inscripcion.EsActivo = false;
+                _context.Inscripciones.Update(inscripcion);
+                await _context.SaveChangesAsync();
             }
-            await _context.SaveChangesAsync();
+
             return RedirectToAction(nameof(Index));
         }
 
@@ -337,7 +340,7 @@ namespace GestionFerias_CTPINVU.Controllers
         public JsonResult GetSubcategorias(int categoriaId)
         {
             var subcategorias = _context.Subcategorias
-                .Where(s => s.CategoriaId == categoriaId)
+                .Where(s => s.CategoriaId == categoriaId && s.EsActivo)
                 .Select(s => new { s.SubcategoriaId, s.Nombre })
                 .ToList();
             return Json(subcategorias);

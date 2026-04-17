@@ -38,6 +38,8 @@ public partial class Evento
 
     public DateTime? FechaModificacion { get; set; }
 
+    public bool EsActivo { get; set; } = true;
+
     public virtual CentrosEducativo Centro { get; set; } = null!;
 
     public virtual ICollection<Inscripcione> Inscripciones { get; set; } = new List<Inscripcione>();

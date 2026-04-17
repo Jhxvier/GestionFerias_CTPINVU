@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +20,7 @@ namespace GestionFerias_CTPINVU.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var subcategorias = await _context.Subcategorias
+            var subcategorias = await _context.Subcategorias.Where(x => x.EsActivo)
                 .Include(s => s.Categoria)
                 .ToListAsync();
             return View(subcategorias);
@@ -40,7 +40,7 @@ namespace GestionFerias_CTPINVU.Controllers
 
         public IActionResult Create()
         {
-            ViewData["CategoriaId"] = new SelectList(_context.Categorias, "CategoriaId", "Nombre");
+            ViewData["CategoriaId"] = new SelectList(_context.Categorias.Where(x => x.EsActivo), "CategoriaId", "Nombre");
             return View();
         }
 
@@ -59,7 +59,7 @@ namespace GestionFerias_CTPINVU.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CategoriaId"] = new SelectList(_context.Categorias, "CategoriaId", "Nombre", subcategoria.CategoriaId);
+            ViewData["CategoriaId"] = new SelectList(_context.Categorias.Where(x => x.EsActivo), "CategoriaId", "Nombre", subcategoria.CategoriaId);
             return View(subcategoria);
         }
 
@@ -70,7 +70,7 @@ namespace GestionFerias_CTPINVU.Controllers
             var subcategoria = await _context.Subcategorias.FindAsync(id);
             if (subcategoria == null) return NotFound();
 
-            ViewData["CategoriaId"] = new SelectList(_context.Categorias, "CategoriaId", "Nombre", subcategoria.CategoriaId);
+            ViewData["CategoriaId"] = new SelectList(_context.Categorias.Where(x => x.EsActivo), "CategoriaId", "Nombre", subcategoria.CategoriaId);
             return View(subcategoria);
         }
 
@@ -98,7 +98,7 @@ namespace GestionFerias_CTPINVU.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CategoriaId"] = new SelectList(_context.Categorias, "CategoriaId", "Nombre", subcategoria.CategoriaId);
+            ViewData["CategoriaId"] = new SelectList(_context.Categorias.Where(x => x.EsActivo), "CategoriaId", "Nombre", subcategoria.CategoriaId);
             return View(subcategoria);
         }
 
@@ -121,9 +121,11 @@ namespace GestionFerias_CTPINVU.Controllers
             var subcategoria = await _context.Subcategorias.FindAsync(id);
             if (subcategoria != null)
             {
-                _context.Subcategorias.Remove(subcategoria);
+                subcategoria.EsActivo = false;
+                _context.Subcategorias.Update(subcategoria);
+                await _context.SaveChangesAsync();
             }
-            await _context.SaveChangesAsync();
+
             return RedirectToAction(nameof(Index));
         }
     }

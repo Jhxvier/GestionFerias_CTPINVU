@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -133,12 +133,12 @@ namespace GestionFerias_CTPINVU.Controllers
                 .FirstOrDefaultAsync(e => e.EstudianteId == id);
             if (estudiante != null)
             {
-                // cambiar estado a inactivo antes de eliminar para mantener integridad referencial
+                // Borrado lógico: marcar el usuario como inactivo, sin eliminar el registro de estudiante
                 if (estudiante.EstudianteNavigation != null)
                 {
                     estudiante.EstudianteNavigation.Estado = "Inactivo";
+                    _context.Usuarios.Update(estudiante.EstudianteNavigation);
                 }
-                _context.Estudiantes.Remove(estudiante);
                 await _context.SaveChangesAsync();
             }
 

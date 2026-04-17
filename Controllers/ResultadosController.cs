@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -40,7 +40,7 @@ namespace GestionFerias_CTPINVU.Controllers
         // GET: Resultados
         public async Task<IActionResult> Index(string? textoBuscar, string? filtroEvento, string? filtroEstado)
         {
-            var query = _context.ResultadosEventos
+            var query = _context.ResultadosEventos.Where(r => r.EsActivo)
                 .Include(r => r.Evento)
                 .Include(r => r.ResultadosGanadores).ThenInclude(g => g.Inscripcion).ThenInclude(i => i.LiderUsuario).ThenInclude(u => u.Persona)
                 .Include(r => r.JuezResponsableUsuario).ThenInclude(u => u.Juez).ThenInclude(u => u.Persona)
@@ -69,7 +69,7 @@ namespace GestionFerias_CTPINVU.Controllers
                 query = query.Where(r => r.EstadoResultados == "Publicado");
             }
 
-            ViewData["EventosList"] = new SelectList(await _context.Eventos.ToListAsync(), "EventoId", "NombreEvento", filtroEvento);
+            ViewData["EventosList"] = new SelectList(await _context.Eventos.Where(e => e.EsActivo).ToListAsync(), "EventoId", "NombreEvento", filtroEvento);
             ViewData["CurrentBuscar"] = textoBuscar;
             ViewData["CurrentEvento"] = filtroEvento;
             ViewData["CurrentEstado"] = filtroEstado;
@@ -105,7 +105,7 @@ namespace GestionFerias_CTPINVU.Controllers
             var juezActual = _context.Usuarios.Include(u => u.Persona).FirstOrDefault(u => u.UsuarioId == uid);
             ViewData["JuezNombre"] = juezActual?.Persona != null ? $"{juezActual.Persona.Nombres} {juezActual.Persona.Apellidos}" : "Juez Actual";
             
-            ViewData["EventoId"] = new SelectList(_context.Eventos, "EventoId", "NombreEvento");
+            ViewData["EventoId"] = new SelectList(_context.Eventos.Where(e => e.EsActivo), "EventoId", "NombreEvento");
             return View(new ResultadoEventoViewModel());
         }
 
@@ -167,7 +167,7 @@ namespace GestionFerias_CTPINVU.Controllers
             var uid = GetUsuarioId();
             var juezActual = _context.Usuarios.Include(u => u.Persona).FirstOrDefault(u => u.UsuarioId == uid);
             ViewData["JuezNombre"] = juezActual?.Persona != null ? $"{juezActual.Persona.Nombres} {juezActual.Persona.Apellidos}" : "Juez Actual";
-            ViewData["EventoId"] = new SelectList(_context.Eventos, "EventoId", "NombreEvento", viewModel.EventoId);
+            ViewData["EventoId"] = new SelectList(_context.Eventos.Where(e => e.EsActivo), "EventoId", "NombreEvento", viewModel.EventoId);
             return View(viewModel);
         }
 
@@ -257,7 +257,7 @@ namespace GestionFerias_CTPINVU.Controllers
             var uid = GetUsuarioId();
             var juezActual = _context.Usuarios.Include(u => u.Persona).FirstOrDefault(u => u.UsuarioId == uid);
             ViewData["JuezNombre"] = juezActual?.Persona != null ? $"{juezActual.Persona.Nombres} {juezActual.Persona.Apellidos}" : "Juez Actual";
-            ViewData["EventoId"] = new SelectList(_context.Eventos, "EventoId", "NombreEvento", viewModel.EventoId);
+            ViewData["EventoId"] = new SelectList(_context.Eventos.Where(e => e.EsActivo), "EventoId", "NombreEvento", viewModel.EventoId);
             return View(viewModel);
         }
 
@@ -289,10 +289,12 @@ namespace GestionFerias_CTPINVU.Controllers
 
             if (resultadosEvento != null)
             {
-                _context.ResultadosGanadores.RemoveRange(resultadosEvento.ResultadosGanadores);
-                _context.ResultadosEventos.Remove(resultadosEvento);
+                // Borrado lógico: se mantiene el historial de resultados en la BD
+                resultadosEvento.EsActivo = false;
+                _context.ResultadosEventos.Update(resultadosEvento);
                 await _context.SaveChangesAsync();
             }
+
             return RedirectToAction(nameof(Index));
         }
 

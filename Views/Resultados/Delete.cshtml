@@ -1,7 +1,7 @@
-@model GestionFerias_CTPINVU.Models.ResultadosEvento
+﻿@model GestionFerias_CTPINVU.Models.ResultadosEvento
 
 @{
-    ViewData["Title"] = "Eliminar Resultados";
+    ViewData["Title"] = "Desactivar Resultados";
     var juezNombre = Model.JuezResponsableUsuario?.Juez?.Persona != null ? $"{Model.JuezResponsableUsuario.Juez.Persona.Nombres} {Model.JuezResponsableUsuario.Juez.Persona.Apellidos}" : "—";
 }
 
@@ -31,7 +31,7 @@
         </div>
 
         <div class="card-delete-body">
-            <p class="mb-3 text-danger fw-bold">¿Está seguro de que desea eliminar permanentemente los resultados de este evento? Esta acción no se puede deshacer.</p>
+            <p class="mb-3 text-danger fw-bold">¿Está seguro de que desea desactivar permanentemente los resultados de este evento? Esta acción no se puede deshacer.</p>
 
             <div class="info-row">
                 <div class="info-label">ID de Registro</div>
@@ -63,7 +63,7 @@
                 <div class="actions">
                     <a class="btnx cancel" asp-action="Index">Cancelar</a>
                     <button class="btnx delete" type="submit">
-                        <i class="bi bi-trash"></i> Eliminar Definitivamente
+                        <i class="bi bi-trash"></i> Desactivar Definitivamente
                     </button>
                 </div>
             </form>

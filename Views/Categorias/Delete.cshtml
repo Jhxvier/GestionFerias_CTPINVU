@@ -1,7 +1,7 @@
-@model GestionFerias_CTPINVU.Models.Categoria
+﻿@model GestionFerias_CTPINVU.Models.Categoria
 
 @{
-    ViewData["Title"] = "Eliminar categoría";
+    ViewData["Title"] = "Desactivar categoría";
 }
 
 <style>
@@ -28,7 +28,7 @@
         </div>
 
         <div class="card-delete-body">
-            <p class="mb-3">¿Está seguro de que desea eliminar la siguiente categoría? Se eliminarán también sus subcategorías asociadas.</p>
+            <p class="mb-3">¿Está seguro de que desea desactivar la siguiente categoría? Se desactivarán también sus subcategorías asociadas.</p>
 
             <div class="info-row">
                 <div class="info-label">Nombre</div>
@@ -50,7 +50,7 @@
                 <div class="actions">
                     <a class="btnx cancel" asp-action="Index">Cancelar</a>
                     <button class="btnx delete" type="submit">
-                        <i class="bi bi-trash"></i> Eliminar
+                        <i class="bi bi-trash"></i> Desactivar
                     </button>
                 </div>
             </form>

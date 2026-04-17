@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -135,15 +135,15 @@ namespace GestionFerias_CTPINVU.Controllers
                 .FirstOrDefaultAsync(t => t.TutorId == id);
             if (tutore != null)
             {
-                // En lugar de eliminar el usuario, se marca como inactivo para mantener la integridad referencial
+                // Borrado lógico: marcar el usuario como inactivo, sin eliminar el registro de tutor
                 if (tutore.Tutor != null)
                 {
                     tutore.Tutor.Estado = "Inactivo";
+                    _context.Usuarios.Update(tutore.Tutor);
                 }
-                _context.Tutores.Remove(tutore);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 

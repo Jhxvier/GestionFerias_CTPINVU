@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -31,7 +31,7 @@ namespace GestionFerias_CTPINVU.Controllers
         {
             if (!EsAdminOCoord()) return StatusCode(403);
 
-            var eventos = await _context.Eventos.Include(e => e.Centro).ToListAsync();
+            var eventos = await _context.Eventos.Include(e => e.Centro).Where(e => e.EsActivo).ToListAsync();
             
             var today = DateOnly.FromDateTime(DateTime.Now);
             bool updated = false;
@@ -65,7 +65,7 @@ namespace GestionFerias_CTPINVU.Controllers
         {
             if (!EsAdminOCoord()) return StatusCode(403);
 
-            ViewData["CentroId"] = new SelectList(_context.CentrosEducativos, "CentroId", "NombreCentro");
+            ViewData["CentroId"] = new SelectList(_context.CentrosEducativos.Where(x => x.EsActivo), "CentroId", "NombreCentro");
             return View();
         }
 
@@ -169,10 +169,11 @@ namespace GestionFerias_CTPINVU.Controllers
             var evento = await _context.Eventos.FindAsync(id);
             if (evento != null)
             {
-                _context.Eventos.Remove(evento);
+                evento.EsActivo = false;
+                _context.Eventos.Update(evento);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 

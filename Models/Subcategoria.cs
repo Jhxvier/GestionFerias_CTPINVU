@@ -19,6 +19,8 @@ public partial class Subcategoria
 
     public DateTime? FechaModificacion { get; set; }
 
+    public bool EsActivo { get; set; } = true;
+
     public virtual Categoria Categoria { get; set; } = null!;
 
     public virtual ICollection<Inscripcione> Inscripciones { get; set; } = new List<Inscripcione>();

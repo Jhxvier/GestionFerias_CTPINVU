@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +19,7 @@ namespace GestionFerias_CTPINVU.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var categorias = await _context.Categorias
+            var categorias = await _context.Categorias.Where(x => x.EsActivo)
                 .Include(c => c.Subcategoria)
                 .ToListAsync();
             return View(categorias);
@@ -114,9 +114,11 @@ namespace GestionFerias_CTPINVU.Controllers
             var categoria = await _context.Categorias.FindAsync(id);
             if (categoria != null)
             {
-                _context.Categorias.Remove(categoria);
+                categoria.EsActivo = false;
+                _context.Categorias.Update(categoria);
+                await _context.SaveChangesAsync();
             }
-            await _context.SaveChangesAsync();
+
             return RedirectToAction(nameof(Index));
         }
     }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -135,15 +135,15 @@ namespace GestionFerias_CTPINVU.Controllers
                 .FirstOrDefaultAsync(j => j.JuezId == id);
             if (juece != null)
             {
-                //cambiar estado del usuario a inactivo antes de eliminar el juez
+                // Borrado lógico: marcar el usuario como inactivo, sin eliminar el registro de juez
                 if (juece.Juez != null)
                 {
                     juece.Juez.Estado = "Inactivo";
+                    _context.Usuarios.Update(juece.Juez);
                 }
-                _context.Jueces.Remove(juece);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 

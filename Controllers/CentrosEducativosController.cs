@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +19,7 @@ namespace GestionFerias_CTPINVU.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var centros = await _context.CentrosEducativos.ToListAsync();
+            var centros = await _context.CentrosEducativos.Where(x => x.EsActivo).ToListAsync();
             return View(centros);
         }
 
@@ -112,9 +112,11 @@ namespace GestionFerias_CTPINVU.Controllers
             var centro = await _context.CentrosEducativos.FindAsync(id);
             if (centro != null)
             {
-                _context.CentrosEducativos.Remove(centro);
+                centro.EsActivo = false;
+                _context.CentrosEducativos.Update(centro);
+                await _context.SaveChangesAsync();
             }
-            await _context.SaveChangesAsync();
+
             return RedirectToAction(nameof(Index));
         }
 

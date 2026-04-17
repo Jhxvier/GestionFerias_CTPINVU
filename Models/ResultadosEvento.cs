@@ -25,6 +25,8 @@ public partial class ResultadosEvento
 
     public DateTime? FechaModificacion { get; set; }
 
+    public bool EsActivo { get; set; } = true;
+
     public virtual Evento Evento { get; set; } = null!;
 
     public virtual Juece? JuezResponsableUsuario { get; set; }

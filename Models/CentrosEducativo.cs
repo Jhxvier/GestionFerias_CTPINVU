@@ -25,6 +25,8 @@ public partial class CentrosEducativo
 
     public DateTime? FechaModificacion { get; set; }
 
+    public bool EsActivo { get; set; } = true;
+
     public virtual ICollection<CentroTelefono> CentroTelefonos { get; set; } = new List<CentroTelefono>();
 
     public virtual ICollection<Evento> Eventos { get; set; } = new List<Evento>();

@@ -86,6 +86,7 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("tipo_feria");
             entity.Property(e => e.UsuarioCreacion).HasColumnName("usuario_creacion");
             entity.Property(e => e.UsuarioModificacion).HasColumnName("usuario_modificacion");
+            entity.Property(e => e.EsActivo).HasColumnName("es_activo").HasDefaultValue(true);
         });
 
         modelBuilder.Entity<CentroTelefono>(entity =>
@@ -147,6 +148,7 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("nombre_director");
             entity.Property(e => e.UsuarioCreacion).HasColumnName("usuario_creacion");
             entity.Property(e => e.UsuarioModificacion).HasColumnName("usuario_modificacion");
+            entity.Property(e => e.EsActivo).HasColumnName("es_activo").HasDefaultValue(true);
         });
 
         modelBuilder.Entity<Estudiante>(entity =>
@@ -225,6 +227,7 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("tipo_feria");
             entity.Property(e => e.UsuarioCreacion).HasColumnName("usuario_creacion");
             entity.Property(e => e.UsuarioModificacion).HasColumnName("usuario_modificacion");
+            entity.Property(e => e.EsActivo).HasColumnName("es_activo").HasDefaultValue(true);
 
             entity.HasOne(d => d.Centro).WithMany(p => p.Eventos)
                 .HasForeignKey(d => d.CentroId)
@@ -309,6 +312,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.TutorUsuarioId).HasColumnName("tutor_usuario_id");
             entity.Property(e => e.UsuarioCreacion).HasColumnName("usuario_creacion");
             entity.Property(e => e.UsuarioModificacion).HasColumnName("usuario_modificacion");
+            entity.Property(e => e.EsActivo).HasColumnName("es_activo").HasDefaultValue(true);
 
             entity.HasOne(d => d.Evento).WithMany(p => p.Inscripciones)
                 .HasForeignKey(d => d.EventoId)
@@ -430,6 +434,7 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("resolucion_final");
             entity.Property(e => e.UsuarioCreacion).HasColumnName("usuario_creacion");
             entity.Property(e => e.UsuarioModificacion).HasColumnName("usuario_modificacion");
+            entity.Property(e => e.EsActivo).HasColumnName("es_activo").HasDefaultValue(true);
 
             entity.HasOne(d => d.Evento).WithOne(p => p.ResultadosEvento)
                 .HasForeignKey<ResultadosEvento>(d => d.EventoId)
@@ -531,6 +536,7 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("nombre");
             entity.Property(e => e.UsuarioCreacion).HasColumnName("usuario_creacion");
             entity.Property(e => e.UsuarioModificacion).HasColumnName("usuario_modificacion");
+            entity.Property(e => e.EsActivo).HasColumnName("es_activo").HasDefaultValue(true);
 
             entity.HasOne(d => d.Categoria).WithMany(p => p.Subcategoria)
                 .HasForeignKey(d => d.CategoriaId)

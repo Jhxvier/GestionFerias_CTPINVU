@@ -31,6 +31,8 @@ public partial class Inscripcione
 
     public DateTime? FechaModificacion { get; set; }
 
+    public bool EsActivo { get; set; } = true;
+
     public virtual Evento Evento { get; set; } = null!;
 
     public virtual ICollection<InscripcionIntegrante> InscripcionIntegrantes { get; set; } = new List<InscripcionIntegrante>();

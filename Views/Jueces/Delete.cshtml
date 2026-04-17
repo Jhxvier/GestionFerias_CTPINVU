@@ -1,7 +1,7 @@
-@model GestionFerias_CTPINVU.Models.Juece
+﻿@model GestionFerias_CTPINVU.Models.Juece
 
 @{
-    ViewData["Title"] = "Eliminar juez";
+    ViewData["Title"] = "Desactivar juez";
     var nombre = Model.Juez?.Persona != null
         ? $"{Model.Juez.Persona.Nombres} {Model.Juez.Persona.Apellidos}"
         : "—";
@@ -36,7 +36,7 @@
         border-radius: 22px;
     }
 
-    .tarjeta-eliminar {
+    .tarjeta-desactivar {
         background: var(--card);
         border-radius: 24px;
         box-shadow: 0 6px 20px rgba(0,0,0,.06);
@@ -46,19 +46,19 @@
         overflow: hidden;
     }
 
-    .tarjeta-eliminar .encabezado {
+    .tarjeta-desactivar .encabezado {
         background: var(--rojo);
         color: #fff;
         padding: 20px 24px;
         text-align: center;
     }
 
-    .tarjeta-eliminar .encabezado h4 {
+    .tarjeta-desactivar .encabezado h4 {
         margin: 0;
         font-size: 18px;
     }
 
-    .tarjeta-eliminar .cuerpo {
+    .tarjeta-desactivar .cuerpo {
         padding: 24px;
     }
 
@@ -81,7 +81,7 @@
         color: var(--text);
     }
 
-    .btn-eliminar-confirm {
+    .btn-desactivar-confirm {
         background: var(--rojo);
         border: 1px solid #000;
         border-radius: 16px;
@@ -105,13 +105,13 @@
     <div class="contenido-ui">
 
         <div class="mb-4">
-            <h2 class="mb-1" style="color:var(--text);">Eliminar juez</h2>
-            <p class="mb-0 text-secondary">Confirme que desea eliminar este juez del sistema.</p>
+            <h2 class="mb-1" style="color:var(--text);">Desactivar juez</h2>
+            <p class="mb-0 text-secondary">Confirme que desea desactivar este juez del sistema.</p>
         </div>
 
-        <div class="tarjeta-eliminar">
+        <div class="tarjeta-desactivar">
             <div class="encabezado">
-                <h4>⚠ ¿Está seguro de que desea eliminar este juez?</h4>
+                <h4>⚠ ¿Está seguro de que desea desactivar este juez?</h4>
             </div>
             <div class="cuerpo">
                 <div class="detalle-fila">
@@ -134,7 +134,7 @@
                 <div class="d-flex gap-3 justify-content-center mt-4">
                     <form asp-action="Delete">
                         <input type="hidden" asp-for="JuezId" />
-                        <button type="submit" class="btn-eliminar-confirm">Eliminar</button>
+                        <button type="submit" class="btn-desactivar-confirm">Desactivar</button>
                     </form>
                     <a asp-action="Index" class="btn-cancelar">Cancelar</a>
                 </div>
