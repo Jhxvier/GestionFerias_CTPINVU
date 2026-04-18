@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -116,12 +116,37 @@ namespace GestionFerias_CTPINVU.Controllers
         {
             if (!EsAdminOCoord()) return StatusCode(403);
 
-            // Validar que no se repitan las inscripciones
-            if (viewModel.Inscripcion1erLugarId == viewModel.Inscripcion2doLugarId ||
-                viewModel.Inscripcion1erLugarId == viewModel.Inscripcion3erLugarId ||
+            // Validar que no se repitan las inscripciones (solo comparar los que tienen valor)
+            if (viewModel.Inscripcion2doLugarId.HasValue &&
+                viewModel.Inscripcion1erLugarId == viewModel.Inscripcion2doLugarId)
+            {
+                ModelState.AddModelError("", "El 2do lugar no puede ser el mismo proyecto que el 1er lugar.");
+            }
+            if (viewModel.Inscripcion3erLugarId.HasValue &&
+                viewModel.Inscripcion1erLugarId == viewModel.Inscripcion3erLugarId)
+            {
+                ModelState.AddModelError("", "El 3er lugar no puede ser el mismo proyecto que el 1er lugar.");
+            }
+            if (viewModel.Inscripcion2doLugarId.HasValue && viewModel.Inscripcion3erLugarId.HasValue &&
                 viewModel.Inscripcion2doLugarId == viewModel.Inscripcion3erLugarId)
             {
-                ModelState.AddModelError("", "No se puede asignar el mismo proyecto a múltipes lugares.");
+                ModelState.AddModelError("", "El 2do y 3er lugar no pueden ser el mismo proyecto.");
+            }
+
+            // Si seleccionó inscripción para 2do lugar, la nota es obligatoria
+            if (viewModel.Inscripcion2doLugarId.HasValue && !viewModel.Nota2doLugar.HasValue)
+            {
+                ModelState.AddModelError("Nota2doLugar", "Debe ingresar una nota para el 2do lugar.");
+            }
+            // Si seleccionó inscripción para 3er lugar, la nota es obligatoria
+            if (viewModel.Inscripcion3erLugarId.HasValue && !viewModel.Nota3erLugar.HasValue)
+            {
+                ModelState.AddModelError("Nota3erLugar", "Debe ingresar una nota para el 3er lugar.");
+            }
+            // No puede haber 3er lugar sin 2do lugar
+            if (viewModel.Inscripcion3erLugarId.HasValue && !viewModel.Inscripcion2doLugarId.HasValue)
+            {
+                ModelState.AddModelError("", "No puede registrar un 3er lugar sin haber registrado un 2do lugar.");
             }
 
             if (ModelState.IsValid)
@@ -130,26 +155,33 @@ namespace GestionFerias_CTPINVU.Controllers
                 try
                 {
                     var usuarioId = GetUsuarioId();
+
+                    // Buscar el registro de juez para el usuario actual (puede ser null si es Admin/Coordinador)
+                    var juezRecord = await _context.Jueces.FirstOrDefaultAsync(j => j.JuezId == usuarioId);
+
                     var nuevoResultado = new ResultadosEvento
                     {
                         EventoId = viewModel.EventoId,
-                        EstadoResultados = "Publicado", // Se publica directamente al crear en la nueva vista
+                        EstadoResultados = "Publicado",
                         ResolucionFinal = viewModel.ResolucionFinal,
-                        JuezResponsableUsuarioId = usuarioId,
+                        JuezResponsableUsuarioId = juezRecord?.JuezId, // null si el usuario no es Juez
                         UsuarioCreacion = usuarioId,
                         UsuarioModificacion = usuarioId,
                         FechaPublicacion = DateTime.Now
                     };
 
                     _context.ResultadosEventos.Add(nuevoResultado);
-                    await _context.SaveChangesAsync(); // Para obtener el ID
+                    await _context.SaveChangesAsync();
 
-                    var ganadores = new List<ResultadosGanadore>
-                    {
-                        new ResultadosGanadore { ResultadoEventoId = nuevoResultado.ResultadoEventoId, Posicion = 1, InscripcionId = viewModel.Inscripcion1erLugarId, Nota = viewModel.Nota1erLugar, UsuarioCreacion = usuarioId },
-                        new ResultadosGanadore { ResultadoEventoId = nuevoResultado.ResultadoEventoId, Posicion = 2, InscripcionId = viewModel.Inscripcion2doLugarId, Nota = viewModel.Nota2doLugar, UsuarioCreacion = usuarioId },
-                        new ResultadosGanadore { ResultadoEventoId = nuevoResultado.ResultadoEventoId, Posicion = 3, InscripcionId = viewModel.Inscripcion3erLugarId, Nota = viewModel.Nota3erLugar, UsuarioCreacion = usuarioId }
-                    };
+                    // Solo agregar los lugares que tienen inscripción asignada
+                    var ganadores = new List<ResultadosGanadore>();
+                    ganadores.Add(new ResultadosGanadore { ResultadoEventoId = nuevoResultado.ResultadoEventoId, Posicion = 1, InscripcionId = viewModel.Inscripcion1erLugarId, Nota = viewModel.Nota1erLugar, UsuarioCreacion = usuarioId });
+
+                    if (viewModel.Inscripcion2doLugarId.HasValue)
+                        ganadores.Add(new ResultadosGanadore { ResultadoEventoId = nuevoResultado.ResultadoEventoId, Posicion = 2, InscripcionId = viewModel.Inscripcion2doLugarId.Value, Nota = viewModel.Nota2doLugar!.Value, UsuarioCreacion = usuarioId });
+
+                    if (viewModel.Inscripcion3erLugarId.HasValue)
+                        ganadores.Add(new ResultadosGanadore { ResultadoEventoId = nuevoResultado.ResultadoEventoId, Posicion = 3, InscripcionId = viewModel.Inscripcion3erLugarId.Value, Nota = viewModel.Nota3erLugar!.Value, UsuarioCreacion = usuarioId });
 
                     _context.ResultadosGanadores.AddRange(ganadores);
                     await _context.SaveChangesAsync();
@@ -214,12 +246,31 @@ namespace GestionFerias_CTPINVU.Controllers
         {
             if (id != viewModel.ResultadoEventoId || !EsAdminOCoord()) return NotFound();
 
-            if (viewModel.Inscripcion1erLugarId == viewModel.Inscripcion2doLugarId ||
-                viewModel.Inscripcion1erLugarId == viewModel.Inscripcion3erLugarId ||
+            // Validar duplicados (solo entre los que tienen valor)
+            if (viewModel.Inscripcion2doLugarId.HasValue &&
+                viewModel.Inscripcion1erLugarId == viewModel.Inscripcion2doLugarId)
+            {
+                ModelState.AddModelError("", "El 2do lugar no puede ser el mismo proyecto que el 1er lugar.");
+            }
+            if (viewModel.Inscripcion3erLugarId.HasValue &&
+                viewModel.Inscripcion1erLugarId == viewModel.Inscripcion3erLugarId)
+            {
+                ModelState.AddModelError("", "El 3er lugar no puede ser el mismo proyecto que el 1er lugar.");
+            }
+            if (viewModel.Inscripcion2doLugarId.HasValue && viewModel.Inscripcion3erLugarId.HasValue &&
                 viewModel.Inscripcion2doLugarId == viewModel.Inscripcion3erLugarId)
             {
-                ModelState.AddModelError("", "No se puede asignar el mismo proyecto a múltipes lugares.");
+                ModelState.AddModelError("", "El 2do y 3er lugar no pueden ser el mismo proyecto.");
             }
+
+            if (viewModel.Inscripcion2doLugarId.HasValue && !viewModel.Nota2doLugar.HasValue)
+                ModelState.AddModelError("Nota2doLugar", "Debe ingresar una nota para el 2do lugar.");
+
+            if (viewModel.Inscripcion3erLugarId.HasValue && !viewModel.Nota3erLugar.HasValue)
+                ModelState.AddModelError("Nota3erLugar", "Debe ingresar una nota para el 3er lugar.");
+
+            if (viewModel.Inscripcion3erLugarId.HasValue && !viewModel.Inscripcion2doLugarId.HasValue)
+                ModelState.AddModelError("", "No puede registrar un 3er lugar sin haber registrado un 2do lugar.");
 
             if (ModelState.IsValid)
             {
@@ -236,12 +287,17 @@ namespace GestionFerias_CTPINVU.Controllers
                     resultadoDB.ResolucionFinal = viewModel.ResolucionFinal;
                     resultadoDB.UsuarioModificacion = usuarioId;
 
-                    // Remover ganadores anteriores y asignar nuevos
+                    // Remover ganadores anteriores y reasignar solo los que tienen valor
                     _context.ResultadosGanadores.RemoveRange(resultadoDB.ResultadosGanadores);
-                    
+
+                    resultadoDB.ResultadosGanadores.Clear();
                     resultadoDB.ResultadosGanadores.Add(new ResultadosGanadore { ResultadoEventoId = id, Posicion = 1, InscripcionId = viewModel.Inscripcion1erLugarId, Nota = viewModel.Nota1erLugar, UsuarioCreacion = usuarioId });
-                    resultadoDB.ResultadosGanadores.Add(new ResultadosGanadore { ResultadoEventoId = id, Posicion = 2, InscripcionId = viewModel.Inscripcion2doLugarId, Nota = viewModel.Nota2doLugar, UsuarioCreacion = usuarioId });
-                    resultadoDB.ResultadosGanadores.Add(new ResultadosGanadore { ResultadoEventoId = id, Posicion = 3, InscripcionId = viewModel.Inscripcion3erLugarId, Nota = viewModel.Nota3erLugar, UsuarioCreacion = usuarioId });
+
+                    if (viewModel.Inscripcion2doLugarId.HasValue)
+                        resultadoDB.ResultadosGanadores.Add(new ResultadosGanadore { ResultadoEventoId = id, Posicion = 2, InscripcionId = viewModel.Inscripcion2doLugarId.Value, Nota = viewModel.Nota2doLugar!.Value, UsuarioCreacion = usuarioId });
+
+                    if (viewModel.Inscripcion3erLugarId.HasValue)
+                        resultadoDB.ResultadosGanadores.Add(new ResultadosGanadore { ResultadoEventoId = id, Posicion = 3, InscripcionId = viewModel.Inscripcion3erLugarId.Value, Nota = viewModel.Nota3erLugar!.Value, UsuarioCreacion = usuarioId });
 
                     _context.Update(resultadoDB);
                     await _context.SaveChangesAsync();

@@ -17,6 +17,7 @@ namespace GestionFerias_CTPINVU.Models
         [Display(Name = "Resolución Final")]
         public string? ResolucionFinal { get; set; }
 
+        // --- 1er Lugar (OBLIGATORIO) ---
         [Required(ErrorMessage = "Debe seleccionar una inscripción para el 1er lugar.")]
         public long Inscripcion1erLugarId { get; set; }
 
@@ -24,18 +25,16 @@ namespace GestionFerias_CTPINVU.Models
         [Range(0, 100, ErrorMessage = "La nota debe estar entre 0 y 100.")]
         public decimal Nota1erLugar { get; set; }
 
-        [Required(ErrorMessage = "Debe seleccionar una inscripción para el 2do lugar.")]
-        public long Inscripcion2doLugarId { get; set; }
+        // --- 2do Lugar (OPCIONAL) ---
+        public long? Inscripcion2doLugarId { get; set; }
 
-        [Required(ErrorMessage = "Debe ingresar una nota para el 2do lugar.")]
         [Range(0, 100, ErrorMessage = "La nota debe estar entre 0 y 100.")]
-        public decimal Nota2doLugar { get; set; }
+        public decimal? Nota2doLugar { get; set; }
 
-        [Required(ErrorMessage = "Debe seleccionar una inscripción para el 3er lugar.")]
-        public long Inscripcion3erLugarId { get; set; }
+        // --- 3er Lugar (OPCIONAL) ---
+        public long? Inscripcion3erLugarId { get; set; }
 
-        [Required(ErrorMessage = "Debe ingresar una nota para el 3er lugar.")]
         [Range(0, 100, ErrorMessage = "La nota debe estar entre 0 y 100.")]
-        public decimal Nota3erLugar { get; set; }
+        public decimal? Nota3erLugar { get; set; }
     }
 }

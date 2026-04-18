@@ -72,52 +72,52 @@
                     </div>
 
                     <div class="section section-ganadores">
-                        <h3 class="section-title">Ganadores (Top 3)</h3>
+                        <h3 class="section-title">Ganadores — 1er lugar obligatorio, 2do y 3er opcionales</h3>
                         <div class="grid">
-                            <!-- 1er Lugar -->
+                            <!-- 1er Lugar (OBLIGATORIO) -->
                             <div class="field">
-                                <label>Proyecto 1er Lugar</label>
+                                <label>Proyecto 1er Lugar <span style="color:#b00020;">*</span></label>
                                 <select asp-for="Inscripcion1erLugarId" class="proyecto-select" data-selected="@Model.Inscripcion1erLugarId">
                                     <option value="">Cargando...</option>
                                 </select>
                                 <span asp-validation-for="Inscripcion1erLugarId" class="text-danger"></span>
                             </div>
                             <div class="field">
-                                <label>Nota 1er lugar (0 - 100)</label>
-                                <input asp-for="Nota1erLugar" type="number" min="0" max="100" />
+                                <label>Nota 1er lugar (0 - 100) <span style="color:#b00020;">*</span></label>
+                                <input asp-for="Nota1erLugar" type="number" min="0" max="100" step="0.01" />
                                 <span asp-validation-for="Nota1erLugar" class="text-danger"></span>
                             </div>
 
-                            <!-- 2do Lugar -->
+                            <!-- 2do Lugar (OPCIONAL) -->
                             <div class="field">
-                                <label>Proyecto 2do Lugar</label>
-                                <select asp-for="Inscripcion2doLugarId" class="proyecto-select" data-selected="@Model.Inscripcion2doLugarId">
+                                <label>Proyecto 2do Lugar <span style="color:var(--muted);font-size:11px;">(Opcional)</span></label>
+                                <select asp-for="Inscripcion2doLugarId" class="proyecto-select" data-selected="@Model.Inscripcion2doLugarId" id="select2do">
                                     <option value="">Cargando...</option>
                                 </select>
                                 <span asp-validation-for="Inscripcion2doLugarId" class="text-danger"></span>
                             </div>
-                            <div class="field">
+                            <div class="field" id="nota2doWrap">
                                 <label>Nota 2do lugar (0 - 100)</label>
-                                <input asp-for="Nota2doLugar" type="number" min="0" max="100" />
+                                <input asp-for="Nota2doLugar" type="number" min="0" max="100" step="0.01" id="nota2do" />
                                 <span asp-validation-for="Nota2doLugar" class="text-danger"></span>
                             </div>
 
-                            <!-- 3er Lugar -->
-                            <div class="field">
-                                <label>Proyecto 3er Lugar</label>
-                                <select asp-for="Inscripcion3erLugarId" class="proyecto-select" data-selected="@Model.Inscripcion3erLugarId">
+                            <!-- 3er Lugar (OPCIONAL) -->
+                            <div class="field" id="lugar3doWrap">
+                                <label>Proyecto 3er Lugar <span style="color:var(--muted);font-size:11px;">(Opcional)</span></label>
+                                <select asp-for="Inscripcion3erLugarId" class="proyecto-select" data-selected="@Model.Inscripcion3erLugarId" id="select3er">
                                     <option value="">Cargando...</option>
                                 </select>
                                 <span asp-validation-for="Inscripcion3erLugarId" class="text-danger"></span>
                             </div>
-                            <div class="field">
+                            <div class="field" id="nota3erWrap">
                                 <label>Nota 3er lugar (0 - 100)</label>
-                                <input asp-for="Nota3erLugar" type="number" min="0" max="100" />
+                                <input asp-for="Nota3erLugar" type="number" min="0" max="100" step="0.01" id="nota3er" />
                                 <span asp-validation-for="Nota3erLugar" class="text-danger"></span>
                             </div>
                         </div>
                         <div class="nota-ayuda">
-                            No puede seleccionar el mismo proyecto en múltiples lugares (empates deben resolverse mediante notas decimales si es necesario).
+                            <strong>1er lugar obligatorio.</strong> El 2do y 3er lugar son opcionales — solo complete si aplica. No puede haber 3er lugar sin 2do lugar.
                         </div>
                     </div>
 
