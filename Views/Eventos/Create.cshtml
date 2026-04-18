@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Crear evento";
     var listaCentros = ViewBag.CentroId as IEnumerable<SelectListItem>;
+    var hoyStr = DateTime.Now.ToString("yyyy-MM-dd");
 }
 
 <style>
@@ -257,9 +258,10 @@
                             </div>
 
                             <div class="field">
-                                <label>Fecha de finalización</label>
-                                <input asp-for="FechaFin" type="date" />
+                                <label>Fecha de finalización <span style="color:#b00020;">*</span></label>
+                                <input asp-for="FechaFin" type="date" min="@hoyStr" />
                                 <span asp-validation-for="FechaFin" class="text-danger"></span>
+                                <small style="color:var(--muted);font-size:11px;">No puede ser una fecha pasada.</small>
                             </div>
 
                             <div class="field" style="grid-column:1 / -1;">
@@ -271,7 +273,7 @@
                     </div>
 
                     <div class="note">
-                        * Puede validar luego: código único, campos obligatorios y fechas coherentes.
+                        El código del evento se genera automáticamente. La fecha de finalización no puede ser anterior a hoy.
                     </div>
 
                     <div class="actions">

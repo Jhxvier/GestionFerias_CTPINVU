@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -80,9 +80,16 @@ namespace GestionFerias_CTPINVU.Controllers
             ModelState.Remove("EstadoEvento");
             
             evento.EstadoEvento = "En proceso";
+
+            var hoy = DateOnly.FromDateTime(DateTime.Now);
+
             if (evento.FechaInicio > evento.FechaFin)
             {
                 ModelState.AddModelError("FechaFin", "La Fecha de Fin no puede ser anterior a la Fecha de Inicio.");
+            }
+            else if (evento.FechaFin < hoy)
+            {
+                ModelState.AddModelError("FechaFin", "La Fecha de Fin no puede ser una fecha pasada.");
             }
 
             if (ModelState.IsValid)
@@ -157,6 +164,12 @@ namespace GestionFerias_CTPINVU.Controllers
                 .FirstOrDefaultAsync(m => m.EventoId == id);
             if (evento == null) return NotFound();
 
+            // Verificar si tiene inscripciones activas asociadas
+            var tieneInscripciones = await _context.Inscripciones
+                .AnyAsync(i => i.EventoId == id && i.EsActivo);
+
+            ViewData["TieneInscripciones"] = tieneInscripciones;
+
             return View(evento);
         }
 
@@ -165,6 +178,16 @@ namespace GestionFerias_CTPINVU.Controllers
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
             if (!EsAdminOCoord()) return StatusCode(403);
+
+            // Bloquear si el evento tiene inscripciones activas
+            var tieneInscripciones = await _context.Inscripciones
+                .AnyAsync(i => i.EventoId == id && i.EsActivo);
+
+            if (tieneInscripciones)
+            {
+                TempData["ErrorEliminar"] = "No se puede desactivar este evento porque tiene inscripciones registradas. Primero gestione o desactive las inscripciones asociadas.";
+                return RedirectToAction(nameof(Delete), new { id });
+            }
 
             var evento = await _context.Eventos.FindAsync(id);
             if (evento != null)
