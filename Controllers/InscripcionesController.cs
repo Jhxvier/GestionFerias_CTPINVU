@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -143,11 +143,21 @@ namespace GestionFerias_CTPINVU.Controllers
                 ModelState.AddModelError("DescripcionProyecto", "La descripción del proyecto es obligatoria.");
             }
 
-            // Validar que el evento no esté finalizado
+            // Validar que el evento existe y no esté finalizado ni cancelado
             var evento = await _context.Eventos.FindAsync(inscripcion.EventoId);
-            if (evento != null && evento.EstadoEvento == "Finalizado")
+            if (evento == null)
             {
+                ModelState.AddModelError("EventoId", "El evento seleccionado no existe.");
+            }
+            else if (evento.EstadoEvento == "Finalizado")
+            {
+                TempData["ToastError"] = "No es posible inscribirse a este evento porque ya ha finalizado.";
                 ModelState.AddModelError("EventoId", "No se puede inscribir a un evento que ya está finalizado.");
+            }
+            else if (evento.EstadoEvento == "Cancelado")
+            {
+                TempData["ToastError"] = "No es posible inscribirse a este evento porque ha sido cancelado.";
+                ModelState.AddModelError("EventoId", "No se puede inscribir a un evento cancelado.");
             }
 
             // Validar que los integrantes no sean el mismo usuario (el líder)
@@ -162,10 +172,11 @@ namespace GestionFerias_CTPINVU.Controllers
 
             // Validar de no permitir duplicados: El estudiante ya tiene un proyecto en este evento
             bool existeInscripcion = await _context.Inscripciones
-                .AnyAsync(i => i.EventoId == inscripcion.EventoId && i.LiderUsuarioId == usuarioId);
+                .AnyAsync(i => i.EventoId == inscripcion.EventoId && i.LiderUsuarioId == usuarioId && i.EsActivo);
             
             if (existeInscripcion)
             {
+                TempData["ToastAviso"] = "Ya estás inscrito en este evento. No es posible realizar una segunda inscripción.";
                 ModelState.AddModelError("", "Usted ya tiene un proyecto inscrito en este evento.");
             }
 
@@ -203,11 +214,13 @@ namespace GestionFerias_CTPINVU.Controllers
                     await _context.SaveChangesAsync();
 
                     await transaction.CommitAsync();
+                    TempData["ToastExito"] = "Tu inscripción ha sido registrada exitosamente. Estado: Pendiente de aprobación.";
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception)
                 {
                     await transaction.RollbackAsync();
+                    TempData["ToastError"] = "Ocurrió un error al guardar la inscripción. Por favor inténtelo nuevamente.";
                     ModelState.AddModelError("", "Ocurrió un error al guardar la inscripción. Inténtelo nuevamente.");
                 }
             }
@@ -285,6 +298,14 @@ namespace GestionFerias_CTPINVU.Controllers
 
                     _context.Update(inscripcion);
                     await _context.SaveChangesAsync();
+
+                    // Mensajes diferenciados por el estado asignado
+                    if (inscripcion.EstadoInscripcion == "Aprobado")
+                        TempData["ToastExito"] = "La inscripción ha sido aprobada exitosamente.";
+                    else if (inscripcion.EstadoInscripcion == "Rechazado")
+                        TempData["ToastAviso"] = "La inscripción ha sido rechazada.";
+                    else
+                        TempData["ToastExito"] = "La inscripción ha sido actualizada correctamente.";
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -331,6 +352,7 @@ namespace GestionFerias_CTPINVU.Controllers
                 inscripcion.EsActivo = false;
                 _context.Inscripciones.Update(inscripcion);
                 await _context.SaveChangesAsync();
+                TempData["ToastExito"] = "La inscripción ha sido desactivada exitosamente.";
             }
 
             return RedirectToAction(nameof(Index));
