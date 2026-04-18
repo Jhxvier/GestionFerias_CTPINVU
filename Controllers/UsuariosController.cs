@@ -158,10 +158,6 @@ namespace GestionFerias_CTPINVU.Controllers
             {
                 ModelState.Remove("Clave");
             }
-            if (model.Modo == "create")
-            {
-                ModelState.Remove("Documento");
-            }
 
             if (model.RolSeleccionado == "estudiante" && model.Grado == null)
             {
@@ -176,6 +172,26 @@ namespace GestionFerias_CTPINVU.Controllers
             {
                 var errores = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
                 ViewData["ErroresModelState"] = string.Join(" | ", errores);
+                ViewData["EsAdmin"] = EsAdmin();
+                return View("Perfil", model);
+            }
+
+            // Explicita validación de duplicados (Documento)
+            bool docExiste = await _context.Personas.AnyAsync(p => p.Documento == model.Documento && 
+                (model.Modo == "create" || p.PersonaId != model.PersonaId));
+            if (docExiste)
+            {
+                ViewData["ErroresModelState"] = "El número de documento ingresado ya se encuentra registrado en el sistema.";
+                ViewData["EsAdmin"] = EsAdmin();
+                return View("Perfil", model);
+            }
+
+            // Explicita validación de duplicados (Correo)
+            bool correoExiste = await _context.Usuarios.AnyAsync(u => u.Correo == model.Correo && 
+                (model.Modo == "create" || u.UsuarioId != model.UsuarioId));
+            if (correoExiste)
+            {
+                ViewData["ErroresModelState"] = "El correo electrónico ingresado ya se encuentra en uso por otra persona.";
                 ViewData["EsAdmin"] = EsAdmin();
                 return View("Perfil", model);
             }
@@ -236,20 +252,10 @@ namespace GestionFerias_CTPINVU.Controllers
                 }
                 else
                 {
-                    string rolLowerNew = model.RolSeleccionado?.ToLower() ?? "";
-                    string prefix = "USR";
-                    if (rolLowerNew == "estudiante") prefix = "EST";
-                    else if (rolLowerNew == "tutor") prefix = "TUT";
-                    else if (rolLowerNew == "juez") prefix = "JUE";
-                    else if (rolLowerNew == "coord") prefix = "COR";
-
-                    var maxId = await _context.Personas.MaxAsync(p => (long?)p.PersonaId) ?? 0;
-                    string generatedDoc = $"{prefix}-{(maxId + 1):D4}";
-
                     //crear nuevo Usuario y Persona
                     per = new Persona
                     {
-                        Documento = generatedDoc,
+                        Documento = model.Documento,
                         Nombres = model.Nombres,
                         Apellidos = model.Apellidos,
                         Telefono = model.Telefono,

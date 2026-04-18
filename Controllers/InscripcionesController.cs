@@ -236,7 +236,13 @@ namespace GestionFerias_CTPINVU.Controllers
             var lider = _context.Usuarios.Include(u => u.Persona).FirstOrDefault(u => u.UsuarioId == uid);
             ViewData["LiderNombre"] = lider?.Persona != null ? $"{lider.Persona.Nombres} {lider.Persona.Apellidos}" : "Usuario actual";
             ViewData["EventoId"] = new SelectList(_context.Eventos.Where(e => e.EsActivo), "EventoId", "NombreEvento", inscripcion.EventoId);
-            ViewData["CategoriaId"] = new SelectList(_context.Categorias.Where(c => c.EsActivo), "CategoriaId", "Nombre");
+            int? catId = null;
+            if (inscripcion.SubcategoriaId > 0)
+            {
+                var subc = _context.Subcategorias.FirstOrDefault(s => s.SubcategoriaId == inscripcion.SubcategoriaId);
+                if (subc != null) catId = subc.CategoriaId;
+            }
+            ViewData["CategoriaId"] = new SelectList(_context.Categorias.Where(c => c.EsActivo), "CategoriaId", "Nombre", catId);
             ViewData["SubcategoriaId"] = new SelectList(_context.Subcategorias.Where(s => s.EsActivo), "SubcategoriaId", "Nombre", inscripcion.SubcategoriaId);
             CargarTutores();
             return View(inscripcion);

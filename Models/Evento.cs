@@ -19,7 +19,8 @@ public partial class Evento
     [Required(ErrorMessage = "Debe de especificar el Tipo de Feria")]
     public string TipoFeria { get; set; } = null!;
 
-    public string? Descripcion { get; set; }
+    [Required(ErrorMessage = "Debe de ingresar una descripción para el evento")]
+    public string Descripcion { get; set; } = null!;
 
     [Required(ErrorMessage = "Debe de seleccionar la Fecha de Inicio")]
     public DateOnly FechaInicio { get; set; }

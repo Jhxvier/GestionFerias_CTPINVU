@@ -82,15 +82,8 @@
                         <div class="grid">
                             <div class="field">
                                 <label>Categoría <span class="req">*</span></label>
-                                <select id="categoriaSelect" required>
+                                <select id="categoriaSelect" asp-items="listaCategorias">
                                     <option value="">Seleccione</option>
-                                    @if (listaCategorias != null)
-                                    {
-                                        @foreach (var c in listaCategorias)
-                                        {
-                                            <option value="@c.Value">@c.Text</option>
-                                        }
-                                    }
                                 </select>
                                 <span id="errCategoria" class="text-danger" style="display:none;">Seleccione una categoría.</span>
                             </div>

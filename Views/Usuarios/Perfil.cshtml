@@ -238,15 +238,7 @@
                     <div class="row g-3">
                         <div class="col-12 col-lg-6">
                             <label class="form-label small text-muted">ID / Documento *</label>
-                            @if (Model.Modo == "create")
-                            {
-                                <input class="form-control rounded-pill" type="text" value="Autogenerado por el sistema" disabled />
-                                <input type="hidden" asp-for="Documento" value="AUTOGENERADO" />
-                            }
-                            else
-                            {
-                                <input class="form-control rounded-pill" type="text" asp-for="Documento" readonly />
-                            }
+                            <input class="form-control rounded-pill" type="text" asp-for="Documento" placeholder="Ej: 102340567" required />
                             <span asp-validation-for="Documento" class="text-danger small"></span>
                         </div>
 
