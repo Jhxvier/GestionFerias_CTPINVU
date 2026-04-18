@@ -51,7 +51,7 @@ namespace GestionFerias_CTPINVU.Controllers
             return GetRol().Contains("Juez", StringComparison.OrdinalIgnoreCase);
         }
 
-        public async Task<IActionResult> Index()
+         public async Task<IActionResult> Index()
         {
             var usuarioId = GetUsuarioId();
             var esAdminOCoord = EsAdminOCoord();
@@ -64,16 +64,21 @@ namespace GestionFerias_CTPINVU.Controllers
                 .Include(i => i.TutorUsuario).ThenInclude(t => t.Tutor).ThenInclude(u => u.Persona)
                 .Include(i => i.InscripcionIntegrantes).ThenInclude(ii => ii.EstudianteUsuario).ThenInclude(e => e.EstudianteNavigation).ThenInclude(u => u.Persona);
 
-            // Admin, Coord y Juez ven TODAS las inscripciones. Estudiantes y Tutores solo ven las suyas.
+            // Admin y Coordinador ven TODAS las inscripciones.
+            // Juez ve todas (para la evaluación).
+            // Tutor: solo las inscripciones donde está asignado como tutor.
+            // Estudiante: solo donde es líder o integrante.
             if (!esAdminOCoord && !EsJuez())
             {
                 if (EsTutor())
                 {
+                    // El TutorUsuarioId en inscripciones referencia tutores.tutor_id
+                    // que es el mismo que usuarios.usuario_id (relacion 1:1)
                     query = query.Where(i => i.TutorUsuarioId == usuarioId);
                 }
                 else
                 {
-                    // Comportamiento para estudiantes: lider + integrantes
+                    // Estudiantes: aparecen como líder o como integrante
                     query = query.Where(i => i.LiderUsuarioId == usuarioId
                         || i.InscripcionIntegrantes.Any(ii => ii.EstudianteUsuarioId == usuarioId));
                 }
@@ -84,6 +89,7 @@ namespace GestionFerias_CTPINVU.Controllers
             ViewData["EsAdminOCoord"] = esAdminOCoord;
             ViewData["EsEstudiante"] = EsEstudiante();
             ViewData["EsJuez"] = EsJuez();
+            ViewData["EsTutor"] = EsTutor();
             ViewData["UsuarioId"] = usuarioId;
 
             return View(inscripciones);

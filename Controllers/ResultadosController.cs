@@ -104,8 +104,17 @@ namespace GestionFerias_CTPINVU.Controllers
             var uid = GetUsuarioId();
             var juezActual = _context.Usuarios.Include(u => u.Persona).FirstOrDefault(u => u.UsuarioId == uid);
             ViewData["JuezNombre"] = juezActual?.Persona != null ? $"{juezActual.Persona.Nombres} {juezActual.Persona.Apellidos}" : "Juez Actual";
-            
-            ViewData["EventoId"] = new SelectList(_context.Eventos.Where(e => e.EsActivo), "EventoId", "NombreEvento");
+
+            // Solo mostrar eventos que NO tienen ya un resultado publicado activo
+            var eventosConResultado = _context.ResultadosEventos
+                .Where(r => r.EsActivo)
+                .Select(r => r.EventoId)
+                .Distinct();
+
+            var eventosSinResultado = _context.Eventos
+                .Where(e => e.EsActivo && !eventosConResultado.Contains(e.EventoId));
+
+            ViewData["EventoId"] = new SelectList(eventosSinResultado, "EventoId", "NombreEvento");
             return View(new ResultadoEventoViewModel());
         }
 
@@ -115,6 +124,16 @@ namespace GestionFerias_CTPINVU.Controllers
         public async Task<IActionResult> Create(ResultadoEventoViewModel viewModel)
         {
             if (!EsAdminOCoord()) return StatusCode(403);
+
+            // Verificar que no exista ya un resultado activo para este evento (solo 1 por evento)
+            bool yaExisteResultado = await _context.ResultadosEventos
+                .AnyAsync(r => r.EventoId == viewModel.EventoId && r.EsActivo);
+
+            if (yaExisteResultado)
+            {
+                TempData["ToastError"] = "Ya existe un resultado registrado para este evento. Solo se permite un resultado por evento.";
+                ModelState.AddModelError("EventoId", "Ya existe un resultado publicado para este evento.");
+            }
 
             // Validar que no se repitan las inscripciones (solo comparar los que tienen valor)
             if (viewModel.Inscripcion2doLugarId.HasValue &&
@@ -199,7 +218,11 @@ namespace GestionFerias_CTPINVU.Controllers
             var uid = GetUsuarioId();
             var juezActual = _context.Usuarios.Include(u => u.Persona).FirstOrDefault(u => u.UsuarioId == uid);
             ViewData["JuezNombre"] = juezActual?.Persona != null ? $"{juezActual.Persona.Nombres} {juezActual.Persona.Apellidos}" : "Juez Actual";
-            ViewData["EventoId"] = new SelectList(_context.Eventos.Where(e => e.EsActivo), "EventoId", "NombreEvento", viewModel.EventoId);
+
+            // Mantener el mismo filtro: eventos sin resultado activo
+            var eventosConResultadoR = _context.ResultadosEventos.Where(r => r.EsActivo).Select(r => r.EventoId).Distinct();
+            var eventosSinResultadoR = _context.Eventos.Where(e => e.EsActivo && !eventosConResultadoR.Contains(e.EventoId));
+            ViewData["EventoId"] = new SelectList(eventosSinResultadoR, "EventoId", "NombreEvento", viewModel.EventoId);
             return View(viewModel);
         }
 
