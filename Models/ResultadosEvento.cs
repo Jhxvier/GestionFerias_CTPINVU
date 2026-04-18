@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace GestionFerias_CTPINVU.Models;
@@ -13,7 +13,7 @@ public partial class ResultadosEvento
 
     public long? JuezResponsableUsuarioId { get; set; }
 
-    public string? ResolucionFinal { get; set; }
+    public string ResolucionFinal { get; set; } = null!;
 
     public DateTime? FechaPublicacion { get; set; }
 

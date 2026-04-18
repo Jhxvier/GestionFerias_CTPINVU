@@ -170,9 +170,10 @@ public class AccountController : Controller
         if (requiere != "true")
             return RedirectToAction("Inicio", "Inicio");
 
-        if (string.IsNullOrWhiteSpace(nuevaClave) || nuevaClave.Length < 6)
+        if (string.IsNullOrWhiteSpace(nuevaClave) || 
+            !System.Text.RegularExpressions.Regex.IsMatch(nuevaClave, @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,}$"))
         {
-            TempData["ErrorCambio"] = "La contraseña debe tener al menos 6 caracteres.";
+            TempData["ErrorCambio"] = "La contraseña debe tener mínimo 8 caracteres, mayúsculas, minúsculas, al menos 1 número y 1 carácter especial.";
             return View();
         }
 

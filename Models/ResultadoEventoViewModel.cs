@@ -15,7 +15,8 @@ namespace GestionFerias_CTPINVU.Models
         public long? JuezResponsableUsuarioId { get; set; }
 
         [Display(Name = "Resolución Final")]
-        public string? ResolucionFinal { get; set; }
+        [Required(ErrorMessage = "La resolución final es obligatoria.")]
+        public string ResolucionFinal { get; set; } = null!;
 
         // --- 1er Lugar (OBLIGATORIO) ---
         [Required(ErrorMessage = "Debe seleccionar una inscripción para el 1er lugar.")]

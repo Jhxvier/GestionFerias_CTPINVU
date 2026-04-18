@@ -42,6 +42,7 @@ namespace GestionFerias_CTPINVU.ViewModels
         [EmailAddress(ErrorMessage = "El formato de correo no es válido.")]
         public string Correo { get; set; }
 
+        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,}$", ErrorMessage = "La contraseña debe tener mínimo 8 caracteres, mayúsculas, minúsculas, al menos 1 número y 1 carácter especial.")]
         public string? Clave { get; set; } // solo para creación, no se muestra en edición
 
         public string? EstadoUsuario { get; set; } = "Activo";

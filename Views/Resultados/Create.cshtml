@@ -122,8 +122,9 @@
                     <div class="section">
                         <h3 class="section-title">Resolución final</h3>
                         <div class="field" style="grid-column: 1 / -1;">
-                            <label>Comentarios adicionales o acta de resolución (Opcional)</label>
-                            <textarea asp-for="ResolucionFinal"></textarea>
+                            <label>Comentarios adicionales o acta de resolución <span class="req">*</span></label>
+                            <textarea asp-for="ResolucionFinal" required></textarea>
+                            <span asp-validation-for="ResolucionFinal" class="text-danger"></span>
                         </div>
                     </div>
 

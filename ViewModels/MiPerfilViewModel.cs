@@ -19,6 +19,7 @@ namespace GestionFerias_CTPINVU.ViewModels
 
         // Para cambio de contraseña:
         public string? ClaveActual { get; set; }
+        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,}$", ErrorMessage = "La contraseña debe tener mínimo 8 caracteres, mayúsculas, minúsculas, al menos 1 número y 1 carácter especial.")]
         public string? NuevaClave { get; set; }
         public string? ConfirmarNuevaClave { get; set; }
     }

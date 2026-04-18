@@ -308,7 +308,7 @@
                     <div class="row g-3">
                         <div class="col-12 col-lg-6">
                             <label class="form-label small text-muted">Grado académico</label>
-                            <select class="form-select rounded-pill" asp-for="Grado">
+                            <select class="form-select rounded-pill" asp-for="Grado" data-val="true" data-val-required="El grado académico es obligatorio.">
                                 <option value="">Seleccione</option>
                                 <option value="7">7°</option>
                                 <option value="8">8°</option>
@@ -326,7 +326,7 @@
                     <div class="row g-3">
                         <div class="col-12 col-lg-6">
                             <label class="form-label small text-muted">Especialidad</label>
-                            <select class="form-select rounded-pill" asp-for="Especialidad">
+                            <select class="form-select rounded-pill" asp-for="Especialidad" data-val="true" data-val-required="La especialidad es obligatoria.">
                                 <option value="">Seleccione</option>
                                 <option value="Ciencias">Ciencias</option>
                                 <option value="Tecnología">Tecnología</option>
@@ -392,8 +392,20 @@
             const triggerRolUI = () => {
                 document.body.classList.remove("selected-estudiante", "selected-tutor", "selected-juez", "selected-coord");
                 const v = (rolSelect.value || "").toLowerCase();
-                if(v === "estudiante") document.body.classList.add("selected-estudiante");
-                if(v === "tutor") document.body.classList.add("selected-tutor");
+                
+                const gradoSelect = document.getElementById("Grado");
+                const especialidadSelect = document.getElementById("Especialidad");
+                if (gradoSelect) gradoSelect.removeAttribute("required");
+                if (especialidadSelect) especialidadSelect.removeAttribute("required");
+
+                if(v === "estudiante") {
+                    document.body.classList.add("selected-estudiante");
+                    if (gradoSelect) gradoSelect.setAttribute("required", "required");
+                }
+                if(v === "tutor") {
+                    document.body.classList.add("selected-tutor");
+                    if (especialidadSelect) especialidadSelect.setAttribute("required", "required");
+                }
                 if(v === "juez") document.body.classList.add("selected-juez");
                 if(v === "coord") document.body.classList.add("selected-coord");
             };
