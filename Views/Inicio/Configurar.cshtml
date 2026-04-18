@@ -1,0 +1,143 @@
+@model GestionFerias_CTPINVU.ViewModels.ConfiguracionInicioViewModel
+
+@{
+    ViewData["Title"] = "Configurar Inicio";
+}
+
+<style>
+    :root {
+        --rojo: #BF1D1A;
+        --verde: #6A9A2C;
+        --amarillo: #F2B705;
+        --naranja: #CB6021;
+        --line: #e5e5e5;
+    }
+
+    .card-top {
+        background: var(--rojo);
+        color: #fff;
+        border-top-left-radius: 1rem;
+        border-top-right-radius: 1rem;
+    }
+
+    .section-box {
+        border: 1px solid var(--line);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        background: #fff;
+    }
+
+    .img-preview-container {
+        border: 2px dashed #ccc;
+        border-radius: 8px;
+        padding: 10px;
+        text-align: center;
+        background: #fdfdfd;
+        max-width: 100%;
+        margin-top: 15px;
+    }
+
+    .img-preview-container img {
+        max-width: 100%;
+        max-height: 200px;
+        object-fit: contain;
+    }
+</style>
+
+<div class="container-fluid px-3 px-md-4 mt-4">
+    <div class="mb-3">
+        <h2 class="mb-1">Configuración de Pantalla de Inicio</h2>
+        <p class="text-muted">Ajuste la imagen y el año escolar que se muestra en la pantalla principal.</p>
+    </div>
+
+    <div class="card shadow-sm border-0 mt-3" style="max-width: 700px;">
+        <div class="card-top px-4 py-3">
+            <h5 class="mb-0"><i class="bi bi-gear-fill me-2"></i> Editar Inicio</h5>
+        </div>
+
+        <div class="card-body bg-light p-4">
+            <form asp-action="Configurar" asp-controller="Inicio" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle-fill"></i> Por favor verifique los datos ingresados.
+                        <div asp-validation-summary="All" class="mt-2 mb-0"></div>
+                    </div>
+                }
+
+                <div class="section-box mb-4">
+                    <label asp-for="Anio" class="form-label fw-bold">Año Escolar a Mostrar</label>
+                    <input asp-for="Anio" class="form-control" placeholder="Ej. 2026" required />
+                    <span asp-validation-for="Anio" class="text-danger small"></span>
+                </div>
+
+                <div class="section-box mb-4">
+                    <label asp-for="ImagenNueva" class="form-label fw-bold">Imagen de Pantalla Principal</label>
+                    <input asp-for="ImagenNueva" class="form-control" type="file" accept=".jpg,.jpeg,.png,.webp" id="fileInput" />
+                    <span asp-validation-for="ImagenNueva" class="text-danger small"></span>
+                    <small class="text-muted d-block mt-1">Formatos válidos: Png, Jpg, Webp. Tamaño máximo 5MB. Si se deja en blanco se conservará la imagen actual.</small>
+
+                    <div class="mt-3">
+                        <label class="fw-bold small text-muted">Vista Previa / Imagen Actual:</label>
+                        <div class="img-preview-container">
+                            <img id="imgPreview" src="@Url.Content(Model.ImagenActual)" alt="Preview de la imagen" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a asp-action="Inicio" class="btn btn-outline-secondary rounded-pill px-4">Cancelar</a>
+                    <button type="submit" class="btn text-white rounded-pill px-4" style="background: var(--verde); border-color: var(--verde);">
+                        <i class="bi bi-save me-1"></i> Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        // Preview image exactly before uploading
+        const fileInput = document.getElementById('fileInput');
+        const imgPreview = document.getElementById('imgPreview');
+        const defaultSrc = imgPreview.src;
+
+        fileInput.addEventListener('change', function () {
+            if (this.files && this.files[0]) {
+                const isValidFormat = ['image/jpeg', 'image/png', 'image/webp'].includes(this.files[0].type);
+                if (!isValidFormat) {
+                    alert('Por favor expanda y seleccione un formato de imagen válido (jpg, png, webp)');
+                    this.value = '';
+                    imgPreview.src = defaultSrc;
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    imgPreview.src = e.target.result;
+                }
+                reader.readAsDataURL(this.files[0]);
+            } else {
+                imgPreview.src = defaultSrc;
+            }
+        });
+
+        // Bootstrap validation
+        (function () {
+            'use strict'
+            var forms = document.querySelectorAll('.needs-validation')
+            Array.prototype.slice.call(forms).forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        })();
+    </script>
+}

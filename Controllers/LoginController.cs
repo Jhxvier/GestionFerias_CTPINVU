@@ -47,7 +47,7 @@ public class AccountController : Controller
             // Verificar si el usuario está inactivo
             if (usuario.Estado != "Activo")
             {
-                TempData["ErrorLogin"] = "Su cuenta se encuentra inactiva. Contacte al administrador.";
+                TempData["ErrorLogin"] = "Su cuenta se encuentra inactiva. Contacte al administrador del sistema para reactivarla.";
                 TempData["CorreoLogin"] = correo;
                 return View();
             }

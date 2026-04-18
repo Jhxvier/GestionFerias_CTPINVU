@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Inicio";
 }
 
@@ -113,12 +113,12 @@
 
     <div class="inicio-header mb-4">
         <h2>Inicio</h2>
-        <p>Bienvenido al año escolar 2026</p>
+        <p>Bienvenido al año escolar @ViewData["Anio"]</p>
     </div>
 
     <div class="hero">
         <div class="hero-top">
-            <span><i class="bi bi-megaphone me-1"></i> Bienvenido al año escolar 2026</span>
+            <span><i class="bi bi-megaphone me-1"></i> Bienvenido al año escolar @ViewData["Anio"]</span>
         </div>
 
 
@@ -126,13 +126,13 @@
         <div class="hero-body">
             <div class="text-center">
 
-                <img src="~/images/Inicio.png"
-                     alt="Feria de Ciencias 2026"
+                <img src="@Url.Content((string)ViewData["ImagenPath"]!)"
+                     alt="Feria de Ciencias @ViewData["Anio"]"
                      class="img-fluid mb-3"
                      style="max-height:80%; object-fit:contain;" />
 
                 <!-- Texto -->
-                <h3>Feria de Ciencias 2026</h3>
+                <h3>Feria de Ciencias @ViewData["Anio"]</h3>
 
             </div>
         </div>
@@ -143,7 +143,13 @@
                 Ir a Inscripciones
             </a>
 
-    
+            @if (ViewData["EsAdminOCoord"] as bool? == true)
+            {
+                <a class="btn btn-hero secondary"
+                   asp-controller="Inicio" asp-action="Configurar">
+                    <i class="bi bi-pencil-square"></i> Editar Inicio
+                </a>
+            }
         </div>
     </div>
 
