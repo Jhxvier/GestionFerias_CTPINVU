@@ -53,10 +53,11 @@ public class AccountController : Controller
             }
 
             string rolNombre = "Usuario";
-            if (usuario.Estudiante != null) rolNombre = "Estudiante";
+            if (usuario.UsuarioRoles.Any(ur => ur.RolId == 1)) rolNombre = "Administrador";
+            else if (usuario.Estudiante != null) rolNombre = "Estudiante";
             else if (usuario.Tutore != null) rolNombre = "Tutor";
             else if (usuario.Juece != null) rolNombre = "Juez";
-            else if (usuario.UsuarioRoles.Any()) rolNombre = usuario.UsuarioRoles.First().Rol?.NombreRol ?? "Coordinador Administrador";
+            else rolNombre = "Coordinador"; // Fallback para coordinadores huérfanos sin rol formal en tabla
             
             HttpContext.Session.SetString("Usuario", usuario.Correo);
             HttpContext.Session.SetString("UsuarioId", usuario.UsuarioId.ToString());

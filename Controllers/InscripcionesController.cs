@@ -51,7 +51,7 @@ namespace GestionFerias_CTPINVU.Controllers
             return GetRol().Contains("Juez", StringComparison.OrdinalIgnoreCase);
         }
 
-         public async Task<IActionResult> Index()
+         public async Task<IActionResult> Index(int pagina = 1)
         {
             var usuarioId = GetUsuarioId();
             var esAdminOCoord = EsAdminOCoord();
@@ -62,7 +62,8 @@ namespace GestionFerias_CTPINVU.Controllers
                 .Include(i => i.LiderUsuario).ThenInclude(u => u.Persona)
                 .Include(i => i.Subcategoria).ThenInclude(s => s.Categoria)
                 .Include(i => i.TutorUsuario).ThenInclude(t => t.Tutor).ThenInclude(u => u.Persona)
-                .Include(i => i.InscripcionIntegrantes).ThenInclude(ii => ii.EstudianteUsuario).ThenInclude(e => e.EstudianteNavigation).ThenInclude(u => u.Persona);
+                .Include(i => i.InscripcionIntegrantes).ThenInclude(ii => ii.EstudianteUsuario).ThenInclude(e => e.EstudianteNavigation).ThenInclude(u => u.Persona)
+                .OrderByDescending(i => i.InscripcionId);
 
             // Admin y Coordinador ven TODAS las inscripciones.
             // Juez ve todas (para la evaluación).
@@ -84,15 +85,15 @@ namespace GestionFerias_CTPINVU.Controllers
                 }
             }
 
-            var inscripciones = await query.ToListAsync();
-
             ViewData["EsAdminOCoord"] = esAdminOCoord;
             ViewData["EsEstudiante"] = EsEstudiante();
             ViewData["EsJuez"] = EsJuez();
             ViewData["EsTutor"] = EsTutor();
             ViewData["UsuarioId"] = usuarioId;
 
-            return View(inscripciones);
+            const int pageSize = 20;
+            var resultado = await PaginatedList<Inscripcione>.CreateAsync(query, pagina, pageSize);
+            return View(resultado);
         }
 
         public async Task<IActionResult> Details(long? id)

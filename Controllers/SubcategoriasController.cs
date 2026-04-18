@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -18,12 +18,14 @@ namespace GestionFerias_CTPINVU.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int pagina = 1)
         {
-            var subcategorias = await _context.Subcategorias.Where(x => x.EsActivo)
+            const int pageSize = 20;
+            var query = _context.Subcategorias.Where(x => x.EsActivo)
                 .Include(s => s.Categoria)
-                .ToListAsync();
-            return View(subcategorias);
+                .OrderBy(s => s.Categoria.Nombre).ThenBy(s => s.Nombre);
+            var resultado = await PaginatedList<Subcategoria>.CreateAsync(query, pagina, pageSize);
+            return View(resultado);
         }
 
         public async Task<IActionResult> Details(int? id)

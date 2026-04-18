@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -25,7 +25,7 @@ namespace GestionFerias_CTPINVU.Controllers
                    rol.Contains("Coordinador", StringComparison.OrdinalIgnoreCase);
         }
 
-        public async Task<IActionResult> Index(string? textoBuscar, string? filtroEstado)
+        public async Task<IActionResult> Index(string? textoBuscar, string? filtroEstado, int pagina = 1)
         {
             if (!EsAdminOCoord()) return StatusCode(403);
 
@@ -52,7 +52,9 @@ namespace GestionFerias_CTPINVU.Controllers
             ViewData["CurrentBuscar"] = textoBuscar;
             ViewData["CurrentEstado"] = filtroEstado;
 
-            return View(await query.ToListAsync());
+            const int pageSize = 20;
+            var resultado = await PaginatedList<Juece>.CreateAsync(query, pagina, pageSize);
+            return View(resultado);
         }
 
         // GET: Jueces/Create

@@ -27,7 +27,7 @@ namespace GestionFerias_CTPINVU.Controllers
                    rol.Contains("Coordinador", StringComparison.OrdinalIgnoreCase);
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int pagina = 1)
         {
             if (!EsAdminOCoord()) return StatusCode(403);
 
@@ -45,7 +45,11 @@ namespace GestionFerias_CTPINVU.Controllers
             }
             if (updated) await _context.SaveChangesAsync();
 
-            return View(eventos);
+            const int pageSize = 20;
+            var resultado = PaginatedList<Evento>.CreateFromList(
+                eventos.OrderByDescending(e => e.FechaInicio), pagina, pageSize);
+
+            return View(resultado);
         }
 
         public async Task<IActionResult> Details(long? id)

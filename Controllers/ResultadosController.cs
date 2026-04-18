@@ -38,12 +38,13 @@ namespace GestionFerias_CTPINVU.Controllers
         }
 
         // GET: Resultados
-        public async Task<IActionResult> Index(string? textoBuscar, string? filtroEvento, string? filtroEstado)
+        public async Task<IActionResult> Index(string? textoBuscar, string? filtroEvento, string? filtroEstado, int pagina = 1)
         {
             var query = _context.ResultadosEventos.Where(r => r.EsActivo)
                 .Include(r => r.Evento)
                 .Include(r => r.ResultadosGanadores).ThenInclude(g => g.Inscripcion).ThenInclude(i => i.LiderUsuario).ThenInclude(u => u.Persona)
                 .Include(r => r.JuezResponsableUsuario).ThenInclude(u => u.Juez).ThenInclude(u => u.Persona)
+                .OrderByDescending(r => r.ResultadoEventoId)
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(textoBuscar))
@@ -75,7 +76,9 @@ namespace GestionFerias_CTPINVU.Controllers
             ViewData["CurrentEstado"] = filtroEstado;
             ViewData["EsAdminOCoord"] = EsAdminOCoord();
 
-            return View(await query.ToListAsync());
+            const int pageSize = 20;
+            var resultado = await PaginatedList<ResultadosEvento>.CreateAsync(query, pagina, pageSize);
+            return View(resultado);
         }
 
         // GET: Resultados/Details/5

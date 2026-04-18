@@ -1,4 +1,4 @@
-@model IEnumerable<GestionFerias_CTPINVU.Models.Juece>
+@model GestionFerias_CTPINVU.Models.PaginatedList<GestionFerias_CTPINVU.Models.Juece>
 
 @{
     ViewData["Title"] = "Jueces";
@@ -257,6 +257,16 @@
                         </tbody>
 
                     </table>
+                </div>
+
+                <div class="mt-3">
+                    @{
+                        var rData = new Dictionary<string, string?> {
+                            { "textoBuscar", ViewData["CurrentBuscar"]?.ToString() },
+                            { "filtroEstado", ViewData["CurrentEstado"]?.ToString() }
+                        };
+                    }
+                    @await Html.PartialAsync("_Pagination", Model, new ViewDataDictionary(ViewData) { { "PaginationAction", "Index" }, { "PaginationRouteData", rData } })
                 </div>
             </div>
 

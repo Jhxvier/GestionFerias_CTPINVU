@@ -31,7 +31,7 @@ namespace GestionFerias_CTPINVU.Controllers
             return rol.Contains("Administrador", StringComparison.OrdinalIgnoreCase);
         }
 
-        public async Task<IActionResult> Index(string? textoBuscar, string? filtroEstado)
+        public async Task<IActionResult> Index(string? textoBuscar, string? filtroEstado, int pagina = 1)
         {
             if (!EsAdminOCoord()) return StatusCode(403);
             var query = _context.Usuarios
@@ -67,8 +67,9 @@ namespace GestionFerias_CTPINVU.Controllers
             ViewData["CurrentBuscar"] = textoBuscar;
             ViewData["CurrentEstado"] = filtroEstado;
 
-            var lista = await query.ToListAsync();
-            return View(lista);
+            const int pageSize = 20;
+            var resultado = await PaginatedList<Usuario>.CreateAsync(query, pagina, pageSize);
+            return View(resultado);
         }
 
         [HttpGet]
@@ -126,9 +127,14 @@ namespace GestionFerias_CTPINVU.Controllers
                 {
                     vm.RolSeleccionado = "juez";
                 }
-                else
+                else if (usr.UsuarioRoles.Any(ur => ur.Rol?.NombreRol.Contains("Coord") == true || ur.RolId != 1))
                 {
                     vm.RolSeleccionado = "coord";
+                }
+                else
+                {
+                    // Might be Admin or unassigned
+                    vm.RolSeleccionado = "";
                 }
             }
             
@@ -260,6 +266,20 @@ namespace GestionFerias_CTPINVU.Controllers
                 {
                     _context.Jueces.Add(new Juece { JuezId = usr.UsuarioId });
                 }
+                else if (rolLower == "coord")
+                {
+                    var rolCoord = await _context.Roles.FirstOrDefaultAsync(r => r.NombreRol.Contains("Coord"));
+                    if (rolCoord == null)
+                    {
+                        rolCoord = new Role { NombreRol = "Coordinador", Descripcion = "Coordinador del sistema", FechaCreacion = DateTime.Now };
+                        _context.Roles.Add(rolCoord);
+                        await _context.SaveChangesAsync();
+                    }
+                    if (!await _context.UsuarioRoles.AnyAsync(ur => ur.UsuarioId == usr.UsuarioId && ur.RolId == rolCoord.RolId))
+                    {
+                        _context.UsuarioRoles.Add(new UsuarioRole { UsuarioId = usr.UsuarioId, RolId = rolCoord.RolId, FechaAsignacion = DateTime.Now, FechaCreacion = DateTime.Now });
+                    }
+                }
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
@@ -321,6 +341,9 @@ namespace GestionFerias_CTPINVU.Controllers
 
             var jue = await _context.Jueces.FindAsync(usuarioId);
             if (jue != null) _context.Jueces.Remove(jue);
+
+            var rolesCoord = await _context.UsuarioRoles.Include(ur => ur.Rol).Where(ur => ur.UsuarioId == usuarioId && ur.Rol.NombreRol.Contains("Coord")).ToListAsync();
+            if (rolesCoord.Any()) _context.UsuarioRoles.RemoveRange(rolesCoord);
 
             await _context.SaveChangesAsync();
         }

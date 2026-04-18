@@ -1,4 +1,4 @@
-@model IEnumerable<GestionFerias_CTPINVU.Models.Inscripcione>
+@model GestionFerias_CTPINVU.Models.PaginatedList<GestionFerias_CTPINVU.Models.Inscripcione>
 
 @{
     ViewData["Title"] = "Inscripciones";
@@ -125,10 +125,6 @@
                         </tbody>
                     </table>
                 </div>
-
-                <div class="text-end small text-muted mt-2">
-                    Total: @Model.Count() inscripción(es)
-                </div>
             </div>
         </div>
     }
@@ -186,5 +182,9 @@
             </div>
         }
     }
+
+    <div class="mt-4">
+        @await Html.PartialAsync("_Pagination", Model, new ViewDataDictionary(ViewData) { { "PaginationAction", "Index" } })
+    </div>
 
 </div>

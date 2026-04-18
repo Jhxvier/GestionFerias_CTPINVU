@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -23,7 +23,7 @@ namespace GestionFerias_CTPINVU.Controllers
                    rol.Contains("Coordinador", StringComparison.OrdinalIgnoreCase);
         }
 
-        public async Task<IActionResult> Index(string? textoBuscar, string? filtroGrado)
+        public async Task<IActionResult> Index(string? textoBuscar, string? filtroGrado, int pagina = 1)
         {
             if (!EsAdminOCoord()) return StatusCode(403);
 
@@ -50,7 +50,9 @@ namespace GestionFerias_CTPINVU.Controllers
             ViewData["CurrentBuscar"] = textoBuscar;
             ViewData["CurrentGrado"] = filtroGrado;
 
-            return View(await query.ToListAsync());
+            const int pageSize = 20;
+            var resultado = await PaginatedList<Estudiante>.CreateAsync(query, pagina, pageSize);
+            return View(resultado);
         }
 
         // GET: Estudiantes/Create
