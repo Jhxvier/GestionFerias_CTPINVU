@@ -67,6 +67,8 @@ namespace GestionFerias_CTPINVU.Controllers
             ViewData["CurrentBuscar"] = textoBuscar;
             ViewData["CurrentEstado"] = filtroEstado;
 
+            query = query.OrderByDescending(u => u.UsuarioId);
+
             const int pageSize = 20;
             var resultado = await PaginatedList<Usuario>.CreateAsync(query, pagina, pageSize);
             return View(resultado);
@@ -156,6 +158,19 @@ namespace GestionFerias_CTPINVU.Controllers
             {
                 ModelState.Remove("Clave");
             }
+            if (model.Modo == "create")
+            {
+                ModelState.Remove("Documento");
+            }
+
+            if (model.RolSeleccionado == "estudiante" && model.Grado == null)
+            {
+                ModelState.AddModelError("Grado", "El grado académico es obligatorio para el estudiante.");
+            }
+            if (model.RolSeleccionado == "tutor" && string.IsNullOrWhiteSpace(model.Especialidad))
+            {
+                ModelState.AddModelError("Especialidad", "La especialidad es obligatoria para el tutor.");
+            }
 
             if (!ModelState.IsValid)
             {
@@ -221,10 +236,20 @@ namespace GestionFerias_CTPINVU.Controllers
                 }
                 else
                 {
+                    string rolLowerNew = model.RolSeleccionado?.ToLower() ?? "";
+                    string prefix = "USR";
+                    if (rolLowerNew == "estudiante") prefix = "EST";
+                    else if (rolLowerNew == "tutor") prefix = "TUT";
+                    else if (rolLowerNew == "juez") prefix = "JUE";
+                    else if (rolLowerNew == "coord") prefix = "COR";
+
+                    var maxId = await _context.Personas.MaxAsync(p => (long?)p.PersonaId) ?? 0;
+                    string generatedDoc = $"{prefix}-{(maxId + 1):D4}";
+
                     //crear nuevo Usuario y Persona
                     per = new Persona
                     {
-                        Documento = model.Documento,
+                        Documento = generatedDoc,
                         Nombres = model.Nombres,
                         Apellidos = model.Apellidos,
                         Telefono = model.Telefono,

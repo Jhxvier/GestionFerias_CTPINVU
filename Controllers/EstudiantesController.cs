@@ -51,6 +51,7 @@ namespace GestionFerias_CTPINVU.Controllers
             ViewData["CurrentGrado"] = filtroGrado;
 
             const int pageSize = 20;
+            query = query.OrderByDescending(e => e.EstudianteId);
             var resultado = await PaginatedList<Estudiante>.CreateAsync(query, pagina, pageSize);
             return View(resultado);
         }

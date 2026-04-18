@@ -53,6 +53,7 @@ namespace GestionFerias_CTPINVU.Controllers
             ViewData["CurrentEspecialidad"] = filtroEspecialidad;
 
             const int pageSize = 20;
+            query = query.OrderByDescending(t => t.TutorId);
             var resultado = await PaginatedList<Tutore>.CreateAsync(query, pagina, pageSize);
             return View(resultado);
         }

@@ -53,6 +53,7 @@ namespace GestionFerias_CTPINVU.Controllers
             ViewData["CurrentEstado"] = filtroEstado;
 
             const int pageSize = 20;
+            query = query.OrderByDescending(j => j.JuezId);
             var resultado = await PaginatedList<Juece>.CreateAsync(query, pagina, pageSize);
             return View(resultado);
         }
