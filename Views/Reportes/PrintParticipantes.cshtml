@@ -7,7 +7,7 @@
     <thead>
         <tr>
             <th>Proyecto</th>
-            <th>Líder</th>
+            <th>Participantes</th>
             <th>Categoría</th>
             <th>Subcategoría</th>
         </tr>
@@ -15,9 +15,16 @@
     <tbody>
         @foreach (var p in Model)
         {
+            var liderName = p.LiderUsuario?.Persona != null ? $"{p.LiderUsuario.Persona.Nombres} {p.LiderUsuario.Persona.Apellidos} (Líder)" : "";
+            var integrantes = p.InscripcionIntegrantes
+                                .Where(i => i.EstudianteUsuario?.EstudianteNavigation?.Persona != null)
+                                .Select(i => $"{i.EstudianteUsuario.EstudianteNavigation.Persona.Nombres} {i.EstudianteUsuario.EstudianteNavigation.Persona.Apellidos}")
+                                .ToList();
+            var todosParticipantes = string.Join(", ", new[] { liderName }.Concat(integrantes).Where(n => !string.IsNullOrEmpty(n)));
+
             <tr>
                 <td>@p.TituloProyecto</td>
-                <td>@(p.LiderUsuario?.Persona != null ? $"{p.LiderUsuario.Persona.Nombres} {p.LiderUsuario.Persona.Apellidos}" : "")</td>
+                <td>@todosParticipantes</td>
                 <td>@p.Subcategoria?.Categoria?.Nombre</td>
                 <td>@p.Subcategoria?.Nombre</td>
             </tr>

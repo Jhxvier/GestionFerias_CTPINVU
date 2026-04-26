@@ -385,7 +385,7 @@ namespace GestionFerias_CTPINVU.Controllers
         {
             var inscripciones = await _context.Inscripciones
                 .Include(i => i.LiderUsuario).ThenInclude(u => u.Persona)
-                .Where(i => i.EventoId == eventoId && i.EstadoInscripcion == "Aprobado")
+                .Where(i => i.EventoId == eventoId && i.EstadoInscripcion == "Aprobado" && i.EsActivo)
                 .Select(i => new
                 {
                     id = i.InscripcionId,

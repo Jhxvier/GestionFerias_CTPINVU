@@ -61,6 +61,7 @@ namespace GestionFerias_CTPINVU.Controllers
                 .Include(i => i.Evento)
                 .Include(i => i.Subcategoria).ThenInclude(s => s.Categoria)
                 .Include(i => i.LiderUsuario).ThenInclude(u => u.Persona)
+                .Include(i => i.InscripcionIntegrantes).ThenInclude(integ => integ.EstudianteUsuario).ThenInclude(e => e.EstudianteNavigation).ThenInclude(u => u.Persona)
                 .Where(i => i.EventoId == eventoId && i.EstadoInscripcion == "Aprobado");
         }
 
@@ -95,7 +96,7 @@ namespace GestionFerias_CTPINVU.Controllers
             worksheet.Range("A1:D1").Merge().Style.Font.SetBold().Font.FontSize = 14;
 
             worksheet.Cell(3, 1).Value = "Proyecto";
-            worksheet.Cell(3, 2).Value = "Líder";
+            worksheet.Cell(3, 2).Value = "Participantes";
             worksheet.Cell(3, 3).Value = "Categoría";
             worksheet.Cell(3, 4).Value = "Subcategoría";
             worksheet.Range("A3:D3").Style.Font.SetBold().Fill.SetBackgroundColor(XLColor.LightGray);
@@ -103,8 +104,15 @@ namespace GestionFerias_CTPINVU.Controllers
             int row = 4;
             foreach (var p in participantes)
             {
+                var liderName = p.LiderUsuario?.Persona != null ? $"{p.LiderUsuario.Persona.Nombres} {p.LiderUsuario.Persona.Apellidos} (Líder)" : "";
+                var integrantes = p.InscripcionIntegrantes
+                                    .Where(i => i.EstudianteUsuario?.EstudianteNavigation?.Persona != null)
+                                    .Select(i => $"{i.EstudianteUsuario.EstudianteNavigation.Persona.Nombres} {i.EstudianteUsuario.EstudianteNavigation.Persona.Apellidos}")
+                                    .ToList();
+                var todosParticipantes = string.Join(", ", new[] { liderName }.Concat(integrantes).Where(n => !string.IsNullOrEmpty(n)));
+
                 worksheet.Cell(row, 1).Value = p.TituloProyecto;
-                worksheet.Cell(row, 2).Value = p.LiderUsuario?.Persona != null ? $"{p.LiderUsuario.Persona.Nombres} {p.LiderUsuario.Persona.Apellidos}" : "";
+                worksheet.Cell(row, 2).Value = todosParticipantes;
                 worksheet.Cell(row, 3).Value = p.Subcategoria?.Categoria?.Nombre;
                 worksheet.Cell(row, 4).Value = p.Subcategoria?.Nombre;
                 row++;
