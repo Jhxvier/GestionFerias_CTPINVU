@@ -168,6 +168,11 @@ namespace GestionFerias_CTPINVU.Controllers
                 ModelState.AddModelError("Especialidad", "La especialidad es obligatoria para el tutor.");
             }
 
+            if (model.FechaNacimiento.HasValue && model.FechaNacimiento.Value > DateOnly.FromDateTime(DateTime.Now))
+            {
+                ModelState.AddModelError("FechaNacimiento", "La fecha de nacimiento no puede ser mayor a la fecha actual.");
+            }
+
             if (!ModelState.IsValid)
             {
                 var errores = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
