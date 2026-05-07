@@ -634,8 +634,7 @@ namespace GestionFerias_CTPINVU.Data.Migrations
                     b.HasKey("ResultadoEventoId")
                         .HasName("PRIMARY");
 
-                    b.HasIndex(new[] { "EventoId" }, "evento_id")
-                        .IsUnique();
+                    b.HasIndex(new[] { "EventoId" }, "evento_id");
 
                     b.HasIndex(new[] { "JuezResponsableUsuarioId" }, "fk_res_juez");
 
@@ -1103,8 +1102,8 @@ namespace GestionFerias_CTPINVU.Data.Migrations
             modelBuilder.Entity("GestionFerias_CTPINVU.Models.ResultadosEvento", b =>
                 {
                     b.HasOne("GestionFerias_CTPINVU.Models.Evento", "Evento")
-                        .WithOne("ResultadosEvento")
-                        .HasForeignKey("GestionFerias_CTPINVU.Models.ResultadosEvento", "EventoId")
+                        .WithMany("ResultadosEventos")
+                        .HasForeignKey("EventoId")
                         .IsRequired()
                         .HasConstraintName("fk_res_evento");
 
@@ -1227,7 +1226,7 @@ namespace GestionFerias_CTPINVU.Data.Migrations
                 {
                     b.Navigation("Inscripciones");
 
-                    b.Navigation("ResultadosEvento");
+                    b.Navigation("ResultadosEventos");
                 });
 
             modelBuilder.Entity("GestionFerias_CTPINVU.Models.Inscripcione", b =>

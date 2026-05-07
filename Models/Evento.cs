@@ -45,5 +45,5 @@ public partial class Evento
 
     public virtual ICollection<Inscripcione> Inscripciones { get; set; } = new List<Inscripcione>();
 
-    public virtual ResultadosEvento? ResultadosEvento { get; set; }
+    public virtual ICollection<ResultadosEvento> ResultadosEventos { get; set; } = new List<ResultadosEvento>();
 }

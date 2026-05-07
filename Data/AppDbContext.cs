@@ -405,7 +405,7 @@ public partial class AppDbContext : DbContext
 
             entity.ToTable("resultados_eventos");
 
-            entity.HasIndex(e => e.EventoId, "evento_id").IsUnique();
+            entity.HasIndex(e => e.EventoId, "evento_id");
 
             entity.HasIndex(e => e.JuezResponsableUsuarioId, "fk_res_juez");
 
@@ -436,8 +436,8 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.UsuarioModificacion).HasColumnName("usuario_modificacion");
             entity.Property(e => e.EsActivo).HasColumnName("es_activo").HasDefaultValue(true);
 
-            entity.HasOne(d => d.Evento).WithOne(p => p.ResultadosEvento)
-                .HasForeignKey<ResultadosEvento>(d => d.EventoId)
+            entity.HasOne(d => d.Evento).WithMany(p => p.ResultadosEventos)
+                .HasForeignKey(d => d.EventoId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_res_evento");
 
@@ -673,7 +673,7 @@ public partial class AppDbContext : DbContext
                 .HasConstraintName("fk_uroles_usuario");
         });
 
-        // alimentación inicial de datos para roles y un usuario administrador
+        // alimentaciï¿½n inicial de datos para roles y un usuario administrador
         modelBuilder.Entity<Role>().HasData(
             new Role { RolId = 1, NombreRol = "Administrador", Descripcion = "Administrador del sistema", FechaCreacion = DateTime.Now }
         );
